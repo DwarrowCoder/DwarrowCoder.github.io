@@ -8,25 +8,19 @@
         <script src="jquery-3.7.1.min.js"></script>
     </head>
     <body class="w3-gray">
-        <div class="w3-center w3-padding" style="width:100%">
-            <img src="./images/code1.jpg" class="w3-image">
-        </div>
         <header class="w3-container w3-center">
+            <div class="w3-padding" style="width:100%">
+                <img src="./images/code1.jpg" class="w3-image">
+            </div>
             <h1>DwarrowCoder</h1>
+            <nav id="navbar" class="w3-border w3-card">
+            </nav>
+            <script>
+                $(function(){
+                    $("#navbar").load("nav.html");
+                });
+            </script>
         </header>
-        <nav id="navbar" class="w3-border w3-card">
-            
-            <!--<a href="./gaming.html" class="w3-bar-item w3-border w3-button w3-mobile">Gaming</a>
-            <a href="./" class="w3-bar-item w3-border w3-button w3-mobile">Language</a>
-            <a href="./" class="w3-bar-item w3-border w3-button w3-mobile">Philosophy</a>
-            <a href="./" class="w3-bar-item w3-border w3-button w3-mobile">Software Development</a>
-            <a href="./" class="w3-bar-item w3-border w3-button w3-mobile">Theology</a>-->
-        </nav>
-        <script>
-            $(function(){
-                $("#navbar").load("nav.html");
-            });
-        </script>
         <section class="w3-container">
             <p>Just a collection of thoughts on subjects that interest me.</p>
         </section>
