@@ -1,0 +1,32 @@
+<a href="./main.html" target="mainframe" class="w3-bar-item w3-border w3-button w3-mobile">Home</a>
+<div class="w3-dropdown-click">
+    <button onclick="dropFunction('gaming')" class="w3-border w3-button w3-mobile">Gaming</button>
+    <div id="gaming" class="w3-dropdown-content w3-bar-block w3-border">
+        <div class="w3-dropdown-click">
+            <button onclick="dropFunction('boardgame')" class="w3-border w3-button w3-mobile">Board Games</button>
+            <div id="boardgame" class="w3-dropdown-content w3-bar-block w3-border">
+                <div class="w3-dropdown-click">
+                    <button onclick="dropFunction('top100')" class="w3-border w3-button w3-mobile">Top 100</button>
+                    <div id="top100" class="w3-dropdown-content w3-bar-block w3-border">
+                        <a href="./gaming/top100-2022.html" target="mainframe" class="w3-bar-item w3-border w3-button w3-mobile">2022</a>
+                        <a href="./gaming/top100-2023.html" target="mainframe" class="w3-bar-item w3-border w3-button w3-mobile">2023</a>
+                        <a href="./gaming/top100-2024.html" target="mainframe" class="w3-bar-item w3-border w3-button w3-mobile">2024</a>
+                        <a href="./gaming/top100-2025.html" target="mainframe" class="w3-bar-item w3-border w3-button w3-mobile">2025</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function dropFunction(id) {
+        var x = document.getElementById(id);
+        if (x.className.indexOf("w3-show") == -1) {
+            x.className += " w3-show";
+        } else { 
+            x.className = x.className.replace(" w3-show", "");
+        }
+    }
+</script>
