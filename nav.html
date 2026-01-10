@@ -1,12 +1,12 @@
 <a href="./" class="w3-bar-item w3-border w3-button w3-mobile">Home</a>
 <div class="w3-dropdown-click w3-mobile">
-    <button onclick="dropFunction('gaming')" class="w3-border w3-button w3-mobile">Gaming</button>
+    <button id="gaming-button" onclick="dropFunction('gaming')" class="w3-border w3-button w3-mobile">Gaming +</button>
     <div id="gaming" class="w3-dropdown-content w3-bar-block w3-border">
         <div class="w3-dropdown-click">
-            <button onclick="dropFunction('boardgame')" class="w3-border w3-button w3-mobile">Board Games</button>
+            <button id="boardgame-button" onclick="dropFunction('boardgame')" class="w3-border w3-button w3-mobile">Board Games +</button>
             <div id="boardgame" class="w3-dropdown-content w3-bar-block w3-border">
                 <div class="w3-dropdown-click">
-                    <button onclick="dropFunction('top100')" class="w3-border w3-button w3-mobile">Top 100</button>
+                    <button id="top100-button" onclick="dropFunction('top100')" class="w3-border w3-button w3-mobile">Top 100 +</button>
                     <div id="top100" class="w3-dropdown-content w3-bar-block w3-border">
                         <a href="./top100-2022.html" class="w3-bar-item w3-border w3-button w3-mobile">2022</a>
                         <a href="./top100-2023.html" class="w3-bar-item w3-border w3-button w3-mobile">2023</a>
@@ -17,10 +17,10 @@
             </div>
         </div>
         <div class="w3-dropdown-click">
-            <button onclick="dropFunction('rpg')" class="w3-border w3-button w3-mobile">RPGs</button>
+            <button id="rpg-button" onclick="dropFunction('rpg')" class="w3-border w3-button w3-mobile">RPGs +</button>
             <div id="rpg" class="w3-dropdown-content w3-bar-block w3-border">
                 <div class="w3-dropdown-click">
-                    <button onclick="dropFunction('campaigns')" class="w3-border w3-button w3-mobile">Campaigns</button>
+                    <button id="campaigns-button" onclick="dropFunction('campaigns')" class="w3-border w3-button w3-mobile">Campaigns +</button>
                     <div id="campaigns" class="w3-dropdown-content w3-bar-block w3-border">
                         <!--<a href="#" class="w3-bar-item w3-border w3-button w3-mobile">-Star Wars-</a>-->
                         <a href="./undermountain-campaign.html" class="w3-bar-item w3-border w3-button w3-mobile">A Light in Undermountain</a>
@@ -34,11 +34,14 @@
 
 <script>
     function dropFunction(id) {
-        var x = document.getElementById(id);
+        const x = document.getElementById(id);
+        let y = document.getElementById(id + "-button").innerHTML
         if (x.className.indexOf("w3-show") == -1) {
             x.className += " w3-show";
+            document.getElementById(id + "-button").innerHTML = y.replace("+", "-")
         } else { 
             x.className = x.className.replace(" w3-show", "");
+            document.getElementById(id + "-button").innerHTML = y.replace("-", "+")
         }
     }
 </script>
