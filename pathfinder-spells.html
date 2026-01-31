@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>DwarrowCoder - Pathfinder Spells</title>
+        <link rel="stylesheet" href="https://www.w3schools.com/w3css/5/w3.css">
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <script src="jquery-3.7.1.min.js"></script>
+    </head>
+    <body class="w3-gray">
+        <header id="top" class="w3-container w3-center">
+            <div class="w3-padding" style="width:100%">
+                <img src="./images/code1.jpg" class="w3-image">
+            </div>
+            <h1>Pathfinder Spells</h1>
+            <nav id="navbar" class="w3-bar w3-border w3-card">
+            </nav>
+            <script>
+                $(function(){
+                    $("#navbar").load("nav.html");
+                });
+            </script>
+            <nav id="pathfinder-navbar" class="w3-bar w3-border w3-card">
+            </nav>
+            <script>
+                $(function(){
+                    $("#pathfinder-navbar").load("pathfinder-nav.html");
+                });
+            </script>
+        </header>
+        <section class="w3-container">
+            <h2>Spells</h2>
+            <h3>Spell Wikis</h3>
+            <ul>
+                <li><a href="https://aonprd.com/Spells.aspx">Archives of Nethys Spells</a></li>
+                <li><a href="https://www.d20pfsrd.com/magic/">D20pfsrd Magic</a></li>
+            </ul>
+            <h3>Converted and Homebrew Spells</h3>
+            <ul>
+                <li><a href="#clarity-of-mind">Clarity of Mind</a></li>
+            </ul>
+        </section>
+        <section id="clarity-of-mind" class="w3-container w3-border-top">
+            <h3>Clarity of Mind</h3>
+            <p>
+                <b>School</b> Abjuration; <b>Level</b> <a href="https://www.d20pfsrd.com/magic/spell-lists-and-domains/antipaladin-spell-list">Antipaladin</a> 2,
+                <a href="https://www.d20pfsrd.com/magic/spell-lists-and-domains/spell-lists-paladin">Paladin</a> 2; <b>Domain</b> <a href="./pathfinder-domains.html#balance">Balance</a> 3<br>
+                <b>Casting Time</b> 1 Standard Action<br>
+                <b>Components</b> V, S, DF<br>
+                <b>Range</b> touch<br>
+                <b>Target</b> Living creature touched<br>
+                <b>Duration</b> 1 hour /level<br>
+                <b>Saving Throw</b> Will negates (harmless); <b>Spell Resistance</b> Yes (harmless)<br>
+            </p>
+            <h4>Description</h4>
+            <p>
+                You grant the subject a +4 insight bonus on saving throws against mind-affecting or glamer spells and effects. <i>Clarity of mind</i>
+                also reduces any miss chance from these spells by 10%.
+            </p>
+        </section>
+        <section class="w3-container w3-center">
+            <p><a href="#top">Top</a></p>
+        </section>
+        <footer class="w3-panel w3-border">
+            <p><i>Image by <a href="https://www.pexels.com/@markusspiske/">Markus Spiske</a></i></p>
+        </footer>
+    </body>
+</html>
