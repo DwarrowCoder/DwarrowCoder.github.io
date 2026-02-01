@@ -1,0 +1,20 @@
+<a href="./" class="w3-bar-item w3-border w3-button w3-mobile">Home</a>
+<a href="./forgotten-realms.html" class="w3-bar-item w3-border w3-button w3-mobile">Overview</a>
+<a href="./forgotten-realms-races.html" class="w3-bar-item w3-border w3-button w3-mobile">Races</a>
+<a href="./forgotten-realms-regions.html" class="w3-bar-item w3-border w3-button w3-mobile">Regions</a>
+<a href="./forgotten-realms-deities.html" class="w3-bar-item w3-border w3-button w3-mobile">Deities</a>
+
+
+<script>
+    function dropFunction(id) {
+        const x = document.getElementById(id);
+        let y = document.getElementById(id + "-button").innerHTML
+        if (x.className.indexOf("w3-show") == -1) {
+            x.className += " w3-show";
+            document.getElementById(id + "-button").innerHTML = y.replace("+", "-")
+        } else { 
+            x.className = x.className.replace(" w3-show", "");
+            document.getElementById(id + "-button").innerHTML = y.replace("-", "+")
+        }
+    }
+</script>
