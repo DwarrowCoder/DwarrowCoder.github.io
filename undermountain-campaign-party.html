@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>A Light in Undermountain - The Party</title>
+        <link rel="stylesheet" href="https://www.w3schools.com/w3css/5/w3.css">
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <script src="jquery-3.7.1.min.js"></script>
+    </head>
+    <body class="w3-gray">
+        <header id="top" class="w3-container w3-center">
+            <div class="w3-padding" style="width:100%">
+                <img src="./images/undermountain.jpg" class="w3-image">
+            </div>
+            <h1>The Party</h1>
+            <nav id="navbar" class="w3-bar w3-border w3-card">
+            </nav>
+            <script>
+                $(function(){
+                    $("#navbar").load("undermountain-nav.html");
+                });
+            </script>
+        </header>
+        <section class="w3-container">
+            <div class="w3-padding" style="width:50%">
+                <img src="./images/kyras.jpg" class="w3-image">
+            </div>
+            <h2>Kyras</h2>
+            <p>
+                A half-elf druid from the Dalelands, Kyras is very much a man of two worlds. Pulled between civilization
+                and the wilds, between human and elf, between growth and destruction. After guiding a group of clerics to the city
+                of Waterdeep, he has joined a newly formed party in order to try something new.
+            </p>
+        </section>
+        <footer class="w3-panel w3-border">
+        </footer>
+    </body>
+</html>
