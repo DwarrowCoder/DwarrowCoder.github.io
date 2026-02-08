@@ -51,6 +51,12 @@
                 const imageBounds = [[0, 0], [imgHeight, imgWidth]];
                 L.imageOverlay('./images/waterdeep.jpg', imageBounds).addTo(map);
                 map.fitBounds(imageBounds);
+
+                function onMapClick(e) {
+                    alert("You clicked the map at " + e.latlng);
+                }
+
+                map.on('click', onMapClick);
             </script>
         </section>
     </body>
