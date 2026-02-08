@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pathfinder 1e Combat Tracker + Predefined List</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+      color: #e0e0e0;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      overflow: hidden;
+      user-select: none;
+    }
+    #app { display: flex; height: 100vh; }
+    #sidebar {
+      width: 300px;
+      background: rgba(0,0,0,0.4);
+      padding: 16px;
+      overflow-y: auto;
+      border-right: 1px solid #333;
+    }
+    #main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    #combatants {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+    }
+    #console {
+      height: 140px;
+      background: #000;
+      border-top: 1px solid #333;
+      display: flex;
+      flex-direction: column;
+    }
+    #console-history {
+      flex: 1;
+      padding: 8px;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 12px;
+      background: #111;
+    }
+    #console-input {
+      display: flex;
+      padding: 8px;
+      background: #222;
+    }
+    #console-input input {
+      flex: 1;
+      background: #333;
+      border: none;
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 4px 0 0 4px;
+      font-family: monospace;
+    }
+    #console-input button {
+      background: #ff6b6b;
+      border: none;
+      color: white;
+      padding: 8px 14px;
+      border-radius: 0 4px 4px 0;
+      cursor: pointer;
+    }
+    #console-input button:hover { background: #ee5a24; }
+
+    h2, h3 { margin: 0 0 12px; color: #fff; }
+    .predefined-list {
+      max-height: 320px;
+      overflow-y: auto;
+      padding-right: 6px;
+      margin-bottom: 20px;
+      border: 1px solid #444;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.03);
+    }
+    .predef-item {
+      padding: 10px 12px;
+      border-bottom: 1px solid #333;
+      cursor: pointer;
+      transition: background 0.15s;
+      position: relative;
+    }
+    .predef-item:hover {
+      background: rgba(255,107,107,0.15);
+    }
+    .predef-item:last-child { border-bottom: none; }
+    .predef-name { font-weight: bold; }
+    .predef-cr { font-size: 0.85em; color: #aaa; }
+
+    /* Tooltip for predefined list (same style as combatants) */
+    .tooltip-wrapper { position: relative; }
+    .tooltip-wrapper:hover .tooltip-content {
+      visibility: visible;
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .tooltip-content {
+      visibility: hidden;
+      opacity: 0;
+      position: absolute;
+      z-index: 10;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%) translateY(6px);
+      width: 280px;
+      background: #222;
+      border: 1px solid #555;
+      border-radius: 6px;
+      padding: 10px;
+      font-size: 13px;
+      line-height: 1.4;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.7);
+      pointer-events: none;
+    }
+    .tooltip-content strong { color: #ffcc00; }
+
+    .btn { 
+      background: #4CAF50; 
+      color: white; 
+      border: none; 
+      padding: 10px; 
+      border-radius: 4px; 
+      cursor: pointer; 
+      width: 100%; 
+      margin: 6px 0; 
+      font-weight: bold;
+    }
+    .btn:hover { background: #45a049; }
+    .btn-danger { background: #f44336; }
+    .btn-danger:hover { background: #da190b; }
+
+    .combatant {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid #444;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 12px;
+      cursor: grab;
+      transition: all 0.2s;
+      position: relative;
+    }
+    .combatant:hover { background: rgba(255,255,255,0.1); border-color: #666; }
+    .combatant.current { border-color: #ff6b6b; box-shadow: 0 0 20px rgba(255,107,107,0.5); }
+    .combatant.dragging { opacity: 0.5; transform: rotate(5deg); }
+
+    .combatant-header { display: flex; align-items: center; margin-bottom: 10px; }
+    .portrait { width: 40px; height: 40px; background: #555; border-radius: 50%; margin-right: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+    .name { font-size: 18px; font-weight: bold; flex: 1; }
+    .init { background: #2196F3; color: white; padding: 4px 8px; border-radius: 12px; font-weight: bold; min-width: 30px; text-align: center; }
+
+    .hp-bar { height: 20px; background: #333; border-radius: 10px; overflow: hidden; margin: 10px 0; position: relative; }
+    .hp-fill { height: 100%; background: linear-gradient(90deg, #4CAF50 0%, #FF9800 50%, #f44336 100%); transition: width 0.3s; }
+    .temp-hp { position: absolute; top: 0; right: 0; height: 100%; background: rgba(33,150,243,0.8); border-radius: 0 10px 10px 0; }
+    .nonlethal { position: absolute; bottom: 0; left: 0; height: 50%; background: rgba(255,193,7,0.6); border-radius: 10px 10px 0 0; }
+
+    .hp-text { font-size: 14px; margin-bottom: 5px; }
+    .resources { font-size: 12px; margin: 8px 0; color: #aaa; }
+    .resources span { margin-right: 12px; }
+
+    .conditions { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+    .condition { padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+    .condition.good { background: #4CAF50; color: white; }
+    .condition.bad { background: #f44336; color: white; }
+    .condition.neutral { background: #FF9800; color: white; }
+
+    .turn-indicator { position: absolute; top: -5px; right: -5px; width: 20px; height: 20px; background: #ff6b6b; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; }
+
+    #round-counter { text-align: center; font-size: 24px; font-weight: bold; color: #ff6b6b; margin-bottom: 20px; }
+
+    /* Context Menu */
+    #context-menu {
+      position: absolute;
+      background: #222;
+      border: 1px solid #555;
+      border-radius: 6px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.7);
+      z-index: 1000;
+      min-width: 180px;
+      padding: 6px 0;
+      display: none;
+    }
+    .menu-item {
+      padding: 8px 16px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .menu-item:hover { background: #444; }
+    .menu-item.danger { color: #ff6b6b; }
+    .menu-separator { height: 1px; background: #444; margin: 4px 0; }
+
+    /* Tooltip (kept from previous version) */
+    .tooltip-wrapper { position: relative; }
+    .tooltip-wrapper:hover .tooltip-content {
+      visibility: visible;
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .tooltip-content {
+      visibility: hidden;
+      opacity: 0;
+      position: absolute;
+      z-index: 10;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%) translateY(8px);
+      width: 320px;
+      background: #222;
+      border: 1px solid #555;
+      border-radius: 6px;
+      padding: 12px;
+      font-size: 13px;
+      line-height: 1.4;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+      transition: all 0.2s ease;
+      pointer-events: none;
+    }
+
+    @media (max-width: 768px) {
+      #sidebar { width: 100%; height: auto; }
+      #app { flex-direction: column; }
+      .tooltip-content { width: 280px; left: 0; transform: translateX(0) translateY(8px); }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div id="sidebar">
+      <h2>Predefined Creatures</h2>
+      <div class="predefined-list" id="predef-list"></div>
+
+      <h3>Add Custom</h3>
+      <!-- existing add form ... -->
+      <div class="form-group">
+        <label>Name</label>
+        <input id="name" placeholder="Custom NPC" />
+      </div>
+      <div class="form-group">
+        <label>Max HP</label>
+        <input id="maxhp" type="number" placeholder="20" />
+      </div>
+      <div class="form-group">
+        <label>Initiative mod</label>
+        <input id="initmod" type="number" placeholder="2" value="2" />
+      </div>
+      <button class="btn" onclick="addCustom()">Add to Combat</button>
+
+      <button class="btn btn-danger" style="margin-top:20px;" onclick="resetCombat()">Reset Combat</button>
+    </div>
+
+    <div id="main">
+      <div id="round-counter">Round 1</div>
+      <div id="combatants"></div>
+      <div id="console">
+        <div id="console-history"></div>
+        <div id="console-input">
+          <input id="cmd-input" placeholder="help | damage goblin 6 | next" onkeypress="if(event.key==='Enter') executeCmd()" />
+          <button onclick="executeCmd()">Run</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+ <!-- Context Menu -->
+  <div id="context-menu">
+    <div class="menu-item" onclick="editHP()">Edit HP / Temp / Non-lethal</div>
+    <div class="menu-item" onclick="addCondition()">Add Condition</div>
+    <div class="menu-item" onclick="removeCondition()">Remove Condition</div>
+    <div class="menu-item" onclick="useSpell()">Use Spell Slot</div>
+    <div class="menu-item" onclick="useAbility()">Use Ability</div>
+    <div class="menu-separator"></div>
+    <div class="menu-item" onclick="editNameInit()">Edit Name / Init</div>
+    <div class="menu-item danger" onclick="deleteCombatant()">Delete Combatant</div>
+  </div>
+
+  <script>
+    // ────────────────────────────────────────
+    // Predefined monsters (embedded JSON-like array)
+    // You can expand this list or later fetch from a real .json file
+    // ────────────────────────────────────────
+    var PREDEFINED;
+    fetch('monsters.json')
+    .then(r => r.json())
+    .then(data => {
+      // assume data is array of monsters
+      PREDEFINED = data;
+      populatePredefined();
+    });
+
+    function populatePredefined() {
+      const container = document.getElementById('predef-list');
+      container.innerHTML = '';
+      PREDEFINED.forEach(monster => {
+        const div = document.createElement('div');
+        div.className = 'predef-item tooltip-wrapper';
+        div.innerHTML = `
+          <div class="predef-name">${monster.name}</div>
+          <div class="predef-cr">CR ${monster.cr} • HP ${monster.hp}</div>
+          <div class="tooltip-content">${monster.tooltip.replace(/\n/g, '<br>')}</div>
+        `;
+        div.onclick = () => addPredefined(monster);
+        container.appendChild(div);
+      });
+    }
+
+    function addPredefined(monster) {
+      const initRoll = Math.floor(Math.random() * 20) + 1 + monster.initMod;
+      combatants.push({
+        name: monster.name,
+        type: 'Monster',
+        max: monster.hp,
+        current: monster.hp,
+        temp: 0,
+        nonlethal: 0,
+        init: initRoll,
+        conditions: [],
+        spells: [],
+        abilities: []
+      });
+      combatants.sort((a,b) => b.init - a.init);
+      render();
+      log(`Added ${monster.name} to combat (Initiative ${initRoll})`, '#0f0');
+    }
+
+    function addCustom() {
+      const name = document.getElementById('name').value.trim() || 'Custom';
+      const max = parseInt(document.getElementById('maxhp').value) || 10;
+      const mod = parseInt(document.getElementById('initmod').value) || 0;
+      const init = Math.floor(Math.random() * 20) + 1 + mod;
+
+      combatants.push({
+        name, type: 'NPC',
+        max, current: max, temp: 0, nonlethal: 0,
+        init,
+        conditions: [], spells: [], abilities: []
+      });
+      combatants.sort((a,b) => b.init - a.init);
+      document.getElementById('name').value = '';
+      document.getElementById('maxhp').value = '';
+      render();
+      log(`Added custom ${name} (Init ${init})`, '#88f');
+    }
+
+    let combatants = JSON.parse(localStorage.getItem('pf1e-tracker-v3') || '[]');
+    let currentIndex = 0;
+    let round = 1;
+    let selectedIndex = -1; // for context menu
+
+    const contextMenu = document.getElementById('context-menu');
+
+    // Close menu when clicking elsewhere
+    document.addEventListener('click', (e) => {
+      if (!contextMenu.contains(e.target)) contextMenu.style.display = 'none';
+    });
+
+    function showContextMenu(e, index) {
+      e.preventDefault();
+      selectedIndex = index;
+      contextMenu.style.display = 'block';
+      contextMenu.style.left = `${e.pageX}px`;
+      contextMenu.style.top = `${e.pageY}px`;
+    }
+
+    // ────────────────────────────────────────
+    // Context menu actions
+    // ────────────────────────────────────────
+    function editHP() {
+      const c = combatants[selectedIndex];
+      if (!c) return;
+      const newCurrent = prompt(`Current HP (${c.current}/${c.max})`, c.current);
+      const newTemp   = prompt(`Temporary HP (${c.temp})`, c.temp);
+      const newNL     = prompt(`Non-lethal (${c.nonlethal})`, c.nonlethal);
+      if (newCurrent !== null) c.current   = Math.max(-c.max, parseInt(newCurrent) || c.current);
+      if (newTemp   !== null) c.temp     = Math.max(0, parseInt(newTemp)   || c.temp);
+      if (newNL     !== null) c.nonlethal = Math.max(0, parseInt(newNL)     || c.nonlethal);
+      render();
+      contextMenu.style.display = 'none';
+    }
+
+    function addCondition() {
+      const c = combatants[selectedIndex];
+      if (!c) return;
+      const name = prompt("Condition name (e.g. shaken, prone)");
+      if (!name) return;
+      const durStr = prompt("Duration in rounds (0 = permanent)", "0");
+      const dur = parseInt(durStr) || 0;
+      c.conditions.push({name, duration: dur, type: 'bad'});
+      render();
+      contextMenu.style.display = 'none';
+    }
+
+    function removeCondition() {
+      const c = combatants[selectedIndex];
+      if (!c || !c.conditions.length) return;
+      const list = c.conditions.map((cond,i) => `${i+1}) ${cond.name}${cond.duration>0?' ('+cond.duration+')':''}`).join('\n');
+      const idxStr = prompt(`Remove which condition?\n${list || "(none)"}`, "1");
+      const idx = parseInt(idxStr) - 1;
+      if (idx >= 0 && idx < c.conditions.length) {
+        c.conditions.splice(idx, 1);
+        render();
+      }
+      contextMenu.style.display = 'none';
+    }
+
+    function useSpell() {
+      const c = combatants[selectedIndex];
+      if (!c) return;
+      const level = prompt("Spell level (1-9)", "1");
+      const lvl = parseInt(level);
+      if (isNaN(lvl) || lvl < 1 || lvl > 9) return alert("Invalid level");
+      let spell = c.spells?.find(s => s.level === lvl);
+      if (!spell) {
+        const name = prompt(`No level ${lvl} spell tracked. Enter spell name (or cancel)`);
+        if (!name) return;
+        if (!c.spells) c.spells = [];
+        spell = {name, level: lvl, max: 4, used: 0}; // default 4 slots
+        c.spells.push(spell);
+      }
+      if (spell.used < spell.max) {
+        spell.used++;
+        alert(`Used 1 ${spell.name} slot (${spell.used}/${spell.max})`);
+      } else {
+        alert(`No ${spell.name} slots left!`);
+      }
+      render();
+      contextMenu.style.display = 'none';
+    }
+
+    function useAbility() {
+      const c = combatants[selectedIndex];
+      if (!c) return;
+      if (!c.abilities?.length) {
+        const name = prompt("No abilities tracked. Enter ability name (or cancel)");
+        if (!name) return;
+        if (!c.abilities) c.abilities = [];
+        c.abilities.push({name, usesPerDay: 1, used: 0});
+      }
+      const list = c.abilities.map((a,i) => `${i+1}) ${a.name} (${a.used}/${a.usesPerDay})`).join('\n');
+      const idxStr = prompt(`Use which ability?\n${list || "(none)"}`, "1");
+      const idx = parseInt(idxStr) - 1;
+      if (idx >= 0 && idx < c.abilities.length) {
+        const ab = c.abilities[idx];
+        if (ab.used < ab.usesPerDay) {
+          ab.used++;
+          alert(`Used ${ab.name} (${ab.used}/${ab.usesPerDay})`);
+        } else {
+          alert(`No uses left for ${ab.name}!`);
+        }
+        render();
+      }
+      contextMenu.style.display = 'none';
+    }
+
+    function editNameInit() {
+      const c = combatants[selectedIndex];
+      if (!c) return;
+      const newName = prompt("New name", c.name);
+      if (newName) c.name = newName.trim();
+      const newInit = prompt("New initiative", c.init);
+      if (newInit !== null) {
+        c.init = parseInt(newInit) || c.init;
+        combatants.sort((a,b) => b.init - a.init);
+      }
+      render();
+      contextMenu.style.display = 'none';
+    }
+
+    function deleteCombatant() {
+      if (confirm("Delete this combatant?")) {
+        combatants.splice(selectedIndex, 1);
+        if (currentIndex >= combatants.length) currentIndex = combatants.length - 1;
+        if (currentIndex < 0) currentIndex = 0;
+        render();
+      }
+      contextMenu.style.display = 'none';
+    }
+
+    function save() { localStorage.setItem('pf1e-tracker-v2', JSON.stringify(combatants)); }
+
+    function render() {
+      const container = document.getElementById('combatants');
+      container.innerHTML = '';
+      combatants.forEach((c, i) => {
+        const div = document.createElement('div');
+        div.className = `combatant tooltip-wrapper ${i === currentIndex ? 'current' : ''}`;
+        div.draggable = true;
+        div.dataset.index = i;
+        div.addEventListener('contextmenu', e => showContextMenu(e, i));
+        div.ondragstart = ev => ev.dataTransfer.setData('text/plain', i);
+        div.ondragover = ev => ev.preventDefault();
+        div.ondrop = ev => {
+          ev.preventDefault();
+          const from = parseInt(ev.dataTransfer.getData('text/plain'));
+          moveCombatant(from, i);
+        };
+
+        // Tooltip content
+        const tooltip = `
+          <strong>Reference for ${c.name}</strong><br><br>
+          <strong>Stats reminder:</strong><br>
+          • AC: normal / touch / flat-footed<br>
+          • Saves: Fort / Ref / Will<br>
+          • Common attacks: bite/claw/weapon + BAB + Str/Dex<br>
+          • CMB/CMD = BAB + Str/Dex + size mod + misc<br><br>
+          <strong>Spell slots:</strong> ${c.spells?.map(s => `${s.name} L${s.level}: ${s.used}/${s.max}`).join('<br>') || 'None tracked'}<br>
+          <strong>Abilities/day:</strong> ${c.abilities?.map(a => `${a.name}: ${a.used}/${a.usesPerDay}`).join('<br>') || 'None tracked'}
+        `;
+
+        div.innerHTML = `
+          <div class="turn-indicator">${i + 1}</div>
+          <div class="combatant-header">
+            <div class="portrait">${c.type === 'Monster' ? '👹' : c.type === 'NPC' ? '🧟' : '🧙'}</div>
+            <div class="name">${c.name}</div>
+            <div class="init">${c.init}</div>
+          </div>
+          <div class="hp-text">HP: ${c.current}/${c.max} ${c.temp > 0 ? `| Temp: ${c.temp}` : ''} ${c.nonlethal > 0 ? `| NL: ${c.nonlethal}` : ''}</div>
+          <div class="hp-bar">
+            <div class="hp-fill" style="width: ${c.max > 0 ? Math.max(0, Math.min(100, (c.current / c.max) * 100)) : 0}%"></div>
+            ${c.temp > 0 ? `<div class="temp-hp" style="width: ${c.max > 0 ? Math.min(100, (c.temp / c.max) * 100) : 0}%"></div>` : ''}
+            ${c.nonlethal > 0 ? `<div class="nonlethal" style="width: ${c.max > 0 ? Math.min(100, (c.nonlethal / c.max) * 100) : 0}%"></div>` : ''}
+          </div>
+          <div class="resources">
+            ${c.spells?.length ? `<span>Spells: ${c.spells.filter(s=>s.used < s.max).length} slots left</span>` : ''}
+            ${c.abilities?.length ? `<span>Abilities: ${c.abilities.filter(a=>a.used < a.usesPerDay).length} left</span>` : ''}
+          </div>
+          <div class="conditions">
+            ${c.conditions.map(cond => `<span class="condition ${cond.type || 'bad'}">${cond.name}${cond.duration > 0 ? ` (${cond.duration})` : ''}</span>`).join('')}
+          </div>
+          <div class="tooltip-content">${tooltip}</div>
+        `;
+        container.appendChild(div);
+      });
+      document.getElementById('round-counter').textContent = `Round ${round}`;
+      save();
+    }
+
+    function addCombatant() {
+      const name = document.getElementById('name').value.trim() || 'New';
+      const type = document.getElementById('type').value;
+      const maxhp = parseInt(document.getElementById('maxhp').value) || 10;
+      const init = parseInt(document.getElementById('init').value) || 10;
+
+      combatants.push({
+        name, type,
+        max: maxhp, current: maxhp, temp: 0, nonlethal: 0,
+        init,
+        conditions: [],
+        spells: [],     // e.g. [{name:"Fireball", level:3, max:2, used:0}]
+        abilities: []   // e.g. [{name:"Rage", usesPerDay:4, used:0}]
+      });
+
+      combatants.sort((a,b) => b.init - a.init);
+      document.getElementById('name').value = '';
+      document.getElementById('maxhp').value = '';
+      document.getElementById('init').value = '';
+      render();
+    }
+
+    function quickAdd(type) {
+      const presets = {
+        goblin: {name:'Goblin', max:15, init: Math.floor(Math.random()*20)+8},
+        orc:    {name:'Orc',    max:30, init: Math.floor(Math.random()*20)+6},
+        skeleton:{name:'Skeleton',max:13, init: Math.floor(Math.random()*20)+9}
+      };
+      const p = presets[type] || {name:'New', max:10, init:10};
+      combatants.push({
+        name: p.name, type: 'Monster',
+        max: p.max, current: p.max, temp: 0, nonlethal: 0,
+        init: p.init,
+        conditions: [], spells: [], abilities: []
+      });
+      combatants.sort((a,b) => b.init - a.init);
+      render();
+    }
+
+    function moveCombatant(from, to) {
+      const item = combatants.splice(from, 1)[0];
+      combatants.splice(to, 0, item);
+      render();
+    }
+
+    function nextTurn() {
+      currentIndex = (currentIndex + 1) % combatants.length;
+      if (currentIndex === 0) round++;
+
+      combatants.forEach(c => {
+        c.conditions = c.conditions.map(cond => {
+          if (cond.duration > 0) cond.duration--;
+          return cond;
+        }).filter(cond => cond.duration !== 0); // remove expired (0)
+      });
+
+      render();
+    }
+
+    function resetCombat() {
+      if (confirm('Reset entire combat?')) {
+        combatants = [];
+        currentIndex = 0;
+        round = 1;
+        render();
+      }
+    }
+
+    // ────────────────────────────────────────
+    // Console Commands
+    // ────────────────────────────────────────
+    const commands = {
+      help: (args) => {
+        const topic = (args[0] || 'general').toLowerCase();
+        logHelp(HELP_TEXT[topic] || HELP_TEXT.general);
+      },
+      add: (args) => {
+        if (args.length < 3) return log('add <name> <hp> <init>');
+        const [name, hp, init] = args;
+        combatants.push({
+          name, type:'NPC',
+          max:parseInt(hp), current:parseInt(hp), temp:0, nonlethal:0,
+          init:parseInt(init),
+          conditions:[], spells:[], abilities:[]
+        });
+        combatants.sort((a,b)=>b.init-a.init);
+        render();
+      },
+      damage: (args) => {
+        if (args.length < 2) return log('damage <name> <amount> [nonlethal]');
+        const name = args[0];
+        const amt = parseInt(args[1]);
+        const isNL = args[2] === 'nonlethal';
+        const c = findByName(name);
+        if (c) {
+          if (isNL) c.nonlethal += amt;
+          else c.current -= amt;
+          c.current = Math.max(-c.max, c.current);
+          render();
+        }
+      },
+      heal: (args) => {
+        if (args.length < 2) return log('heal <name> <amount>');
+        const c = findByName(args[0]);
+        if (c) {
+          c.current += parseInt(args[1]);
+          c.current = Math.min(c.max + c.temp, c.current);
+          render();
+        }
+      },
+      temphp: (args) => {
+        if (args.length < 2) return log('temphp <name> <amount>');
+        const c = findByName(args[0]);
+        if (c) { c.temp = parseInt(args[1]); render(); }
+      },
+      init: (args) => {
+        if (args.length < 2) return log('init <name> <value>');
+        const c = findByName(args[0]);
+        if (c) {
+          c.init = parseInt(args[1]);
+          combatants.sort((a,b)=>b.init-a.init);
+          render();
+        }
+      },
+      condition: (args) => {
+        if (args.length < 4) return log('condition <name> add/remove <cond> [duration]');
+        const [name, action, condName, durStr] = args;
+        const c = findByName(name);
+        if (!c) return;
+        if (action === 'add') {
+          const dur = parseInt(durStr) || 0;
+          c.conditions.push({name: condName, duration: dur, type: 'bad'});
+        } else if (action === 'remove') {
+          c.conditions = c.conditions.filter(c => c.name !== condName);
+        }
+        render();
+      },
+      spell: (args) => {
+        if (args.length < 3) return log('spell <name> <spellname> <level>');
+        const [charName, spellName, levelStr] = args;
+        const c = findByName(charName);
+        if (!c) return;
+        let spell = c.spells?.find(s => s.name.toLowerCase() === spellName.toLowerCase() && s.level === parseInt(levelStr));
+        if (!spell) {
+          // Auto-create if not exists (simple)
+          if (!c.spells) c.spells = [];
+          spell = {name: spellName, level: parseInt(levelStr), max: 4, used: 0}; // default 4 slots
+          c.spells.push(spell);
+        }
+        if (spell.used < spell.max) {
+          spell.used++;
+          log(`Used 1 ${spellName} slot for ${c.name} (${spell.used}/${spell.max})`);
+        } else {
+          log(`${c.name} has no ${spellName} slots left!`);
+        }
+        render();
+      },
+      ability: (args) => {
+        if (args.length < 2) return log('ability <name> <abilityname>');
+        const [charName, abName] = args;
+        const c = findByName(charName);
+        if (!c) return;
+        let ab = c.abilities?.find(a => a.name.toLowerCase() === abName.toLowerCase());
+        if (!ab) {
+          if (!c.abilities) c.abilities = [];
+          ab = {name: abName, usesPerDay: 1, used: 0}; // default 1/day
+          c.abilities.push(ab);
+        }
+        if (ab.used < ab.usesPerDay) {
+          ab.used++;
+          log(`Used ${abName} for ${c.name} (${ab.used}/${ab.usesPerDay})`);
+        } else {
+          log(`${c.name} has no ${abName} uses left!`);
+        }
+        render();
+      },
+      resetspells: (args) => {
+        const c = findByName(args[0]);
+        if (c) { c.spells?.forEach(s => s.used = 0); log(`Reset spells for ${c.name}`); render(); }
+      },
+      resetabilities: (args) => {
+        const c = findByName(args[0]);
+        if (c) { c.abilities?.forEach(a => a.used = 0); log(`Reset abilities for ${c.name}`); render(); }
+      },
+      next: () => { nextTurn(); log('Next turn'); },
+      reset: () => { resetCombat(); log('Combat reset'); },
+      round: (args) => {
+        round = parseInt(args[0]) || 1;
+        log(`Round set to ${round}`);
+        render();
+      }
+    };
+
+    function findByName(partial) {
+      return combatants.find(c => c.name.toLowerCase().includes(partial.toLowerCase()));
+    }
+
+    function log(msg, color = '#aaa') {
+      const history = document.getElementById('console-history');
+      const line = document.createElement('div');
+      line.textContent = msg;
+      line.style.color = color;
+      history.appendChild(line);
+      history.scrollTop = history.scrollHeight;
+    }
+
+    function logHelp(text) {
+      log('─'.repeat(40), '#666');
+      text.split('\n').forEach(line => log(line, '#88ff88'));
+      log('─'.repeat(40), '#666');
+    }
+
+    function executeCmd() {
+      const input = document.getElementById('cmd-input');
+      const cmdStr = input.value.trim();
+      input.value = '';
+      if (!cmdStr) return;
+
+      const parts = cmdStr.split(/\s+/);
+      const cmdName = parts[0].toLowerCase();
+      const args = parts.slice(1);
+
+      log(`> ${cmdStr}`, '#0f0');
+
+      if (commands[cmdName]) {
+        try {
+          commands[cmdName](args);
+        } catch (e) {
+          log(`Error: ${e.message}`, '#f44');
+        }
+      } else {
+        log(`Unknown command. Try "help"`, '#ff9800');
+      }
+    }
+
+    // Init
+    populatePredefined();
+    render();
+    log("Combat tracker ready. Right-click combatants for edit menu.", '#aaa');
+  </script>
+</body>
+</html>
