@@ -12,6 +12,13 @@
         <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
      crossorigin=""></script>
+        <style>
+            #map {
+                height: 80vh;
+                border: 2px solid #444;
+                border-radius: 8px;
+            }
+        </style>
     </head>
     <body class="w3-gray">
         <header id="top" class="w3-container w3-center">
@@ -29,9 +36,22 @@
             <h2>Waterdeep</h2>
         </header>
         <section class="w3-container">
-            <div id="map"  class="w3-container" style="height: 400px;">
-                <img src="./images/waterdeep.jpg" class="w3-image">
-            </div>
+            <div id="map"></div>
+            <script>
+                const map = L.map('map', {
+                    minZoom: -1,
+                    maxZoom: 4,
+                    center: [0, 0],
+                    zoom: 0,
+                    crs: L.CRS.Simple
+                });
+
+                const imgWidth = 2558;
+                const imgHeight = 5457;
+                const imageBounds = [[0, 0], [imgHeight, imgWidth]];
+                L.imageOverlay('./images/waterdeep.jpg', imageBounds).addTo(map);
+                map.fitBounds(imageBounds);
+            </script>
         </section>
     </body>
 </html>
