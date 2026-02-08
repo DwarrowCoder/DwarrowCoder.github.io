@@ -6,6 +6,12 @@
         <link rel="stylesheet" href="https://www.w3schools.com/w3css/5/w3.css">
         <meta name="viewport" content="width=device-width,initial-scale=1">
         <script src="jquery-3.7.1.min.js"></script>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+     crossorigin=""/>
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+     crossorigin=""></script>
     </head>
     <body class="w3-gray">
         <header id="top" class="w3-container w3-center">
@@ -23,7 +29,7 @@
             <h2>Waterdeep</h2>
         </header>
         <section class="w3-container">
-            <div class="w3-container" style="width:50%; float: right; clear: both;">
+            <div id="map"  class="w3-container" style="height: 400px;">
                 <img src="./images/waterdeep.jpg" class="w3-image">
             </div>
         </section>
