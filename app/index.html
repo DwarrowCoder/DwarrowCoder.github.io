@@ -325,8 +325,18 @@
         current: monster.hp,
         temp: 0,
         nonlethal: 0,
+        ac: monster.ac,
+        tac: monster.tac,
+        ffac: monster.ffac,
+        fort: monster.fort,
+        refl: monster.refl,
+        will: monster.will,
+        cmb: monster.cmb,
+        cmd: monster.cmd,
         initMod: monster.initMod,
         init: initRoll,
+        melee: monster.melee,
+        ranged: monster.ranged,
         conditions: [],
         spells: [],
         abilities: [],
@@ -548,10 +558,10 @@
         const tooltip = `
           <strong>${c.name}</strong><br><br>
           <strong>Stats:</strong><br>
-          • AC: normal / touch / flat-footed<br>
-          • Saves: Fort / Ref / Will<br>
+          • AC: ${c.ac} / touch ${c.tac} / flat-footed ${c.ffac}<br>
+          • Saves: Fort ${c.fort} / Ref ${c.refl} / Will ${c.will}<br>
           • Common attacks: bite/claw/weapon + BAB + Str/Dex<br>
-          • CMB/CMD = BAB + Str/Dex + size mod + misc<br><br>
+          • CMB/CMD = ${c.cmb}/${c.cmd}<br><br>
           <strong>Spell slots:</strong> ${c.spells?.map(s => `${s.name} L${s.level}: ${s.used}/${s.max}`).join('<br>') || 'None tracked'}<br>
           <strong>Abilities/day:</strong> ${c.abilities?.map(a => `${a.name}: ${a.used}/${a.usesPerDay}`).join('<br>') || 'None tracked'}
         `;
