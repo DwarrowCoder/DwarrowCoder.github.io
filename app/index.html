@@ -278,8 +278,10 @@
     <div class="menu-item" onclick="removeCondition()">Remove Condition</div>
     <div class="menu-item" onclick="useSpell()">Use Spell Slot</div>
     <div class="menu-item" onclick="useAbility()">Use Ability</div>
+    <div class="menu-item" onclick="rollInit()">Roll Init</div>
     <div class="menu-separator"></div>
-    <div class="menu-item" onclick="editNameInit()">Edit Name / Init</div>
+    <div class="menu-item" onclick="editName()">Edit Name</div>
+    <div class="menu-item" onclick="editInit()">Edit Init</div>
     <div class="menu-item" onclick="editPortrait()">Set Portrait URL</div>
     <div class="menu-item danger" onclick="deleteCombatant()">Delete Combatant</div>
   </div>
@@ -323,6 +325,7 @@
         current: monster.hp,
         temp: 0,
         nonlethal: 0,
+        initMod: monster.initMod,
         init: initRoll,
         conditions: [],
         spells: [],
@@ -463,11 +466,29 @@
       contextMenu.style.display = 'none';
     }
 
-    function editNameInit() {
+    function rollInit() {
+      const c = combatants[selectedIndex];
+      if (!c) return;
+      const initRoll = Math.floor(Math.random() * 20) + 1 + c.initMod;
+      c.init = initRoll;
+      combatants.sort((a,b) => b.init - a.init);
+      
+      render();
+      contextMenu.style.display = 'none';
+    }
+
+    function editName() {
       const c = combatants[selectedIndex];
       if (!c) return;
       const newName = prompt("New name", c.name);
       if (newName) c.name = newName.trim();
+      render();
+      contextMenu.style.display = 'none';
+    }
+
+    function editInit() {
+      const c = combatants[selectedIndex];
+      if (!c) return;
       const newInit = prompt("New initiative", c.init);
       if (newInit !== null) {
         c.init = parseInt(newInit) || c.init;
@@ -517,8 +538,8 @@
 
         // Tooltip content
         const tooltip = `
-          <strong>Reference for ${c.name}</strong><br><br>
-          <strong>Stats reminder:</strong><br>
+          <strong>${c.name}</strong><br><br>
+          <strong>Stats:</strong><br>
           • AC: normal / touch / flat-footed<br>
           • Saves: Fort / Ref / Will<br>
           • Common attacks: bite/claw/weapon + BAB + Str/Dex<br>
