@@ -1,6 +1,3 @@
 [
-      { "name": "Goblin", "cr": "1/3", "hp": 6, "initMod": 6, "portrait": "👺", "tooltip": "Small humanoid (goblinoid), neutral evil\nAC 16, touch 13, flat-footed 14\nHP 6 (2d6)\nFort +3, Ref +2, Will -1\nMelee short sword +2 (1d4-1/19-20)\nRanged shortbow +5 (1d4-1/×3)" },
-      { "name": "Orc", "cr": "1/2", "hp": 12, "initMod": 0, "portrait": "🧌", "tooltip": "Medium humanoid (orc), chaotic evil\nAC 13, touch 10, flat-footed 13\nHP 12 (2d8+4)\nFort +5, Ref +0, Will -1\nMelee greataxe +5 (1d12+4/×3)" },
-      { "name": "Skeleton", "cr": "1/3", "hp": 4, "initMod": 2, "portrait": "☠️", "tooltip": "Medium undead, neutral evil\nAC 16, touch 12, flat-footed 14\nHP 4 (1d8)\nFort +0, Ref +2, Will +2\nDR 5/bludgeoning; Immune cold, undead traits\nMelee scimitar +0 (1d6)" },
-      { "name": "Zombie", "cr": "1/2", "hp": 12, "initMod": -2, "portrait": "🧟", "tooltip": "Medium undead, neutral evil\nAC 11, touch 9, flat-footed 11\nHP 12 (2d8+3)\nFort +0, Ref -2, Will +3\nDR 5/slashing; Immune undead traits\nMelee slam +2 (1d6+1)" }
+      { "name": "Fairanil Errthus", "cr": "1", "hp": 9, "initMod": 4, "portrait": "./portraits/errthus.png", "tooltip": "Medium humanoid (elf), neutral good\nAC 15, touch 15, flat-footed 10\nHP 9 (1d8 + 1)\nFort +3, Ref +4, Will +3\nMelee dueling sword +5 (1d8+3/19-20)\nRanged longbow +5 (1d8/×3)" }
 ]

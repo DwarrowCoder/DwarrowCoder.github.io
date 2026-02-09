@@ -280,14 +280,12 @@
     <div class="menu-item" onclick="useAbility()">Use Ability</div>
     <div class="menu-separator"></div>
     <div class="menu-item" onclick="editNameInit()">Edit Name / Init</div>
+    <div class="menu-item" onclick="editPortrait()">Set Portrait URL</div>
     <div class="menu-item danger" onclick="deleteCombatant()">Delete Combatant</div>
   </div>
 
   <script>
-    // ────────────────────────────────────────
-    // Predefined monsters (embedded JSON-like array)
-    // You can expand this list or later fetch from a real .json file
-    // ────────────────────────────────────────
+    
     var PREDEFINED;
     fetch('stats.json')
     .then(r => r.json())
@@ -315,6 +313,9 @@
 
     function addPredefined(monster) {
       const initRoll = Math.floor(Math.random() * 20) + 1 + monster.initMod;
+      
+      const portraitUrl = monster.portrait || null;
+      
       combatants.push({
         name: monster.name,
         type: 'Monster',
@@ -325,7 +326,8 @@
         init: initRoll,
         conditions: [],
         spells: [],
-        abilities: []
+        abilities: [],
+        portrait: portraitUrl
       });
       combatants.sort((a,b) => b.init - a.init);
       render();
@@ -475,6 +477,15 @@
       contextMenu.style.display = 'none';
     }
 
+    function editPortrait() {
+      const c = combatants[selectedIndex];
+      if (!c) return;
+      const url = prompt("Enter portrait image URL (leave empty to reset to emoji)", c.portrait || "");
+      c.portrait = url.trim() || null;
+      render();
+      contextMenu.style.display = 'none';
+    }
+
     function deleteCombatant() {
       if (confirm("Delete this combatant?")) {
         combatants.splice(selectedIndex, 1);
@@ -519,7 +530,9 @@
         div.innerHTML = `
           <div class="turn-indicator">${i + 1}</div>
           <div class="combatant-header">
-            <div class="portrait">${c.type === 'Monster' ? '👹' : c.type === 'NPC' ? '🧟' : '🧙'}</div>
+            <div class="portrait" style="${c.portrait ? `background-image:url('${c.portrait}'); background-size:cover; background-position:center;` : ''}">
+              ${c.portrait ? '' : (c.type === 'Monster' ? '👹' : c.type === 'NPC' ? '🧟' : '🧙')}
+            </div>
             <div class="name">${c.name}</div>
             <div class="init">${c.init}</div>
           </div>
