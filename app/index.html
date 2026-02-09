@@ -236,11 +236,10 @@
 <body>
   <div id="app">
     <div id="sidebar">
-      <h2>Predefined Creatures</h2>
+      <h2>Predefined Combatants</h2>
       <div class="predefined-list" id="predef-list"></div>
 
-      <h3>Add Custom</h3>
-      <!-- existing add form ... -->
+      <h3>Add Custom Combatant</h3>
       <div class="form-group">
         <label>Name</label>
         <input id="name" placeholder="Custom NPC" />
@@ -255,6 +254,7 @@
       </div>
       <button class="btn" onclick="addCustom()">Add to Combat</button>
 
+      <button class="btn" onclick="nextTurn()">Next Turn</button>
       <button class="btn btn-danger" style="margin-top:20px;" onclick="resetCombat()">Reset Combat</button>
     </div>
 
@@ -320,7 +320,7 @@
       
       combatants.push({
         name: monster.name,
-        type: 'Monster',
+        type: monster.type,
         max: monster.hp,
         current: monster.hp,
         temp: 0,
@@ -335,6 +335,14 @@
       combatants.sort((a,b) => b.init - a.init);
       render();
       log(`Added ${monster.name} to combat (Initiative ${initRoll})`, '#0f0');
+    }
+
+    function addPCs() {
+      PREDEFINED.forEach(monster => {
+        if(monster.type === 'PC') {
+          addPredefined(monster);
+        }
+      });
     }
 
     function addCustom() {
@@ -625,14 +633,15 @@
 
     function nextTurn() {
       currentIndex = (currentIndex + 1) % combatants.length;
-      if (currentIndex === 0) round++;
-
-      combatants.forEach(c => {
-        c.conditions = c.conditions.map(cond => {
-          if (cond.duration > 0) cond.duration--;
-          return cond;
-        }).filter(cond => cond.duration !== 0); // remove expired (0)
-      });
+      if (currentIndex === 0) {
+        round++;
+        combatants.forEach(c => {
+          c.conditions = c.conditions.map(cond => {
+            if (cond.duration > 0) cond.duration--;
+            return cond;
+          }).filter(cond => cond.duration !== 0); // remove expired (0)
+        });
+      }
 
       render();
     }
@@ -653,6 +662,9 @@
       help: (args) => {
         const topic = (args[0] || 'general').toLowerCase();
         logHelp(HELP_TEXT[topic] || HELP_TEXT.general);
+      },
+      pcs: (args) => {
+        addPCs();
       },
       add: (args) => {
         if (args.length < 3) return log('add <name> <hp> <init>');
