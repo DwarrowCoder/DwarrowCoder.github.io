@@ -557,7 +557,7 @@
         var attacks = "";
 
         if(c.melee.length > 0) {
-          attacks = "Melee\n";
+          attacks = "• Melee\n";
           c.melee.forEach(attack => {
             attacks += attack.name + " " + attack.bonus + " (" + attack.damage +
             "/" + attack.crit + ")\n\n";
@@ -565,7 +565,7 @@
         }
 
         if(c.ranged.length > 0) {
-          attacks = "Ranged\n";
+          attacks += "• Ranged\n";
           c.melee.forEach(attack => {
             attacks += attack.name + " " + attack.bonus + " (" + attack.damage +
             "/" + attack.crit + ")\n\n";
@@ -578,7 +578,7 @@
           <strong>Stats:</strong><br>
           • AC: ${c.ac} / touch ${c.tac} / flat-footed ${c.ffac}<br>
           • Saves: Fort ${c.fort} / Ref ${c.refl} / Will ${c.will}<br>
-          • Common attacks: bite/claw/weapon + BAB + Str/Dex<br>
+          ${attacks}
           • CMB/CMD = ${c.cmb}/${c.cmd}<br><br>
           <strong>Spell slots:</strong> ${c.spells?.map(s => `${s.name} L${s.level}: ${s.used}/${s.max}`).join('<br>') || 'None tracked'}<br>
           <strong>Abilities/day:</strong> ${c.abilities?.map(a => `${a.name}: ${a.used}/${a.usesPerDay}`).join('<br>') || 'None tracked'}
