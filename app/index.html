@@ -566,7 +566,7 @@
 
         if(c.ranged.length > 0) {
           attacks += "• Ranged\n";
-          c.melee.forEach(attack => {
+          c.ranged.forEach(attack => {
             attacks += attack.name + " " + attack.bonus + " (" + attack.damage +
             "/" + attack.crit + ")\n\n";
           });
