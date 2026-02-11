@@ -338,8 +338,8 @@
         melee: monster.melee,
         ranged: monster.ranged,
         conditions: [],
-        spells: [],
-        abilities: [],
+        spells: monster.spells,
+        abilities: monster.abilities,
         portrait: portraitUrl
       });
       combatants.sort((a,b) => b.init - a.init);
