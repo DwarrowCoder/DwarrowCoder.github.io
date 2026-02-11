@@ -660,15 +660,14 @@
     }
 
     function nextTurn() {
+      log('Next turn');
       currentIndex = (currentIndex + 1) % combatants.length;
+      c.conditions = c.conditions.map(cond => {
+        if (cond.duration > 0) cond.duration--;
+        return cond;
+      }).filter(cond => cond.duration !== 0);
       if (currentIndex === 0) {
         round++;
-        combatants.forEach(c => {
-          c.conditions = c.conditions.map(cond => {
-            if (cond.duration > 0) cond.duration--;
-            return cond;
-          }).filter(cond => cond.duration !== 0); // remove expired (0)
-        });
       }
 
       render();
