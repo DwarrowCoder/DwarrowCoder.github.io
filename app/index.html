@@ -636,23 +636,6 @@
       render();
     }
 
-    function quickAdd(type) {
-      const presets = {
-        goblin: {name:'Goblin', max:15, init: Math.floor(Math.random()*20)+8},
-        orc:    {name:'Orc',    max:30, init: Math.floor(Math.random()*20)+6},
-        skeleton:{name:'Skeleton',max:13, init: Math.floor(Math.random()*20)+9}
-      };
-      const p = presets[type] || {name:'New', max:10, init:10};
-      combatants.push({
-        name: p.name, type: 'Monster',
-        max: p.max, current: p.max, temp: 0, nonlethal: 0,
-        init: p.init,
-        conditions: [], spells: [], abilities: []
-      });
-      combatants.sort((a,b) => b.init - a.init);
-      render();
-    }
-
     function moveCombatant(from, to) {
       const item = combatants.splice(from, 1)[0];
       combatants.splice(to, 0, item);
