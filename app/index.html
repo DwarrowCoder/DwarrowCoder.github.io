@@ -554,6 +554,24 @@
           moveCombatant(from, i);
         };
 
+        var attacks = "";
+
+        if(c.melee.length > 0) {
+          attacks = "Melee\n";
+          c.melee.forEach(attack => {
+            attacks += attack.name + " " + attack.bonus + " (" + attack.damage +
+            "/" + attack.crit + ")\n\n";
+          });
+        }
+
+        if(c.ranged.length > 0) {
+          attacks = "Ranged\n";
+          c.melee.forEach(attack => {
+            attacks += attack.name + " " + attack.bonus + " (" + attack.damage +
+            "/" + attack.crit + ")\n\n";
+          });
+        }
+
         // Tooltip content
         const tooltip = `
           <strong>${c.name}</strong><br><br>
