@@ -557,19 +557,21 @@
         var attacks = "";
 
         if(c.melee.length > 0) {
-          attacks = "• Melee\n";
+          attacks = "• Melee<br>";
           c.melee.forEach(attack => {
             attacks += attack.name + " " + attack.bonus + " (" + attack.damage +
-            "/" + attack.crit + ")\n\n";
+            "/" + attack.crit + ")<br>";
           });
+          attacks += "<br>";
         }
 
         if(c.ranged.length > 0) {
-          attacks += "• Ranged\n";
+          attacks += "• Ranged<br>";
           c.ranged.forEach(attack => {
             attacks += attack.name + " " + attack.bonus + " (" + attack.damage +
-            "/" + attack.crit + ")\n\n";
+            "/" + attack.crit + ")<br>";
           });
+          attacks += "<br>";
         }
 
         // Tooltip content
