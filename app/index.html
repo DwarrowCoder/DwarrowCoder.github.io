@@ -274,6 +274,9 @@
  <!-- Context Menu -->
   <div id="context-menu">
     <div class="menu-item" onclick="editHP()">Edit HP / Temp / Non-lethal</div>
+    <div class="menu-item" onclick="editAC()">Edit AC</div>
+    <div class="menu-item" onclick="editSaves()">Edit Saves</div>
+    <div class="menu-item" onclick="editCM()">Edit CM</div>
     <div class="menu-item" onclick="addCondition()">Add Condition</div>
     <div class="menu-item" onclick="removeCondition()">Remove Condition</div>
     <div class="menu-item" onclick="useSpell()">Use Spell Slot</div>
@@ -364,8 +367,13 @@
       combatants.push({
         name, type: 'NPC',
         max, current: max, temp: 0, nonlethal: 0,
-        init,
-        conditions: [], spells: [], abilities: []
+        init, initMod: mod,
+        ac: 10, tac: 10, ffac: 10,
+        fort: 0, refl: 0, will: 0,
+        cmb: 0, cmd: 10,
+        melee: [], ranged: [],
+        conditions: [], spells: [], abilities: [],
+        portrait: null
       });
       combatants.sort((a,b) => b.init - a.init);
       document.getElementById('name').value = '';
@@ -406,6 +414,43 @@
       if (newCurrent !== null) c.current   = Math.max(-c.max, parseInt(newCurrent) || c.current);
       if (newTemp   !== null) c.temp     = Math.max(0, parseInt(newTemp)   || c.temp);
       if (newNL     !== null) c.nonlethal = Math.max(0, parseInt(newNL)     || c.nonlethal);
+      render();
+      contextMenu.style.display = 'none';
+    }
+
+    function editAC() {
+      const c = combatants[selectedIndex];
+      if (!c) return;
+      const newAC = prompt(`AC (${c.ac})`, c.ac);
+      const newTAC = prompt(`Touch AC (${c.tac})`, c.tac);
+      const newFFAC = prompt(`Flat-footed AC (${c.ffac})`, c.ffac);
+      if (newAC !== null) c.ac   = Math.max(0, parseInt(newAC) || c.ac);
+      if (newTAC   !== null) c.tac     = Math.max(0, parseInt(newTAC)   || c.tac);
+      if (newFFAC     !== null) c.ffac = Math.max(0, parseInt(newFFAC)     || c.ffac);
+      render();
+      contextMenu.style.display = 'none';
+    }
+
+    function editSaves() {
+      const c = combatants[selectedIndex];
+      if (!c) return;
+      const newFort = prompt(`Fort (${c.fort})`, c.fort);
+      const newRefl = prompt(`Refl (${c.refl})`, c.refl);
+      const newWill = prompt(`Will (${c.will})`, c.will);
+      if (newFort !== null) c.fort   = Math.max(-5, parseInt(newFort) || c.fort);
+      if (newRefl   !== null) c.refl     = Math.max(-5, parseInt(newRefl)   || c.refl);
+      if (newWill     !== null) c.will = Math.max(-5, parseInt(newWill)     || c.will);
+      render();
+      contextMenu.style.display = 'none';
+    }
+
+    function editCM() {
+      const c = combatants[selectedIndex];
+      if (!c) return;
+      const newCMB = prompt(`CMB (${c.cmb})`, c.cmb);
+      const newCMD = prompt(`CMD (${c.cmd})`, c.cmd);
+      if (newCMB !== null) c.cmb   = Math.max(-5, parseInt(newCMB) || c.cmb);
+      if (newCMD   !== null) c.cmd     = Math.max(-5, parseInt(newCMD)   || c.cmd);
       render();
       contextMenu.style.display = 'none';
     }
