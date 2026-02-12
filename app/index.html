@@ -285,10 +285,6 @@
 
  <!-- Context Menu -->
   <div id="context-menu">
-    <div class="menu-item" onclick="editHP()">Edit HP / Temp / Non-lethal</div>
-    <div class="menu-item" onclick="editAC()">Edit AC</div>
-    <div class="menu-item" onclick="editSaves()">Edit Saves</div>
-    <div class="menu-item" onclick="editCM()">Edit CM</div>
     <div class="menu-item" onclick="addCondition()">Add Condition</div>
     <div class="menu-item" onclick="removeCondition()">Remove Condition</div>
     <div class="menu-item" onclick="useSpell()">Use Spell Slot</div>
@@ -297,7 +293,14 @@
     <div class="menu-separator"></div>
     <div class="menu-item" onclick="editName()">Edit Name</div>
     <div class="menu-item" onclick="editInit()">Edit Init</div>
+    <div class="menu-item" onclick="editType()">Edit Type</div>
+    <div class="menu-item" onclick="editHP()">Edit HP / Temp / Non-lethal</div>
+    <div class="menu-item" onclick="editAC()">Edit AC</div>
+    <div class="menu-item" onclick="editSaves()">Edit Saves</div>
+    <div class="menu-item" onclick="editCM()">Edit CM</div>
     <div class="menu-item" onclick="editPortrait()">Set Portrait URL</div>
+    <div class="menu-item" onclick="createCopies()">Create copies</div>
+    <div class="menu-separator"></div>
     <div class="menu-item danger" onclick="deleteCombatant()">Delete Combatant</div>
   </div>
 
@@ -590,6 +593,15 @@
       contextMenu.style.display = 'none';
     }
 
+    function editType() {
+      const c = combatants[selectedIndex];
+      if (!c) return;
+      const newType = prompt("New type", c.type);
+      if (newType) c.type = newType.trim();
+      render();
+      contextMenu.style.display = 'none';
+    }
+
     function editPortrait() {
       const c = combatants[selectedIndex];
       if (!c) return;
@@ -597,6 +609,41 @@
       c.portrait = url.trim() || null;
       render();
       contextMenu.style.display = 'none';
+    }
+
+    function createCopies() {
+      const c = combatants[selectedIndex];
+      if (!c) return;
+      const copies = prompt("How may copies", 1);
+      for (let index = 0; index < copies; index++) {
+        const initRoll = Math.floor(Math.random() * 20) + 1 + c.initMod;
+        combatants.push({
+          name: c.name,
+          type: c.type,
+          max: c.hp,
+          current: c.hp,
+          temp: 0,
+          nonlethal: 0,
+          ac: c.ac,
+          tac: c.tac,
+          ffac: c.ffac,
+          fort: c.fort,
+          refl: c.refl,
+          will: c.will,
+          cmb: c.cmb,
+          cmd: c.cmd,
+          initMod: c.initMod,
+          init: initRoll,
+          melee: c.melee,
+          ranged: c.ranged,
+          conditions: [],
+          spells: c.spells,
+          abilities: c.abilities,
+          portrait: c.portrait
+        });
+      }
+      combatants.sort((a,b) => b.init - a.init);
+      render();
     }
 
     function deleteCombatant() {
