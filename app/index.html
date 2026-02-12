@@ -226,6 +226,18 @@
       pointer-events: none;
     }
 
+    .predefined-list .tooltip-content {
+      position: fixed;           /* ← key change */
+      top: unset !important;
+      left: unset !important;
+      transform: none;
+
+      /* Let JavaScript position it dynamically */
+      pointer-events: none;
+      z-index: 100;
+      max-width: 320px;
+    }
+
     @media (max-width: 768px) {
       #sidebar { width: 100%; height: auto; }
       #app { flex-direction: column; }
@@ -298,6 +310,23 @@
       // assume data is array of monsters
       PREDEFINED = data;
       populatePredefined();
+      document.querySelectorAll('.predef-item').forEach(item => {
+        const tooltip = item.querySelector('.tooltip-content');
+        if (!tooltip) return;
+
+        item.addEventListener('mouseenter', e => {
+          const rect = item.getBoundingClientRect();
+          tooltip.style.left = `${rect.right + 12}px`;          // show to the right of the item
+          tooltip.style.top  = `${rect.top + window.scrollY}px`; // align top with item
+          tooltip.style.visibility = 'visible';
+          tooltip.style.opacity = '1';
+        });
+
+        item.addEventListener('mouseleave', () => {
+          tooltip.style.visibility = 'hidden';
+          tooltip.style.opacity = '0';
+        });
+      });
     });
 
     function populatePredefined() {
