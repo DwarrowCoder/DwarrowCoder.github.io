@@ -98,12 +98,32 @@
     .predef-name { font-weight: bold; }
     .predef-cr { font-size: 0.85em; color: #aaa; }
 
+    /* Tooltip for predefined list (same style as combatants) */
     .tooltip-wrapper { position: relative; }
     .tooltip-wrapper:hover .tooltip-content {
       visibility: visible;
       opacity: 1;
       transform: translateY(0);
     }
+    .tooltip-content {
+      visibility: hidden;
+      opacity: 0;
+      position: absolute;
+      z-index: 10;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%) translateY(6px);
+      width: 280px;
+      background: #222;
+      border: 1px solid #555;
+      border-radius: 6px;
+      padding: 10px;
+      font-size: 13px;
+      line-height: 1.4;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.7);
+      pointer-events: none;
+    }
+    .tooltip-content strong { color: #ffcc00; }
 
     .btn { 
       background: #4CAF50; 
@@ -179,13 +199,13 @@
     .menu-item.danger { color: #ff6b6b; }
     .menu-separator { height: 1px; background: #444; margin: 4px 0; }
 
+    /* Tooltip (kept from previous version) */
     .tooltip-wrapper { position: relative; }
     .tooltip-wrapper:hover .tooltip-content {
       visibility: visible;
       opacity: 1;
       transform: translateY(0);
     }
-
     .tooltip-content {
       visibility: hidden;
       opacity: 0;
@@ -205,7 +225,6 @@
       transition: all 0.2s ease;
       pointer-events: none;
     }
-    .tooltip-content strong { color: #ffcc00; }
 
     .predefined-list .tooltip-content {
       position: fixed;           /* ← key change */
