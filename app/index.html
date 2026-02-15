@@ -7,71 +7,46 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 <style>
     .hidden { display: none !important; }
-
-    :root {
-        --bg: #0f172a;
-        --card: #1e2937;
-        --border: #334155;
-        --text: #e2e8f0;
-        --accent: #f59e0b;
-    }
-
-    * { box-sizing: border-box; }
-    body {
-        margin: 0;
-        font-family: system-ui, -apple-system, sans-serif;
-        background: var(--bg);
-        color: var(--text);
-        line-height: 1.5;
-    }
-    .container { max-width: 1280px; margin: 0 auto; }
-
-    header { background: #0a0f1c; border-bottom: 1px solid var(--border); padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
-    .logo { display: flex; align-items: center; gap: 12px; font-size: 2rem; font-weight: 800; letter-spacing: -2px; color: var(--accent); }
-
-    .tabs { display: flex; border-bottom: 1px solid var(--border); background: #1e2937; }
-    .tab { flex: 1; padding: 1rem; text-align: center; font-weight: 600; cursor: pointer; border-bottom: 3px solid transparent; }
-    .tab.active { border-bottom-color: var(--accent); color: var(--accent); }
-
-    .btn { padding: 0.6rem 1.2rem; border-radius: 8px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; border: none; }
-    .btn-primary { background: var(--accent); color: #111827; }
-    .btn-secondary { background: #334155; color: white; }
-    .btn-danger { background: #7f1d1d; color: #fecaca; }
-
-    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; transition: all 0.2s; }
-    .card:hover { border-color: var(--accent); transform: translateY(-2px); }
-
-    table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 14px 12px; text-align: left; border-bottom: 1px solid var(--border); }
-    th { background: #1e2937; font-weight: 500; color: #94a3b8; font-size: 0.85rem; }
-    tr:hover { background: #1e2937; }
-    .current-turn { background: #451a03 !important; }
-
-    .hp-bar-container { height: 8px; background: #334155; border-radius: 9999px; overflow: hidden; margin-top: 4px; }
-    .hp-bar { height: 100%; background: #10b981; transition: width 0.3s; }
-    .hp-low { background: #ef4444; }
-    .hp-mid { background: #f59e0b; }
-
-    .condition { display: inline-flex; align-items: center; gap: 6px; background: #334155; padding: 4px 10px; border-radius: 9999px; font-size: 0.8rem; margin-right: 6px; margin-bottom: 4px; }
-
-    .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.75); display: none; align-items: center; justify-content: center; z-index: 1000; }
-    .modal-content { background: #1e2937; border-radius: 12px; width: 100%; max-width: 620px; max-height: 90vh; overflow: auto; box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.3); }
-    .modal-header { padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-
-    .modal-tabs { display: flex; background: #0f172a; border-bottom: 1px solid var(--border); }
-    .modal-tab { flex: 1; padding: 0.75rem; text-align: center; cursor: pointer; font-weight: 500; }
-    .modal-tab.active { background: #1e2937; border-bottom: 3px solid var(--accent); }
-
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; padding: 1.5rem; }
-    label { display: block; font-size: 0.8rem; color: #94a3b8; margin-bottom: 4px; }
-    input, select, textarea { width: 100%; background: #0f172a; border: 1px solid var(--border); border-radius: 6px; padding: 0.65rem; color: white; }
-    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); }
-
-    .list-item { display: flex; justify-content: space-between; align-items: center; background: #0f172a; padding: 0.75rem; border-radius: 6px; margin-bottom: 8px; }
-    .chip { background: #334155; padding: 4px 10px; border-radius: 9999px; font-size: 0.8rem; }
-
-    .expand-content { padding: 1rem; background: #0f172a; border-top: 1px solid var(--border); }
-    .statblock-pre { white-space: pre-wrap; font-family: monospace; background: #0a0f1c; padding: 1rem; border-radius: 6px; max-height: 400px; overflow: auto; }
+    :root { --bg:#0f172a; --card:#1e2937; --border:#334155; --text:#e2e8f0; --accent:#f59e0b; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:system-ui,sans-serif; background:var(--bg); color:var(--text); line-height:1.5; }
+    .container { max-width:1280px; margin:0 auto; }
+    header { background:#0a0f1c; border-bottom:1px solid var(--border); padding:1rem 1.5rem; display:flex; align-items:center; justify-content:space-between; }
+    .logo { display:flex; align-items:center; gap:12px; font-size:2rem; font-weight:800; letter-spacing:-2px; color:var(--accent); }
+    .tabs { display:flex; border-bottom:1px solid var(--border); background:#1e2937; }
+    .tab { flex:1; padding:1rem; text-align:center; font-weight:600; cursor:pointer; border-bottom:3px solid transparent; }
+    .tab.active { border-bottom-color:var(--accent); color:var(--accent); }
+    .btn { padding:0.6rem 1.2rem; border-radius:8px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:8px; border:none; }
+    .btn-primary { background:var(--accent); color:#111827; }
+    .btn-secondary { background:#334155; color:white; }
+    .btn-danger { background:#7f1d1d; color:#fecaca; }
+    .card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:1.25rem; transition:all .2s; }
+    .card:hover { border-color:var(--accent); transform:translateY(-2px); }
+    table { width:100%; border-collapse:collapse; }
+    th, td { padding:14px 12px; text-align:left; border-bottom:1px solid var(--border); }
+    th { background:#1e2937; font-weight:500; color:#94a3b8; font-size:0.85rem; }
+    tr:hover { background:#1e2937; }
+    .current-turn { background:#451a03 !important; position:relative; }
+    .current-turn::before { content:"→"; position:absolute; left:8px; color:var(--accent); font-size:1.2rem; }
+    .hp-bar-container { height:8px; background:#334155; border-radius:9999px; overflow:hidden; margin-top:4px; }
+    .hp-bar { height:100%; background:#10b981; transition:width .3s; }
+    .hp-low { background:#ef4444; }
+    .hp-mid { background:#f59e0b; }
+    .condition { display:inline-flex; align-items:center; gap:6px; background:#334155; padding:4px 10px; border-radius:9999px; font-size:0.8rem; margin-right:6px; margin-bottom:4px; }
+    .modal { position:fixed; inset:0; background:rgba(0,0,0,0.75); display:none; align-items:center; justify-content:center; z-index:1000; }
+    .modal-content { background:#1e2937; border-radius:12px; width:100%; max-width:680px; max-height:90vh; overflow:auto; box-shadow:0 20px 25px -5px rgb(0 0 0 / 0.3); }
+    .modal-header { padding:1rem 1.5rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+    .modal-tabs { display:flex; background:#0f172a; border-bottom:1px solid var(--border); }
+    .modal-tab { flex:1; padding:0.75rem; text-align:center; cursor:pointer; font-weight:500; }
+    .modal-tab.active { background:#1e2937; border-bottom:3px solid var(--accent); }
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; padding:1.5rem; }
+    label { display:block; font-size:0.8rem; color:#94a3b8; margin-bottom:4px; }
+    input, select, textarea { width:100%; background:#0f172a; border:1px solid var(--border); border-radius:6px; padding:0.65rem; color:white; }
+    input:focus, select:focus, textarea:focus { outline:none; border-color:var(--accent); }
+    .list-item { display:flex; justify-content:space-between; align-items:center; background:#0f172a; padding:0.75rem; border-radius:6px; margin-bottom:8px; }
+    .chip { background:#334155; padding:4px 10px; border-radius:9999px; font-size:0.8rem; }
+    .expand-content { padding:1rem; background:#0f172a; border-top:1px solid var(--border); }
+    .statblock-pre { white-space:pre-wrap; font-family:monospace; background:#0a0f1c; padding:1rem; border-radius:6px; max-height:400px; overflow:auto; }
 </style>
 </head>
 <body>
@@ -81,10 +56,7 @@
     <div class="logo"><i class="fa-solid fa-dice-d20"></i> RPG TRACKER</div>
     <div style="display:flex;gap:12px;">
         <button onclick="exportData()" class="btn btn-secondary"><i class="fa-solid fa-download"></i> Export JSON</button>
-        <label class="btn btn-secondary" style="cursor:pointer;">
-            <i class="fa-solid fa-upload"></i> Import JSON
-            <input type="file" id="import-input" accept=".json" style="display:none;" onchange="handleImport(event)">
-        </label>
+        <label class="btn btn-secondary" style="cursor:pointer;"><i class="fa-solid fa-upload"></i> Import JSON <input type="file" id="import-input" accept=".json" style="display:none;" onchange="handleImport(event)"></label>
         <button onclick="clearAllData()" class="btn btn-danger"><i class="fa-solid fa-trash"></i> Reset</button>
     </div>
 </header>
@@ -94,7 +66,6 @@
     <div onclick="switchTab(1)" id="tab-1" class="tab">COMBAT</div>
 </div>
 
-<!-- CHARACTERS TAB -->
 <div id="content-0" class="p-6">
     <div style="display:flex;gap:12px;margin-bottom:24px;">
         <input id="char-search" placeholder="Search characters..." style="flex:1;background:#1e2937;border:1px solid #334155;padding:12px 16px;border-radius:8px;" onkeyup="filterCharacters()">
@@ -103,7 +74,6 @@
     <div id="character-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;"></div>
 </div>
 
-<!-- COMBAT TAB -->
 <div id="content-1" class="p-6 hidden">
     <div style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:24px;">
         <button onclick="newCombat()" class="btn btn-secondary"><i class="fa-solid fa-rotate"></i> New Combat</button>
@@ -122,7 +92,7 @@
         </div>
 
         <table id="combat-table">
-            <thead><tr><th style="width:90px;">INIT</th><th>NAME</th><th style="width:260px;">HP</th><th style="width:200px;">CONDITIONS</th><th style="width:90px;"></th></tr></thead>
+            <thead><tr><th style="width:90px;">INIT</th><th>NAME</th><th style="width:260px;">HP</th><th style="width:200px;">CONDITIONS</th><th style="width:110px;"></th></tr></thead>
             <tbody id="combat-tbody"></tbody>
         </table>
 
@@ -184,6 +154,18 @@
             <button onclick="addAbilityToTemp()" class="btn btn-secondary" style="padding:8px 16px;">Add</button>
         </div>
         <div id="abilities-list"></div>
+
+        <h3 style="margin:24px 0 12px 0;font-size:1rem;">Prepared Spells</h3>
+        <div style="margin-bottom:12px;display:flex;gap:8px;">
+            <input id="new-spell-name" placeholder="Spell name" style="flex:1;">
+            <select id="new-spell-level" style="width:120px;">
+                <option value="1">Level 1</option><option value="2">Level 2</option><option value="3">Level 3</option>
+                <option value="4">Level 4</option><option value="5">Level 5</option><option value="6">Level 6</option>
+                <option value="7">Level 7</option><option value="8">Level 8</option><option value="9">Level 9</option>
+            </select>
+            <button onclick="addPreparedSpell()" class="btn btn-secondary" style="padding:8px 16px;">Add</button>
+        </div>
+        <div id="prepared-spells-list"></div>
     </div>
 
     <div id="modal-defenses" class="hidden" style="padding:24px;">
@@ -295,33 +277,31 @@ const defaultSpellSlots = () => {
 // LOAD / SAVE
 function loadData() {
     const saved = localStorage.getItem('rpgCharacters');
-    if (saved) {
-        characters = JSON.parse(saved);
-        characters.forEach(c => {
-            if (!c.tempHp) c.tempHp = 0;
-            if (!c.nonlethal) c.nonlethal = 0;
-            if (!c.attacks) c.attacks = [];
-            if (!c.resistances) c.resistances = [];
-            if (!c.spellSlots) c.spellSlots = defaultSpellSlots();
-            if (!c.limitedAbilities) c.limitedAbilities = [];
-            if (typeof c.statBlock === 'undefined') c.statBlock = '';
-        });
-    }
+    if (saved) characters = JSON.parse(saved);
+    characters.forEach(c => {
+        if (!c.tempHp) c.tempHp = 0;
+        if (!c.nonlethal) c.nonlethal = 0;
+        if (!c.attacks) c.attacks = [];
+        if (!c.resistances) c.resistances = [];
+        if (!c.spellSlots) c.spellSlots = defaultSpellSlots();
+        if (!c.limitedAbilities) c.limitedAbilities = [];
+        if (!c.preparedSpells) c.preparedSpells = [];
+        if (typeof c.statBlock === 'undefined') c.statBlock = '';
+    });
 
     const savedCombat = localStorage.getItem('rpgCombat');
-    if (savedCombat) {
-        currentCombat = JSON.parse(savedCombat);
-        currentCombat.forEach(c => {
-            if (!c.tempHp) c.tempHp = 0;
-            if (!c.nonlethal) c.nonlethal = 0;
-            if (!c.attacks) c.attacks = [];
-            if (!c.resistances) c.resistances = [];
-            if (!c.spellSlots) c.spellSlots = defaultSpellSlots();
-            if (!c.limitedAbilities) c.limitedAbilities = [];
-            if (!c.conditions) c.conditions = [];
-            if (typeof c.statBlock === 'undefined') c.statBlock = '';
-        });
-    }
+    if (savedCombat) currentCombat = JSON.parse(savedCombat);
+    currentCombat.forEach(c => {
+        if (!c.tempHp) c.tempHp = 0;
+        if (!c.nonlethal) c.nonlethal = 0;
+        if (!c.attacks) c.attacks = [];
+        if (!c.resistances) c.resistances = [];
+        if (!c.spellSlots) c.spellSlots = defaultSpellSlots();
+        if (!c.limitedAbilities) c.limitedAbilities = [];
+        if (!c.preparedSpells) c.preparedSpells = [];
+        if (!c.conditions) c.conditions = [];
+        if (typeof c.statBlock === 'undefined') c.statBlock = '';
+    });
 
     const r = localStorage.getItem('rpgRound');
     if (r) round = parseInt(r);
@@ -353,10 +333,7 @@ function renderCharacters(filter = '') {
     const container = document.getElementById('character-grid');
     container.innerHTML = '';
     let list = characters;
-    if (filter) {
-        const term = filter.toLowerCase();
-        list = characters.filter(c => c.name.toLowerCase().includes(term));
-    }
+    if (filter) list = characters.filter(c => c.name.toLowerCase().includes(filter.toLowerCase()));
     if (list.length === 0) {
         container.innerHTML = `<div class="card" style="grid-column:1/-1;text-align:center;padding:60px;color:#64748b;">No characters yet</div>`;
         return;
@@ -367,7 +344,6 @@ function renderCharacters(filter = '') {
         let barClass = 'hp-bar';
         if (percent < 30) barClass += ' hp-low';
         else if (percent < 60) barClass += ' hp-mid';
-
         const div = document.createElement('div');
         div.className = 'card';
         div.style.cursor = 'pointer';
@@ -404,26 +380,23 @@ function showCharacterModal(char) {
     document.getElementById('modal-title').textContent = char ? 'Edit Character' : 'New Character';
     document.getElementById('delete-btn').classList.toggle('hidden', !char);
 
-    if (char) {
-        tempChar = JSON.parse(JSON.stringify(char));
-    } else {
-        tempChar = {
-            id: Date.now().toString(36),
-            name: '',
-            type: 'PC',
-            maxHp: 20,
-            currentHp: 20,
-            tempHp: 0,
-            nonlethal: 0,
-            ac: 15,
-            initBonus: 0,
-            attacks: [],
-            resistances: [],
-            spellSlots: defaultSpellSlots(),
-            limitedAbilities: [],
-            statBlock: ''
-        };
-    }
+    tempChar = char ? JSON.parse(JSON.stringify(char)) : {
+        id: Date.now().toString(36),
+        name: '',
+        type: 'PC',
+        maxHp: 20,
+        currentHp: 20,
+        tempHp: 0,
+        nonlethal: 0,
+        ac: 15,
+        initBonus: 0,
+        attacks: [],
+        resistances: [],
+        spellSlots: defaultSpellSlots(),
+        limitedAbilities: [],
+        preparedSpells: [],
+        statBlock: ''
+    };
 
     document.getElementById('char-name').value = tempChar.name;
     document.getElementById('char-type').value = tempChar.type;
@@ -442,6 +415,7 @@ function showCharacterModal(char) {
     renderModalAbilities();
     renderModalResistances();
     renderModalSpellSlots();
+    renderPreparedSpells();
 }
 
 function hideCharacterModal() {
@@ -557,11 +531,36 @@ function renderModalSpellSlots() {
     }
 }
 
+function renderPreparedSpells() {
+    const container = document.getElementById('prepared-spells-list');
+    container.innerHTML = '';
+    tempChar.preparedSpells.forEach((sp, i) => {
+        const div = document.createElement('div');
+        div.className = 'list-item';
+        div.innerHTML = `
+            <div>${sp.name} <span style="color:#94a3b8;">(Lvl ${sp.level})</span></div>
+            <button onclick="removePreparedSpellFromTemp(${i})" style="background:#7f1d1d;color:white;border:none;padding:4px 8px;border-radius:4px;">×</button>
+        `;
+        container.appendChild(div);
+    });
+}
+
+function addPreparedSpell() {
+    const name = document.getElementById('new-spell-name').value.trim();
+    const level = parseInt(document.getElementById('new-spell-level').value);
+    if (!name) return;
+    tempChar.preparedSpells.push({name, level});
+    document.getElementById('new-spell-name').value = '';
+    renderPreparedSpells();
+}
+
+function removePreparedSpellFromTemp(i) {
+    tempChar.preparedSpells.splice(i, 1);
+    renderPreparedSpells();
+}
+
 function saveCharacter() {
-    if (!tempChar.name.trim()) {
-        alert('Name is required');
-        return;
-    }
+    if (!tempChar.name.trim()) return alert('Name is required');
     if (!tempChar.spellSlots) tempChar.spellSlots = defaultSpellSlots();
 
     if (editingId) {
@@ -576,15 +575,14 @@ function saveCharacter() {
 }
 
 function deleteCurrentCharacter() {
-    if (!editingId) return;
-    if (!confirm('Delete permanently?')) return;
+    if (!editingId || !confirm('Delete permanently?')) return;
     characters = characters.filter(c => c.id !== editingId);
     saveData();
     renderCharacters();
     hideCharacterModal();
 }
 
-// COMBAT RENDER
+// COMBAT
 function renderCombat() {
     const tbody = document.getElementById('combat-tbody');
     tbody.innerHTML = '';
@@ -602,7 +600,7 @@ function renderCombat() {
     currentCombat.forEach((c, i) => {
         const isCurrent = i === currentTurnIndex;
         const hp = c.currentHp || c.maxHp || 10;
-        const percent = c.maxHp ? Math.max(0, Math.min(100, Math.round(hp / c.maxHp * 100))) : 100;
+        const percent = c.maxHp ? Math.max(0, Math.min(100, Math.round((hp / c.maxHp) * 100))) : 100;
         let barClass = 'hp-bar';
         if (percent < 30) barClass += ' hp-low';
         else if (percent < 60) barClass += ' hp-mid';
@@ -613,7 +611,7 @@ function renderCombat() {
         mainRow.innerHTML = `
             <td>
                 <input type="number" value="${c.initiative !== null ? c.initiative : ''}" 
-                       onchange="updateInitiative(${i}, this.value)" style="width:60px;background:transparent;border:none;font-size:1.1rem;text-align:center;">
+                       onchange="updateInitiative(${i}, this.value)" style="width:60px;background:transparent;border:1px solid #555;border-radius:4px;text-align:center;font-size:1.1rem;">
             </td>
             <td>
                 <strong>${c.name}</strong>
@@ -632,17 +630,14 @@ function renderCombat() {
                 </div>
             </td>
             <td id="cond-cell-${i}"></td>
-            <td style="text-align:right; white-space:nowrap;">
+            <td style="text-align:right;white-space:nowrap;">
                 <button onclick="event.stopImmediatePropagation();toggleExpand(${i});" class="btn btn-secondary" style="padding:4px 8px;font-size:0.8rem;margin-right:4px;">Details</button>
-                <button onclick="event.stopImmediatePropagation();removeCombatant(${i});" class="btn btn-danger" style="padding:4px 8px;font-size:0.8rem;">
-                    <i class="fa-solid fa-trash"></i>
-                </button>
+                <button onclick="event.stopImmediatePropagation();removeCombatant(${i});" class="btn btn-danger" style="padding:4px 8px;font-size:0.8rem;"><i class="fa-solid fa-trash"></i></button>
             </td>
         `;
         //mainRow.onclick = () => toggleExpand(i);
         tbody.appendChild(mainRow);
 
-        // Conditions
         const condCell = mainRow.querySelector(`#cond-cell-${i}`);
         c.conditions.forEach((cond, idx) => {
             const chip = document.createElement('div');
@@ -658,7 +653,6 @@ function renderCombat() {
         plus.onclick = e => { e.stopImmediatePropagation(); openConditionsModal(i); };
         condCell.appendChild(plus);
 
-        // Expanded row
         const detailRow = document.createElement('tr');
         detailRow.id = `detail-row-${i}`;
         detailRow.style.display = expandedRows.has(i) ? 'table-row' : 'none';
@@ -687,11 +681,7 @@ function renderCombat() {
                             </div>
                         </div>
 
-                        ${c.currentHp <= 0 ? `
-                        <div style="margin-top:24px;background:#7f1d1d;color:#fecaca;padding:12px;border-radius:8px;text-align:center;">
-                            <strong>ELIMINATED</strong><br>
-                            <button onclick="removeCombatant(${i});event.stopImmediatePropagation()" style="margin-top:8px;background:#b91c1c;color:white;padding:6px 16px;border:none;border-radius:6px;cursor:pointer;">Remove from Combat</button>
-                        </div>` : ''}
+                        <button onclick="setCurrentTurn(${i});event.stopImmediatePropagation()" class="btn btn-secondary" style="margin-top:24px;width:100%;">Set as Current Turn</button>
                     </div>
 
                     <div>
@@ -705,7 +695,20 @@ function renderCombat() {
                             ${c.attacks.map(a => `<li>${a.name} +${a.toHit} (${a.damage})</li>`).join('')}
                         </ul>
 
-                        ${c.resistances.length ? `
+                        ${c.preparedSpells?.length ? `
+                        <div style="margin-top:20px;">
+                            <div style="font-size:0.85rem;color:#94a3b8;">Prepared Spells</div>
+                            <div style="margin-top:8px;">
+                                ${c.preparedSpells.map((sp, idx) => `
+                                    <div style="display:flex;justify-content:space-between;align-items:center;background:#1e2937;padding:6px 10px;border-radius:6px;margin-bottom:4px;">
+                                        <span>${sp.name} (Lvl ${sp.level})</span>
+                                        <button onclick="castPreparedSpell(${i},${idx});event.stopImmediatePropagation()" style="font-size:0.7rem;padding:2px 8px;background:#10b981;color:white;border:none;border-radius:4px;cursor:pointer;">Cast</button>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>` : ''}
+
+                        ${c.resistances?.length ? `
                         <div style="margin-top:20px;">
                             <div style="font-size:0.85rem;color:#94a3b8;">Resistances</div>
                             <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;">
@@ -713,26 +716,26 @@ function renderCombat() {
                             </div>
                         </div>` : ''}
 
-                        ${Object.values(c.spellSlots).some(s => s.max > 0) ? `
+                        ${Object.values(c.spellSlots||{}).some(s => s.max > 0) ? `
                         <div style="margin-top:20px;">
                             <div style="font-size:0.85rem;color:#94a3b8;">Spell Slots</div>
                             <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px;">
                                 ${Object.keys(c.spellSlots).map(lvl => {
                                     const s = c.spellSlots[lvl];
                                     if (s.max === 0) return '';
-                                    return `<div>Lvl ${lvl}: <span style="font-family:monospace;">${s.current}/${s.max}</span> ${s.current>0?`<button onclick="spendSpellSlot(${i},${lvl});event.stopImmediatePropagation()" style="font-size:0.7rem;padding:1px 6px;">–</button>`:''}</div>`;
+                                    return `<div>Lvl ${lvl}: <span style="font-family:monospace;">${s.current}/${s.max}</span></div>`;
                                 }).join('')}
                             </div>
                         </div>` : ''}
 
-                        ${c.limitedAbilities.length ? `
+                        ${c.limitedAbilities?.length ? `
                         <div style="margin-top:20px;">
                             <div style="font-size:0.85rem;color:#94a3b8;">Limited Abilities</div>
                             <div style="margin-top:8px;">
                                 ${c.limitedAbilities.map((ab, idx) => `
                                     <div style="display:flex;justify-content:space-between;align-items:center;background:#1e2937;padding:6px 10px;border-radius:6px;margin-bottom:4px;">
                                         <span>${ab.name} <span style="color:#94a3b8;">${ab.currentUses}/${ab.maxUses}</span></span>
-                                        ${ab.currentUses>0?`<button onclick="spendAbility(${i},${idx});event.stopImmediatePropagation()" style="font-size:0.7rem;padding:1px 6px;">–</button>`:''}
+                                        ${ab.currentUses>0 ? `<button onclick="spendAbility(${i},${idx});event.stopImmediatePropagation()" style="font-size:0.7rem;padding:1px 6px;">Use</button>` : ''}
                                     </div>
                                 `).join('')}
                             </div>
@@ -746,41 +749,56 @@ function renderCombat() {
 }
 
 function toggleExpand(i) {
-    if (expandedRows.has(i)) expandedRows.delete(i);
-    else expandedRows.add(i);
+    expandedRows.has(i) ? expandedRows.delete(i) : expandedRows.add(i);
     renderCombat();
 }
 
-// COMBAT ACTIONS
+function setCurrentTurn(i) {
+    currentTurnIndex = i;
+    renderCombat();
+}
+
+function castPreparedSpell(i, spellIdx) {
+    const spell = currentCombat[i].preparedSpells[spellIdx];
+    const slots = currentCombat[i].spellSlots[spell.level];
+    if (slots && slots.current > 0) {
+        slots.current--;
+        saveData();
+        renderCombat();
+    } else {
+        alert(`No level ${spell.level} slots left!`);
+    }
+}
+
+function applyDamage(i, amt) {
+    if (amt <= 0) return;
+    let c = currentCombat[i];
+    if (c.tempHp > 0) {
+        const take = Math.min(amt, c.tempHp);
+        c.tempHp -= take;
+        amt -= take;
+    }
+    c.currentHp -= amt; // can go negative
+    saveData();
+    renderCombat();
+}
+
+function applyHeal(i, amt) {
+    if (amt <= 0) return;
+    let c = currentCombat[i];
+    c.currentHp = Math.min(c.maxHp, c.currentHp + amt);
+    saveData();
+    renderCombat();
+}
+
 function removeCombatant(i) {
     if (confirm(`Remove ${currentCombat[i].name}?`)) {
         currentCombat.splice(i, 1);
-        if (currentTurnIndex >= currentCombat.length) currentTurnIndex = Math.max(0, currentCombat.length - 1);
+        if (currentTurnIndex >= currentCombat.length) currentTurnIndex = Math.max(0, currentCombat.length-1);
         expandedRows.clear();
         saveData();
         renderCombat();
     }
-}
-
-function applyDamage(i, amount) {
-    if (amount <= 0) return;
-    let c = currentCombat[i];
-    if (c.tempHp > 0) {
-        const take = Math.min(amount, c.tempHp);
-        c.tempHp -= take;
-        amount -= take;
-    }
-    c.currentHp -= amount;
-    saveData();
-    renderCombat();
-}
-
-function applyHeal(i, amount) {
-    if (amount <= 0) return;
-    let c = currentCombat[i];
-    c.currentHp = Math.min(c.maxHp, c.currentHp + amount);
-    saveData();
-    renderCombat();
 }
 
 function saveToLibrary(i) {
@@ -1131,7 +1149,6 @@ function clearAllData() {
     renderCombat();
 }
 
-// INIT
 window.onload = () => {
     loadData();
     switchTab(0);
