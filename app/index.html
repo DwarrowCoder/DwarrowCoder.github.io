@@ -632,11 +632,14 @@ function renderCombat() {
                 </div>
             </td>
             <td id="cond-cell-${i}"></td>
-            <td style="text-align:right;">
-                <button onclick="event.stopImmediatePropagation();toggleExpand(${i});" class="btn btn-secondary" style="padding:4px 10px;font-size:0.8rem;">Details</button>
+            <td style="text-align:right; white-space:nowrap;">
+                <button onclick="event.stopImmediatePropagation();toggleExpand(${i});" class="btn btn-secondary" style="padding:4px 8px;font-size:0.8rem;margin-right:4px;">Details</button>
+                <button onclick="event.stopImmediatePropagation();removeCombatant(${i});" class="btn btn-danger" style="padding:4px 8px;font-size:0.8rem;">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
             </td>
         `;
-        mainRow.onclick = () => toggleExpand(i);
+        //mainRow.onclick = () => toggleExpand(i);
         tbody.appendChild(mainRow);
 
         // Conditions
@@ -767,7 +770,7 @@ function applyDamage(i, amount) {
         c.tempHp -= take;
         amount -= take;
     }
-    c.currentHp = Math.max(0, c.currentHp - amount);
+    c.currentHp -= amount;
     saveData();
     renderCombat();
 }
