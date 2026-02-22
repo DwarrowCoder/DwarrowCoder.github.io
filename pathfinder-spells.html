@@ -4,8 +4,9 @@
         <meta charset="UTF-8">
         <title>DwarrowCoder - Pathfinder Spells</title>
         <link rel="stylesheet" href="https://www.w3schools.com/w3css/5/w3.css">
+        <link rel="stylesheet" href="./css/main.css">
         <meta name="viewport" content="width=device-width,initial-scale=1">
-        <script src="jquery-3.7.1.min.js"></script>
+        <script src="./js/nav.js"></script>
     </head>
     <body class="w3-gray">
         <header id="top" class="w3-container w3-center">
@@ -13,12 +14,10 @@
                 <img src="./images/dnd.jpg" class="w3-image">
             </div>
             <h1>Pathfinder Spells</h1>
-            <nav id="pathfinder-navbar" class="w3-bar w3-border w3-card">
+            <nav id="navbar" class="w3-bar w3-border w3-card">
             </nav>
             <script>
-                $(function(){
-                    $("#pathfinder-navbar").load("pathfinder-nav.html");
-                });
+                loadNavbar("./nav-gaming-rpgs-pathfinder.html");
             </script>
         </header>
         <section class="w3-container">
