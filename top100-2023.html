@@ -8,7 +8,7 @@
         <script src="jquery-3.7.1.min.js"></script>
     </head>
     <body class="w3-gray">
-        <header class="w3-container w3-center">
+        <header id="top" class="w3-container w3-center">
             <div class="w3-padding" style="width:100%">
                 <img src="./images/game.jpg" class="w3-image">
             </div>
@@ -16,13 +16,11 @@
             <nav id="navbar" class="w3-bar w3-border w3-card">
             </nav>
             <script>
-                $(function(){
-                    $("#navbar").load("nav.html");
-                });
+                loadNavbar("./nav-gaming-boardgames-top100.html");
             </script>
         </header>
         <section class="w3-container">
-            <h2>Top 100 Tabletop Games for 2023</h2>
+            <h2>Top 100 Tabletop Games for 2022</h2>
             <ol>
                 <li><a href="https://boardgamegeek.com/boardgame/224783/vindication">Vindication</a></li>
                 <li><a href="https://boardgamegeek.com/boardgame/316554/dune-imperium">Dune: Imperium</a></li>
@@ -126,5 +124,8 @@
                 <li><a href="https://boardgamegeek.com/boardgame/231581/auztralia">AuZtralia</a></li>
             </ol>
         </section>
+        <div class="w3-center"><a href="#top">Top</a></div>
+        <footer class="w3-panel w3-border">
+        </footer>
     </body>
 </html>
