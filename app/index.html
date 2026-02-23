@@ -686,7 +686,7 @@ function renderCombat() {
                             <button onclick="saveToLibrary(${i});event.stopImmediatePropagation()" class="btn btn-secondary" style="font-size:0.75rem;padding:4px 10px;">Save to Library</button>
                         </div>
                         <ul style="margin:0;padding-left:20px;font-size:0.9rem;">
-                            ${c.attacks.map(a => `<li>${a})</li>`).join('')}
+                            ${c.attacks.map(a => `<li>${a}</li>`).join('')}
                         </ul>
 
                         ${c.preparedSpells?.length ? `
