@@ -435,7 +435,7 @@ function renderModalAttacks() {
         const div = document.createElement('div');
         div.className = 'list-item';
         div.innerHTML = `
-            <div><strong>${atk.name}</strong> +${atk.toHit} (${atk.damage})</div>
+            <div>${atk}</div>
             <button onclick="removeAttackFromTemp(${i})" style="background:#7f1d1d;color:white;border:none;padding:4px 8px;border-radius:4px;">×</button>
         `;
         container.appendChild(div);
