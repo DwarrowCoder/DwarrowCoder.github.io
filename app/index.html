@@ -135,9 +135,7 @@
 
     <div id="modal-attacks" class="hidden" style="padding:24px;">
         <div style="margin-bottom:16px;">
-            <input id="new-attack-name" placeholder="Attack name" style="width:38%;">
-            <input id="new-attack-tohit" placeholder="+to hit" type="number" style="width:20%;">
-            <input id="new-attack-dmg" placeholder="Damage" style="width:30%;">
+            <input id="new-attack" placeholder="[attack] [bonus] [damage]" style="width:88%;">
             <button onclick="addAttackToTemp()" class="btn btn-secondary" style="padding:8px 16px;">Add</button>
         </div>
         <div id="attacks-list"></div>
@@ -445,14 +443,10 @@ function renderModalAttacks() {
 }
 
 function addAttackToTemp() {
-    const name = document.getElementById('new-attack-name').value.trim();
-    const toHit = parseInt(document.getElementById('new-attack-tohit').value) || 0;
-    const damage = document.getElementById('new-attack-dmg').value.trim();
-    if (!name) return;
-    tempChar.attacks.push({name, toHit, damage});
-    document.getElementById('new-attack-name').value = '';
-    document.getElementById('new-attack-tohit').value = '';
-    document.getElementById('new-attack-dmg').value = '';
+    const attack = document.getElementById('new-attack').value.trim();
+    if (!attack) return;
+    tempChar.attacks.push(attack);
+    document.getElementById('new-attack').value = '';
     renderModalAttacks();
 }
 
@@ -692,7 +686,7 @@ function renderCombat() {
                             <button onclick="saveToLibrary(${i});event.stopImmediatePropagation()" class="btn btn-secondary" style="font-size:0.75rem;padding:4px 10px;">Save to Library</button>
                         </div>
                         <ul style="margin:0;padding-left:20px;font-size:0.9rem;">
-                            ${c.attacks.map(a => `<li>${a.name} +${a.toHit} (${a.damage})</li>`).join('')}
+                            ${c.attacks.map(a => `<li>${a})</li>`).join('')}
                         </ul>
 
                         ${c.preparedSpells?.length ? `
