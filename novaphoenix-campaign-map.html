@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>The Nova Phoenix Saga - Galaxy Map</title>
+        <link rel="stylesheet" href="https://www.w3schools.com/w3css/5/w3.css">
+        <link rel="stylesheet" href="./css/main.css">
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <script src="./js/nav.js"></script>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+     crossorigin=""/>
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+     crossorigin=""></script>
+        <style>
+            #map {
+                height: 80vh;
+                border: 2px solid #444;
+                border-radius: 8px;
+            }
+        </style>
+    </head>
+    <body class="w3-gray">
+        <header id="top" class="w3-container w3-center">
+            <h1>The Nova Phoenix Saga</h1>
+            <div class="w3-padding" style="width:100%">
+                <img src="./images/nova.jpg" class="w3-image">
+            </div>
+            <nav id="navbar" class="w3-bar w3-border w3-card">
+            </nav>
+            <script>
+                loadNavbar("./nav-gaming-rpgs-campaigns-novaphoenix.html");
+            </script>
+            <h2>Galaxy Map</h2>
+        </header>
+        <section class="w3-container">
+            <div id="map"></div>
+            <script>
+                const map = L.map('map', {
+                    minZoom: -3,
+                    maxZoom: 3,
+                    center: [0, 0],
+                    zoom: -1,
+                    crs: L.CRS.Simple
+                });
+
+                const imgWidth = 10800;
+                const imgHeight = 10800;
+                const imageBounds = [[0, 0], [imgHeight, imgWidth]];
+                L.imageOverlay('./images/swmap.jpg', imageBounds).addTo(map);
+                map.fitBounds(imageBounds);
+
+                var boradin = L.marker([8465, 6080]).addTo(map);
+                boradin.bindTooltip('Boradin')
+                var unknown = L.marker([9450, 8500]).addTo(map);
+                unknown.bindTooltip('[Unkown System]')
+            </script>
+        </section>
+    </body>
+</html>
