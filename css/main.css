@@ -8,3 +8,7 @@ td, th {
 td {
     text-align: center;
 }
+
+.characteristic {
+    font-size: 3rem;
+}
