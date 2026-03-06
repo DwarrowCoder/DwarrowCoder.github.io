@@ -51,17 +51,10 @@
                 L.imageOverlay('./images/swmap.jpg', imageBounds).addTo(map);
                 map.fitBounds(imageBounds);
 
-                var boradin = L.marker([4720, 8465]).addTo(map);
+                var boradin = L.marker([4740, 8365]).addTo(map);
                 boradin.bindTooltip('Boradin')
                 var unknown = L.marker([2300, 9450]).addTo(map);
                 unknown.bindTooltip('[Unkown System]')
-
-                // These should appear at the visual corners of your rendered image
-
-L.marker([0, 0]).addTo(map).bindTooltip("Should be visual TOP-LEFT").openTooltip();
-L.marker([0, 10800]).addTo(map).bindTooltip("Should be visual TOP-RIGHT");
-L.marker([10800, 0]).addTo(map).bindTooltip("Should be visual BOTTOM-LEFT");
-L.marker([10800, 10800]).addTo(map).bindTooltip("Should be visual BOTTOM-RIGHT").openTooltip();
             </script>
         </section>
     </body>
