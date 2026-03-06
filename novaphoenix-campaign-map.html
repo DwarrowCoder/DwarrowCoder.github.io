@@ -51,6 +51,11 @@
                 L.imageOverlay('./images/swmap.jpg', imageBounds).addTo(map);
                 map.fitBounds(imageBounds);
 
+                function onMapClick(e) {
+                    alert("You clicked the map at " + e.latlng);
+                }
+                map.on('click', onMapClick);
+
                 var boradin = L.marker([6080, 8465]).addTo(map);
                 boradin.bindTooltip('Boradin')
                 var unknown = L.marker([8500, 9450]).addTo(map);
