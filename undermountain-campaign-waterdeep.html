@@ -51,10 +51,6 @@
                 L.imageOverlay('./images/waterdeep.jpg', imageBounds).addTo(map);
                 map.fitBounds(imageBounds);
 
-                function onMapClick(e) {
-                    alert("You clicked the map at " + e.latlng);
-                }
-
                 var yawningPortal = L.marker([2046, 1467]).addTo(map);
                 yawningPortal.bindTooltip('The Yawning Portal')
             </script>
