@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RPG Tracker - Pathfinder 1e</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+<style>
+    .hidden { display: none !important; }
+    :root { --bg:#0f172a; --card:#1e2937; --border:#334155; --text:#e2e8f0; --accent:#f59e0b; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:'Times New Roman', Times, serif; background:var(--bg); color:var(--text); line-height:1.5; }
+    .container { max-width:1280px; margin:0 auto; }
+    header { background:#0a0f1c; border-bottom:1px solid var(--border); padding:1rem 1.5rem; display:flex; align-items:center; justify-content:space-between; }
+    .logo { display:flex; align-items:center; gap:12px; font-size:2rem; font-weight:800; letter-spacing:-2px; color:var(--accent); }
+    .tabs { display:flex; border-bottom:1px solid var(--border); background:#1e2937; }
+    .tab { flex:1; padding:1rem; text-align:center; font-weight:600; cursor:pointer; border-bottom:3px solid transparent; }
+    .tab.active { border-bottom-color:var(--accent); color:var(--accent); }
+    .btn { padding:0.6rem 1.2rem; border-radius:8px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:8px; border:none; }
+    .btn-primary { background:var(--accent); color:#111827; }
+    .btn-secondary { background:#334155; color:white; }
+    .btn-danger { background:#7f1d1d; color:#fecaca; }
+    .card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:1.25rem; transition:all .2s; }
+    .card:hover { border-color:var(--accent); transform:translateY(-2px); }
+    table { width:100%; border-collapse:collapse; }
+    th, td { padding:14px 12px; text-align:left; border-bottom:1px solid var(--border); }
+    th { background:#1e2937; font-weight:500; color:#94a3b8; font-size:0.85rem; }
+    tr:hover { background:#1e2937; }
+    .current-turn { background:#451a03 !important; position:relative; }
+    .current-turn::before { content:"→"; position:absolute; left:8px; color:var(--accent); font-size:1.2rem; }
+    .hp-bar-container { height:8px; background:#334155; border-radius:9999px; overflow:hidden; margin-top:4px; }
+    .hp-bar { height:100%; background:#10b981; transition:width .3s; }
+    .hp-low { background:#ef4444; }
+    .hp-mid { background:#f59e0b; }
+    .condition { display:inline-flex; align-items:center; gap:6px; background:#334155; padding:4px 10px; border-radius:9999px; font-size:0.8rem; margin-right:6px; margin-bottom:4px; }
+    .modal { position:fixed; inset:0; background:rgba(0,0,0,0.75); display:none; align-items:center; justify-content:center; z-index:1000; }
+    .modal-content { background:#1e2937; border-radius:12px; width:100%; max-width:680px; max-height:90vh; overflow:auto; box-shadow:0 20px 25px -5px rgb(0 0 0 / 0.3); }
+    .modal-header { padding:1rem 1.5rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+    .modal-tabs { display:flex; background:#0f172a; border-bottom:1px solid var(--border); }
+    .modal-tab { flex:1; padding:0.75rem; text-align:center; cursor:pointer; font-weight:500; }
+    .modal-tab.active { background:#1e2937; border-bottom:3px solid var(--accent); }
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; padding:1.5rem; }
+    label { display:block; font-size:0.8rem; color:#94a3b8; margin-bottom:4px; }
+    input, select, textarea { width:100%; background:#0f172a; border:1px solid var(--border); border-radius:6px; padding:0.65rem; color:white; }
+    input:focus, select:focus, textarea:focus { outline:none; border-color:var(--accent); }
+    .list-item { display:flex; justify-content:space-between; align-items:center; background:#0f172a; padding:0.75rem; border-radius:6px; margin-bottom:8px; }
+    .chip { background:#334155; padding:4px 10px; border-radius:9999px; font-size:0.8rem; }
+    .expand-content { padding:1rem; background:#0f172a; border-top:1px solid var(--border); }
+    .statblock-pre { white-space:pre-wrap; font-family:monospace; background:#0a0f1c; padding:1rem; border-radius:6px; max-height:400px; overflow:auto; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+    <div class="logo"><i class="fa-solid fa-dice-d20"></i> RPG TRACKER - PF1e</div>
+    <div style="display:flex;gap:12px;">
+        <button onclick="exportData()" class="btn btn-secondary"><i class="fa-solid fa-download"></i> Export JSON</button>
+        <label class="btn btn-secondary" style="cursor:pointer;"><i class="fa-solid fa-upload"></i> Import JSON <input type="file" id="import-input" accept=".json" style="display:none;" onchange="handleImport(event)"></label>
+        <button onclick="clearAllData()" class="btn btn-danger"><i class="fa-solid fa-trash"></i> Reset</button>
+    </div>
+</header>
+
+<div class="tabs">
+    <div onclick="switchTab(0)" id="tab-0" class="tab active">CHARACTERS</div>
+    <div onclick="switchTab(1)" id="tab-1" class="tab">COMBAT</div>
+</div>
+
+<div id="content-0" class="p-6">
+    <div style="display:flex;gap:12px;margin-bottom:24px;">
+        <input id="char-search" placeholder="Search characters..." style="flex:1;background:#1e2937;border:1px solid #334155;padding:12px 16px;border-radius:8px;" onkeyup="filterCharacters()">
+        <button onclick="showCharacterModal(null)" class="btn btn-primary"><i class="fa-solid fa-plus"></i> NEW CHARACTER</button>
+    </div>
+    <div id="character-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;"></div>
+</div>
+
+<div id="content-1" class="p-6 hidden">
+    <div style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:24px;">
+        <button onclick="newCombat()" class="btn btn-secondary"><i class="fa-solid fa-rotate"></i> New Combat</button>
+        <button onclick="showLibraryModal()" class="btn btn-secondary"><i class="fa-solid fa-book"></i> Add from Library</button>
+        <button onclick="showQuickModal()" class="btn btn-secondary"><i class="fa-solid fa-bolt"></i> Quick Monster</button>
+        <button onclick="rollAllInitiatives()" class="btn btn-primary"><i class="fa-solid fa-dice"></i> Roll All Initiative</button>
+        <button onclick="refreshAllDailyResources()" class="btn btn-secondary"><i class="fa-solid fa-arrows-rotate"></i> Refresh Spells & Abilities</button>
+    </div>
+
+    <div style="background:#1e2937;border-radius:12px;overflow:hidden;border:1px solid #334155;">
+        <div style="padding:16px 24px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #334155;">
+            <div><span style="color:#94a3b8;font-size:0.9rem;">ROUND</span> <span id="round-display" style="font-size:2.2rem;font-weight:800;color:var(--accent);margin-left:12px;">1</span></div>
+            <div style="display:flex;gap:12px;">
+                <button onclick="prevTurn()" class="btn btn-secondary">← Prev</button>
+                <button onclick="nextTurn()" class="btn btn-primary">Next Turn →</button>
+            </div>
+        </div>
+
+        <table id="combat-table">
+            <thead><tr><th style="width:90px;">INIT</th><th>NAME</th><th style="width:260px;">HP</th><th style="width:200px;">CONDITIONS</th><th style="width:110px;"></th></tr></thead>
+            <tbody id="combat-tbody"></tbody>
+        </table>
+
+        <div id="no-combat" style="padding:80px 20px;text-align:center;color:#64748b;">
+            <i class="fa-solid fa-skull" style="font-size:4rem;opacity:0.3;"></i>
+            <p style="margin-top:20px;font-size:1.1rem;">Combat tracker empty</p>
+        </div>
+    </div>
+</div>
+
+</div>
+
+<!-- CHARACTER MODAL -->
+<div id="character-modal" class="modal">
+<div class="modal-content">
+    <div class="modal-header">
+        <h2 id="modal-title" style="margin:0;font-size:1.4rem;">New Character</h2>
+        <button onclick="hideCharacterModal()" style="background:none;border:none;font-size:1.8rem;cursor:pointer;color:#94a3b8;">×</button>
+    </div>
+    <div class="modal-tabs">
+        <div onclick="switchModalTab(0)" id="m-tab-0" class="modal-tab active">Basic</div>
+        <div onclick="switchModalTab(1)" id="m-tab-1" class="modal-tab">Attacks</div>
+        <div onclick="switchModalTab(2)" id="m-tab-2" class="modal-tab">Resources</div>
+        <div onclick="switchModalTab(3)" id="m-tab-3" class="modal-tab">Defenses</div>
+        <div onclick="switchModalTab(4)" id="m-tab-4" class="modal-tab">Stat Block</div>
+    </div>
+
+    <div id="modal-basic" style="padding:24px;">
+        <div class="form-grid">
+            <div><label>Name</label><input id="char-name" oninput="tempChar.name=this.value"></div>
+            <div><label>Type</label><select id="char-type" onchange="tempChar.type=this.value"><option value="PC">PC</option><option value="NPC">NPC</option><option value="Monster">Monster</option></select></div>
+            <div><label>Max HP</label><input id="char-maxhp" type="number" oninput="tempChar.maxHp=parseInt(this.value)||0"></div>
+            <div><label>Current HP</label><input id="char-curhp" type="number" oninput="tempChar.currentHp=parseInt(this.value)||0"></div>
+            <div><label>Temp HP</label><input id="char-temphp" type="number" oninput="tempChar.tempHp=parseInt(this.value)||0"></div>
+            <div><label>Non-lethal</label><input id="char-nonlethal" type="number" oninput="tempChar.nonlethal=parseInt(this.value)||0"></div>
+            <div><label>AC</label><input id="char-ac" type="number" oninput="tempChar.ac=parseInt(this.value)||0"></div>
+            <div><label>Initiative Bonus</label><input id="char-init" type="number" oninput="tempChar.initBonus=parseInt(this.value)||0"></div>
+        </div>
+    </div>
+
+    <div id="modal-attacks" class="hidden" style="padding:24px;">
+        <div style="margin-bottom:16px;">
+            <input id="new-attack" placeholder="[attack] [bonus] [damage]" style="width:88%;">
+            <button onclick="addAttackToTemp()" class="btn btn-secondary" style="padding:8px 16px;">Add</button>
+        </div>
+        <div id="attacks-list"></div>
+    </div>
+
+    <div id="modal-resources" class="hidden" style="padding:24px;">
+        <h3 style="margin:0 0 12px 0;font-size:1rem;">Spellcasting Classes</h3>
+        <div style="display:flex;gap:8px;margin-bottom:16px;">
+            <select id="selected-class" onchange="loadClassData()"></select>
+            <button onclick="addSpellcastingClass()" class="btn btn-secondary">Add Class</button>
+            <button onclick="deleteSpellcastingClass()" class="btn btn-danger">Delete</button>
+        </div>
+        <div id="class-content" class="hidden">
+            <label>Caster Type</label>
+            <select id="caster-type" onchange="updateCasterType()">
+                <option value="prepared">Prepared</option>
+                <option value="spontaneous">Spontaneous</option>
+            </select>
+            <h4 style="margin-top:16px;">Spell Slots</h4>
+            <div id="spell-slots-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;"></div>
+            <h4 style="margin-top:16px;" id="spells-title">Spells</h4>
+            <div style="margin-bottom:12px;display:flex;gap:8px;">
+                <input id="new-spell-name" placeholder="Spell name" style="flex:1;">
+                <select id="new-spell-level" style="width:120px;">
+                    <option value="1">Level 1</option><option value="2">Level 2</option><option value="3">Level 3</option>
+                    <option value="4">Level 4</option><option value="5">Level 5</option><option value="6">Level 6</option>
+                    <option value="7">Level 7</option><option value="8">Level 8</option><option value="9">Level 9</option>
+                </select>
+                <button onclick="addSpellToClass()" class="btn btn-secondary" style="padding:8px 16px;">Add</button>
+            </div>
+            <div id="spells-list"></div>
+        </div>
+
+        <h3 style="margin:24px 0 12px 0;font-size:1rem;">Limited Use Abilities</h3>
+        <div style="margin-bottom:12px;">
+            <input id="new-ability-name" placeholder="Ability name" style="width:55%;">
+            <input id="new-ability-uses" placeholder="Uses" type="number" style="width:20%;">
+            <button onclick="addAbilityToTemp()" class="btn btn-secondary" style="padding:8px 16px;">Add</button>
+        </div>
+        <div id="abilities-list"></div>
+    </div>
+
+    <div id="modal-defenses" class="hidden" style="padding:24px;">
+        <div style="margin-bottom:12px;">
+            <input id="new-resistance" placeholder="Resistance (fire, poison...)" style="width:70%;">
+            <button onclick="addResistanceToTemp()" class="btn btn-secondary" style="padding:8px 16px;">Add</button>
+        </div>
+        <div id="resistances-list" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+    </div>
+
+    <div id="modal-statblock" class="hidden" style="padding:24px;">
+        <textarea id="char-statblock" rows="14" style="width:100%;font-family:monospace;resize:vertical;" oninput="tempChar.statBlock=this.value"></textarea>
+    </div>
+
+    <div style="padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:12px;justify-content:flex-end;">
+        <button onclick="deleteCurrentCharacter()" id="delete-btn" class="btn btn-danger hidden">DELETE</button>
+        <button onclick="hideCharacterModal()" class="btn btn-secondary">Cancel</button>
+        <button onclick="saveCharacter()" class="btn btn-primary">Save Character</button>
+    </div>
+</div>
+</div>
+
+<!-- LIBRARY MODAL -->
+<div id="library-modal" class="modal">
+<div class="modal-content" style="max-width:720px;">
+    <div class="modal-header"><h2>Add from Library</h2><button onclick="hideLibraryModal()" style="background:none;border:none;font-size:1.8rem;cursor:pointer;">×</button></div>
+    <div style="padding:20px;">
+        <input id="library-search" placeholder="Search..." style="width:100%;padding:12px;margin-bottom:16px;" onkeyup="filterLibrary()">
+        <div id="library-list" style="max-height:420px;overflow:auto;"></div>
+    </div>
+    <div style="padding:16px 24px;border-top:1px solid var(--border);text-align:right;">
+        <button onclick="hideLibraryModal()" class="btn btn-secondary">Cancel</button>
+        <button onclick="addSelectedToCombat()" class="btn btn-primary">Add Selected</button>
+    </div>
+</div>
+</div>
+
+<!-- QUICK ADD MODAL -->
+<div id="quick-modal" class="modal">
+<div class="modal-content" style="max-width:420px;">
+    <div class="modal-header"><h2>Quick Add Monster</h2><button onclick="hideQuickModal()" style="background:none;border:none;font-size:1.8rem;cursor:pointer;">×</button></div>
+    <div style="padding:24px;display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div><label>Name</label><input id="quick-name" value="Goblin"></div>
+        <div><label>Max HP</label><input id="quick-maxhp" type="number" value="7"></div>
+        <div><label>AC</label><input id="quick-ac" type="number" value="15"></div>
+        <div><label>Init Bonus</label><input id="quick-init" type="number" value="2"></div>
+    </div>
+    <div style="padding:0 24px 24px;">
+        <label>Quantity</label>
+        <input id="quick-quantity" type="number" value="1" min="1" style="width:100%;">
+    </div>
+    <div style="padding:0 24px 24px;display:flex;gap:12px;">
+        <button onclick="hideQuickModal()" class="btn btn-secondary flex-1">Cancel</button>
+        <button onclick="addQuickMonster()" class="btn btn-primary flex-1">Add to Combat</button>
+    </div>
+</div>
+</div>
+
+<!-- CONDITIONS MODAL -->
+<div id="conditions-modal" class="modal">
+<div class="modal-content" style="max-width:420px;">
+    <div class="modal-header"><h2>Conditions</h2><button onclick="hideConditionsModal()" style="background:none;border:none;font-size:1.8rem;cursor:pointer;">×</button></div>
+    <div style="padding:24px;">
+        <div id="current-conditions-display" style="margin-bottom:24px;display:flex;flex-wrap:wrap;gap:8px;"></div>
+        <label>Condition</label>
+        <div style="display:flex;gap:8px;margin-bottom:16px;">
+            <select id="condition-select" style="flex:1;">
+                <option>Blinded</option><option>Charmed</option><option>Deafened</option><option>Frightened</option><option>Grappled</option>
+                <option>Incapacitated</option><option>Invisible</option><option>Paralyzed</option><option>Petrified</option><option>Poisoned</option>
+                <option>Prone</option><option>Restrained</option><option>Stunned</option><option>Unconscious</option>
+            </select>
+            <input id="condition-duration" type="number" placeholder="rounds (blank=permanent)" style="width:110px;">
+            <button onclick="addConditionFromModal()" class="btn btn-primary">Add</button>
+        </div>
+        <input id="custom-condition" placeholder="Custom condition..." style="width:100%;margin-bottom:8px;">
+        <button onclick="addCustomConditionFromModal()" class="btn btn-secondary" style="width:100%;">Add Custom</button>
+    </div>
+    <div style="padding:16px 24px;border-top:1px solid var(--border);text-align:right;">
+        <button onclick="hideConditionsModal()" class="btn btn-secondary">Done</button>
+    </div>
+</div>
+</div>
+
+<!-- STAT BLOCK MODAL -->
+<div id="statblock-modal" class="modal">
+<div class="modal-content" style="max-width:680px;">
+    <div class="modal-header"><h2>Full Stat Block</h2><button onclick="hideStatblockModal()" style="background:none;border:none;font-size:1.8rem;cursor:pointer;">×</button></div>
+    <div style="padding:24px;"><pre id="statblock-text" class="statblock-pre"></pre></div>
+</div>
+</div>
+
+<script>
+// DATA
+let characters = [];
+let currentCombat = [];
+let round = 1;
+let currentTurnIndex = 0;
+let editingId = null;
+let tempChar = null;
+let expandedRows = new Set();
+let conditionsIndex = -1;
+
+const defaultSpellSlots = (isPrepared) => {
+    const slots = {};
+    for (let i = 1; i <= 9; i++) {
+        slots[i] = isPrepared ? {max: 0} : {max: 0, current: 0};
+    }
+    return slots;
+};
+
+// RESET
+function resetDailyResources(combatant) {
+    // Reset limited abilities
+    if (combatant.limitedAbilities) {
+        combatant.limitedAbilities.forEach(ab => {
+            ab.currentUses = ab.maxUses;
+        });
+    }
+
+    // Reset spellcasting
+    if (combatant.spellcasting) {
+        combatant.spellcasting.forEach(sc => {
+            if (sc.casterType === 'spontaneous') {
+                // Reset spontaneous slots
+                Object.keys(sc.slots).forEach(lvl => {
+                    if (sc.slots[lvl]) sc.slots[lvl].current = sc.slots[lvl].max || 0;
+                });
+            } else if (sc.casterType === 'prepared') {
+                // For prepared: remove 'expended' flag from all spells
+                if (sc.spells) {
+                    sc.spells.forEach(sp => {
+                        delete sp.expended;
+                    });
+                }
+            }
+        });
+    }
+}
+
+// Global function for the refresh button
+function refreshAllDailyResources() {
+    if (currentCombat.length === 0) return;
+    if (!confirm("Refresh all daily spells and abilities for EVERYONE in combat?\n(This simulates a new day / long rest)")) return;
+
+    currentCombat.forEach(c => {
+        resetDailyResources(c);
+    });
+
+    saveData();
+    renderCombat();
+    alert("Daily resources refreshed for all combatants.");
+}
+
+// LOAD / SAVE
+function loadData() {
+    const saved = localStorage.getItem('rpgCharacters');
+    if (saved) characters = JSON.parse(saved);
+    characters.forEach(c => {
+        if (!c.tempHp) c.tempHp = 0;
+        if (!c.nonlethal) c.nonlethal = 0;
+        if (!c.attacks) c.attacks = [];
+        if (!c.resistances) c.resistances = [];
+        if (!c.limitedAbilities) c.limitedAbilities = [];
+        if (!c.statBlock) c.statBlock = '';
+        if (!c.spellcasting) c.spellcasting = [];
+        c.spellcasting.forEach(sc => {
+            if (!sc.slots) sc.slots = defaultSpellSlots(sc.casterType === 'prepared');
+            if (!sc.spells) sc.spells = [];
+            sc.spells.forEach(sp => {
+                if (!sp.id) sp.id = Date.now().toString(36) + Math.random().toString(36).slice(2);
+            });
+        });
+    });
+
+    const savedCombat = localStorage.getItem('rpgCombat');
+    if (savedCombat) currentCombat = JSON.parse(savedCombat);
+    currentCombat.forEach(c => {
+        if (!c.tempHp) c.tempHp = 0;
+        if (!c.nonlethal) c.nonlethal = 0;
+        if (!c.attacks) c.attacks = [];
+        if (!c.resistances) c.resistances = [];
+        if (!c.limitedAbilities) c.limitedAbilities = [];
+        if (!c.statBlock) c.statBlock = '';
+        if (!c.conditions) c.conditions = [];
+        if (!c.spellcasting) c.spellcasting = [];
+        c.spellcasting.forEach(sc => {
+            if (!sc.slots) sc.slots = defaultSpellSlots(sc.casterType === 'prepared');
+            if (!sc.spells) sc.spells = [];
+            sc.spells.forEach(sp => {
+                if (!sp.id) sp.id = Date.now().toString(36) + Math.random().toString(36).slice(2);
+            });
+        });
+    });
+
+    const r = localStorage.getItem('rpgRound');
+    if (r) round = parseInt(r);
+
+    const t = localStorage.getItem('rpgTurn');
+    if (t) currentTurnIndex = parseInt(t);
+
+    renderCharacters();
+    renderCombat();
+}
+
+function saveData() {
+    localStorage.setItem('rpgCharacters', JSON.stringify(characters));
+    localStorage.setItem('rpgCombat', JSON.stringify(currentCombat));
+    localStorage.setItem('rpgRound', round);
+    localStorage.setItem('rpgTurn', currentTurnIndex);
+}
+
+// TABS
+function switchTab(n) {
+    document.getElementById('tab-0').classList.toggle('active', n === 0);
+    document.getElementById('tab-1').classList.toggle('active', n === 1);
+    document.getElementById('content-0').classList.toggle('hidden', n !== 0);
+    document.getElementById('content-1').classList.toggle('hidden', n !== 1);
+}
+
+// CHARACTERS TAB
+function renderCharacters(filter = '') {
+    const container = document.getElementById('character-grid');
+    container.innerHTML = '';
+    let list = characters;
+    if (filter) list = characters.filter(c => c.name.toLowerCase().includes(filter.toLowerCase()));
+    if (list.length === 0) {
+        container.innerHTML = `<div class="card" style="grid-column:1/-1;text-align:center;padding:60px;color:#64748b;">No characters yet</div>`;
+        return;
+    }
+    list.forEach(char => {
+        const hp = char.currentHp || char.maxHp || 10;
+        const percent = char.maxHp ? Math.max(0, Math.min(100, Math.round(hp / char.maxHp * 100))) : 100;
+        let barClass = 'hp-bar';
+        if (percent < 30) barClass += ' hp-low';
+        else if (percent < 60) barClass += ' hp-mid';
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.style.cursor = 'pointer';
+        div.innerHTML = `
+            <div style="display:flex;justify-content:space-between;">
+                <div>
+                    <div style="font-size:1.25rem;font-weight:600;">${char.name}</div>
+                    <div style="font-size:0.8rem;color:#94a3b8;">${char.type}</div>
+                </div>
+                <div style="text-align:right;">
+                    <div style="font-size:1.8rem;font-weight:700;color:var(--accent);">${char.ac || '?'}</div>
+                    <div style="font-size:0.7rem;color:#64748b;">AC</div>
+                </div>
+            </div>
+            <div style="margin-top:16px;">
+                <div style="display:flex;justify-content:space-between;font-size:0.85rem;color:#94a3b8;">
+                    <span>HP</span><span>${hp} / ${char.maxHp}</span>
+                </div>
+                <div class="hp-bar-container"><div class="${barClass}" style="width:${percent}%"></div></div>
+            </div>
+        `;
+        div.onclick = () => showCharacterModal(char);
+        container.appendChild(div);
+    });
+}
+
+function filterCharacters() {
+    renderCharacters(document.getElementById('char-search').value);
+}
+
+// CHARACTER MODAL
+function showCharacterModal(char) {
+    editingId = char ? char.id : null;
+    document.getElementById('modal-title').textContent = char ? 'Edit Character' : 'New Character';
+    document.getElementById('delete-btn').classList.toggle('hidden', !char);
+
+    tempChar = char ? JSON.parse(JSON.stringify(char)) : {
+        id: Date.now().toString(36),
+        name: '',
+        type: 'PC',
+        maxHp: 20,
+        currentHp: 20,
+        tempHp: 0,
+        nonlethal: 0,
+        ac: 15,
+        initBonus: 0,
+        attacks: [],
+        resistances: [],
+        limitedAbilities: [],
+        spellcasting: [],
+        statBlock: ''
+    };
+
+    document.getElementById('char-name').value = tempChar.name;
+    document.getElementById('char-type').value = tempChar.type;
+    document.getElementById('char-maxhp').value = tempChar.maxHp;
+    document.getElementById('char-curhp').value = tempChar.currentHp;
+    document.getElementById('char-temphp').value = tempChar.tempHp;
+    document.getElementById('char-nonlethal').value = tempChar.nonlethal;
+    document.getElementById('char-ac').value = tempChar.ac;
+    document.getElementById('char-init').value = tempChar.initBonus;
+    document.getElementById('char-statblock').value = tempChar.statBlock || '';
+
+    switchModalTab(0);
+    document.getElementById('character-modal').style.display = 'flex';
+
+    renderModalAttacks();
+    renderModalAbilities();
+    renderModalResistances();
+    if (switchModalTab.n === 2) populateClassSelect();
+}
+
+function hideCharacterModal() {
+    document.getElementById('character-modal').style.display = 'none';
+    tempChar = null;
+}
+
+function switchModalTab(n) {
+    for (let i = 0; i < 5; i++) {
+        document.getElementById('m-tab-' + i).classList.toggle('active', i === n);
+        document.getElementById(['modal-basic','modal-attacks','modal-resources','modal-defenses','modal-statblock'][i]).classList.toggle('hidden', i !== n);
+    }
+    if (n === 2) populateClassSelect();
+}
+
+function populateClassSelect() {
+    const select = document.getElementById('selected-class');
+    select.innerHTML = '';
+    tempChar.spellcasting.forEach(sc => {
+        const opt = document.createElement('option');
+        opt.value = sc.className;
+        opt.textContent = sc.className;
+        select.appendChild(opt);
+    });
+    if (tempChar.spellcasting.length > 0) {
+        loadClassData();
+    } else {
+        document.getElementById('class-content').classList.add('hidden');
+    }
+}
+
+function addSpellcastingClass() {
+    const className = prompt('Enter class name:');
+    if (!className || tempChar.spellcasting.some(sc => sc.className === className)) return;
+    const newClass = {
+        className,
+        casterType: 'prepared',
+        slots: defaultSpellSlots(true),
+        spells: []
+    };
+    tempChar.spellcasting.push(newClass);
+    populateClassSelect();
+    document.getElementById('selected-class').value = className;
+    loadClassData();
+}
+
+function deleteSpellcastingClass() {
+    const className = document.getElementById('selected-class').value;
+    if (!className || !confirm(`Delete ${className}?`)) return;
+    tempChar.spellcasting = tempChar.spellcasting.filter(sc => sc.className !== className);
+    populateClassSelect();
+    if (tempChar.spellcasting.length > 0) {
+        document.getElementById('selected-class').value = tempChar.spellcasting[0].className;
+        loadClassData();
+    } else {
+        document.getElementById('class-content').classList.add('hidden');
+    }
+}
+
+function loadClassData() {
+    const className = document.getElementById('selected-class').value;
+    if (!className) {
+        document.getElementById('class-content').classList.add('hidden');
+        return;
+    }
+    const sc = tempChar.spellcasting.find(sc => sc.className === className);
+    document.getElementById('class-content').classList.remove('hidden');
+    document.getElementById('caster-type').value = sc.casterType;
+    document.getElementById('spells-title').textContent = sc.casterType === 'prepared' ? 'Prepared Spells' : 'Known Spells';
+    renderClassSpellSlots(sc);
+    renderClassSpells(sc);
+}
+
+function updateCasterType() {
+    const className = document.getElementById('selected-class').value;
+    const sc = tempChar.spellcasting.find(sc => sc.className === className);
+    sc.casterType = document.getElementById('caster-type').value;
+    sc.slots = defaultSpellSlots(sc.casterType === 'prepared');
+    sc.spells = []; // reset spells on type change
+    document.getElementById('spells-title').textContent = sc.casterType === 'prepared' ? 'Prepared Spells' : 'Known Spells';
+    renderClassSpellSlots(sc);
+    renderClassSpells(sc);
+}
+
+function renderClassSpellSlots(sc) {
+    const container = document.getElementById('spell-slots-grid');
+    container.innerHTML = '';
+    const isPrepared = sc.casterType === 'prepared';
+    for (let l = 1; l <= 9; l++) {
+        const count = sc.spells.filter(s => s.level === l).length;
+        const currentHtml = isPrepared ? `<span>${count}</span>` : `<input type="number" value="${sc.slots[l].current || 0}" onchange="updateSlotCurrent(${l}, this.value)">`;
+        const div = document.createElement('div');
+        div.innerHTML = `
+            <label>Level ${l}</label>
+            <div style="display:flex;gap:8px;align-items:center;">
+                <input type="number" value="${sc.slots[l].max || 0}" onchange="updateSlotMax(${l}, this.value)">
+                <span>/</span>
+                ${currentHtml}
+            </div>
+        `;
+        container.appendChild(div);
+    }
+}
+
+function updateSlotMax(l, val) {
+    const className = document.getElementById('selected-class').value;
+    const sc = tempChar.spellcasting.find(sc => sc.className === className);
+    sc.slots[l].max = parseInt(val) || 0;
+}
+
+function updateSlotCurrent(l, val) {
+    const className = document.getElementById('selected-class').value;
+    const sc = tempChar.spellcasting.find(sc => sc.className === className);
+    sc.slots[l].current = parseInt(val) || 0;
+}
+
+function renderClassSpells(sc) {
+    const container = document.getElementById('spells-list');
+    container.innerHTML = '';
+    sc.spells.forEach(sp => {
+        const div = document.createElement('div');
+        div.className = 'list-item';
+        div.innerHTML = `
+            <div>${sp.name} <span style="color:#94a3b8;">(Lvl ${sp.level})</span></div>
+            <button onclick="removeSpellFromClass('${sp.id}')" style="background:#7f1d1d;color:white;border:none;padding:4px 8px;border-radius:4px;">×</button>
+        `;
+        container.appendChild(div);
+    });
+}
+
+function addSpellToClass() {
+    const className = document.getElementById('selected-class').value;
+    const sc = tempChar.spellcasting.find(sc => sc.className === className);
+    const spellName = document.getElementById('new-spell-name').value.trim();
+    const level = parseInt(document.getElementById('new-spell-level').value);
+    if (!spellName) return;
+    const isPrepared = sc.casterType === 'prepared';
+    const count = sc.spells.filter(s => s.level === level).length;
+    if (isPrepared && count >= sc.slots[level].max) return alert('No more slots available for this level.');
+    sc.spells.push({id: Date.now().toString(36) + Math.random().toString(36).slice(2), name: spellName, level});
+    document.getElementById('new-spell-name').value = '';
+    renderClassSpells(sc);
+    renderClassSpellSlots(sc);
+}
+
+function removeSpellFromClass(id) {
+    const className = document.getElementById('selected-class').value;
+    const sc = tempChar.spellcasting.find(sc => sc.className === className);
+    sc.spells = sc.spells.filter(s => s.id !== id);
+    renderClassSpells(sc);
+    renderClassSpellSlots(sc);
+}
+
+function renderModalAttacks() {
+    const container = document.getElementById('attacks-list');
+    container.innerHTML = '';
+    tempChar.attacks.forEach((atk, i) => {
+        const div = document.createElement('div');
+        div.className = 'list-item';
+        div.innerHTML = `
+            <div>${atk}</div>
+            <button onclick="removeAttackFromTemp(${i})" style="background:#7f1d1d;color:white;border:none;padding:4px 8px;border-radius:4px;">×</button>
+        `;
+        container.appendChild(div);
+    });
+}
+
+function addAttackToTemp() {
+    const attack = document.getElementById('new-attack').value.trim();
+    if (!attack) return;
+    tempChar.attacks.push(attack);
+    document.getElementById('new-attack').value = '';
+    renderModalAttacks();
+}
+
+function removeAttackFromTemp(i) {
+    tempChar.attacks.splice(i, 1);
+    renderModalAttacks();
+}
+
+function renderModalAbilities() {
+    const container = document.getElementById('abilities-list');
+    container.innerHTML = '';
+    tempChar.limitedAbilities.forEach((ab, i) => {
+        const div = document.createElement('div');
+        div.className = 'list-item';
+        div.innerHTML = `
+            <div>${ab.name} <span style="color:#94a3b8;">${ab.currentUses}/${ab.maxUses}</span></div>
+            <button onclick="removeAbilityFromTemp(${i})" style="background:#7f1d1d;color:white;border:none;padding:4px 8px;border-radius:4px;">×</button>
+        `;
+        container.appendChild(div);
+    });
+}
+
+function addAbilityToTemp() {
+    const name = document.getElementById('new-ability-name').value.trim();
+    const max = parseInt(document.getElementById('new-ability-uses').value) || 1;
+    if (!name) return;
+    tempChar.limitedAbilities.push({name, maxUses: max, currentUses: max});
+    document.getElementById('new-ability-name').value = '';
+    document.getElementById('new-ability-uses').value = '';
+    renderModalAbilities();
+}
+
+function removeAbilityFromTemp(i) {
+    tempChar.limitedAbilities.splice(i, 1);
+    renderModalAbilities();
+}
+
+function renderModalResistances() {
+    const container = document.getElementById('resistances-list');
+    container.innerHTML = '';
+    tempChar.resistances.forEach((res, i) => {
+        const chip = document.createElement('div');
+        chip.className = 'chip';
+        chip.innerHTML = `${res} <span onclick="removeResistanceFromTemp(${i});event.stopImmediatePropagation()" style="cursor:pointer;color:#f87171;">×</span>`;
+        container.appendChild(chip);
+    });
+}
+
+function addResistanceToTemp() {
+    const val = document.getElementById('new-resistance').value.trim();
+    if (!val) return;
+    if (!tempChar.resistances.includes(val)) {
+        tempChar.resistances.push(val);
+        renderModalResistances();
+    }
+    document.getElementById('new-resistance').value = '';
+}
+
+function removeResistanceFromTemp(i) {
+    tempChar.resistances.splice(i, 1);
+    renderModalResistances();
+}
+
+function saveCharacter() {
+    if (!tempChar.name.trim()) return alert('Name is required');
+
+    if (editingId) {
+        const idx = characters.findIndex(c => c.id === editingId);
+        if (idx > -1) characters[idx] = tempChar;
+    } else {
+        characters.push(tempChar);
+    }
+    saveData();
+    renderCharacters();
+    hideCharacterModal();
+}
+
+function deleteCurrentCharacter() {
+    if (!editingId || !confirm('Delete permanently?')) return;
+    characters = characters.filter(c => c.id !== editingId);
+    saveData();
+    renderCharacters();
+    hideCharacterModal();
+}
+
+// COMBAT
+function renderCombat() {
+    const tbody = document.getElementById('combat-tbody');
+    tbody.innerHTML = '';
+    const noCombat = document.getElementById('no-combat');
+
+    if (currentCombat.length === 0) {
+        noCombat.style.display = 'block';
+        document.getElementById('round-display').textContent = '—';
+        return;
+    }
+
+    noCombat.style.display = 'none';
+    document.getElementById('round-display').textContent = round;
+
+    currentCombat.forEach((c, i) => {
+        const isCurrent = i === currentTurnIndex;
+        const hp = c.currentHp || c.maxHp || 10;
+        const percent = c.maxHp ? Math.max(0, Math.min(100, Math.round((hp / c.maxHp) * 100))) : 100;
+        let barClass = 'hp-bar';
+        if (percent < 30) barClass += ' hp-low';
+        else if (percent < 60) barClass += ' hp-mid';
+
+        const mainRow = document.createElement('tr');
+        if (isCurrent) mainRow.classList.add('current-turn');
+        mainRow.style.cursor = 'pointer';
+        mainRow.innerHTML = `
+            <td>
+                <input type="number" value="${c.initiative !== null ? c.initiative : ''}" 
+                       onchange="updateInitiative(${i}, this.value)" style="width:60px;background:transparent;border:1px solid #555;border-radius:4px;text-align:center;font-size:1.1rem;">
+            </td>
+            <td>
+                <strong>${c.name}</strong>
+                <span style="font-size:0.75rem;background:#334155;padding:2px 8px;border-radius:9999px;margin-left:8px;">${c.type}</span>
+            </td>
+            <td>
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <div style="flex:1;">
+                        <div class="hp-bar-container"><div class="${barClass}" style="width:${percent}%"></div></div>
+                    </div>
+                    <div style="font-family:monospace;white-space:nowrap;">
+                        ${hp}/${c.maxHp}
+                        ${c.tempHp ? ` +${c.tempHp}` : ''}
+                        ${c.nonlethal ? ` <span style="color:#f59e0b">(NL:${c.nonlethal})</span>` : ''}
+                    </div>
+                </div>
+            </td>
+            <td id="cond-cell-${i}"></td>
+            <td style="text-align:right;white-space:nowrap;">
+                <button onclick="event.stopImmediatePropagation();toggleExpand(${i});" class="btn btn-secondary" style="padding:4px 8px;font-size:0.8rem;margin-right:4px;">Details</button>
+                <button onclick="event.stopImmediatePropagation();removeCombatant(${i});" class="btn btn-danger" style="padding:4px 8px;font-size:0.8rem;"><i class="fa-solid fa-trash"></i></button>
+            </td>
+        `;
+        tbody.appendChild(mainRow);
+
+        const condCell = mainRow.querySelector(`#cond-cell-${i}`);
+        c.conditions.forEach((cond, idx) => {
+            const chip = document.createElement('div');
+            chip.className = 'condition';
+            let text = cond.name;
+            if (cond.duration !== null && cond.duration > 0) text += ` (${cond.duration})`;
+            chip.innerHTML = `${text} <span onclick="event.stopImmediatePropagation();removeCondition(${i},${idx});" style="cursor:pointer;color:#f87171;">×</span>`;
+            condCell.appendChild(chip);
+        });
+        const plus = document.createElement('button');
+        plus.textContent = '+';
+        plus.style.cssText = 'font-size:0.75rem;padding:3px 8px;background:#334155;border:none;border-radius:4px;cursor:pointer;margin-left:8px;';
+        plus.onclick = e => { e.stopImmediatePropagation(); openConditionsModal(i); };
+        condCell.appendChild(plus);
+
+        const detailRow = document.createElement('tr');
+        detailRow.id = `detail-row-${i}`;
+        detailRow.style.display = expandedRows.has(i) ? 'table-row' : 'none';
+        let spellcastingHtml = '';
+        if (c.spellcasting && c.spellcasting.length > 0) {
+            spellcastingHtml = c.spellcasting.map(sc => {
+                const isPrepared = sc.casterType === 'prepared';
+                const slotsHtml = Object.keys(sc.slots || {}).map(l => {
+                    const sl = sc.slots[l];
+                    if (!sl || sl.max === 0) return '';
+                    let display = isPrepared 
+                        ? sc.spells.filter(s => s.level == l && !s.expended).length + ' prepared'
+                        : `${sl.current || 0}/${sl.max}`;
+                    return `<div>Lvl ${l}: <span style="font-family:monospace;">${display}</span></div>`;
+                }).filter(h => h).join('');
+
+                const spellsHtml = sc.spells.map(sp => {
+                    let style = '';
+                    let button = '';
+                    let status = '';
+
+                    if (isPrepared) {
+                        if (sp.expended) {
+                            style = 'opacity:0.5; text-decoration:line-through;';
+                            status = '<span style="color:#f87171;font-size:0.8rem;">(expended)</span>';
+                        }
+                        button = `<button onclick="castPreparedSpell(${i}, '${sc.className}', '${sp.id}');event.stopImmediatePropagation()" style="font-size:0.7rem;padding:2px 8px;background:#10b981;color:white;border:none;border-radius:4px;cursor:pointer;">Cast</button>`;
+                    } else {
+                        // Spontaneous – show cast button only if slots remain
+                        const lvlSlots = sc.slots[sp.level];
+                        if (lvlSlots && lvlSlots.current > 0) {
+                            button = `<button onclick="castSpontaneousSpell(${i}, '${sc.className}', ${sp.level});event.stopImmediatePropagation()" style="font-size:0.7rem;padding:2px 8px;background:#10b981;color:white;border:none;border-radius:4px;cursor:pointer;">Cast</button>`;
+                        } else {
+                            button = `<span style="color:#f87171;font-size:0.8rem;">No slots</span>`;
+                        }
+                    }
+
+                    return `
+                        <div style="display:flex;justify-content:space-between;align-items:center;background:#1e2937;padding:6px 10px;border-radius:6px;margin-bottom:4px;${style}">
+                            <span>${sp.name} (Lvl ${sp.level}) ${status}</span>
+                            ${button}
+                        </div>
+                    `;
+                }).join('');
+
+                return `
+                    <div style="margin-top:20px;">
+                        <div style="font-size:0.85rem;color:#94a3b8;">${sc.className} (${sc.casterType})</div>
+                        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px;">${slotsHtml}</div>
+                        <div style="margin-top:12px;">${spellsHtml}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+        let abilitiesHtml = '';
+        if (c.limitedAbilities && c.limitedAbilities.length > 0) {
+            abilitiesHtml = c.limitedAbilities.map((ab, idx) => `
+                <div style="display:flex;justify-content:space-between;align-items:center;background:#1e2937;padding:6px 10px;border-radius:6px;margin-bottom:4px;">
+                    <span>${ab.name} <span style="color:#94a3b8;">${ab.currentUses}/${ab.maxUses}</span></span>
+                    ${ab.currentUses > 0 ? `<button onclick="spendAbility(${i},${idx});event.stopImmediatePropagation()" style="font-size:0.7rem;padding:2px 8px;background:#10b981;color:white;border:none;border-radius:4px;cursor:pointer;">Use</button>` : ''}
+                </div>
+            `).join('');
+            abilitiesHtml = `
+                <div style="margin-top:20px;">
+                    <div style="font-size:0.85rem;color:#94a3b8;">Limited Abilities</div>
+                    <div style="margin-top:8px;">${abilitiesHtml}</div>
+                </div>
+            `;
+        }
+        let resistancesHtml = '';
+        if (c.resistances && c.resistances.length > 0) {
+            resistancesHtml = `
+                <div style="margin-top:20px;">
+                    <div style="font-size:0.85rem;color:#94a3b8;">Resistances</div>
+                    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;">
+                        ${c.resistances.map(r => `<span class="chip">${r}</span>`).join('')}
+                    </div>
+                </div>
+            `;
+        }
+        let attacksHtml = c.attacks.map(a => `<li>${a}</li>`).join('');
+        detailRow.innerHTML = `
+            <td colspan="5" style="padding:0;">
+                <div class="expand-content" style="display:grid;grid-template-columns:220px 1fr;gap:24px;">
+                    <div>
+                        <div style="font-size:0.85rem;color:#94a3b8;">AC</div>
+                        <div style="font-size:2.5rem;font-weight:700;color:var(--accent);">${c.ac}</div>
+
+                        <div style="margin-top:24px;">
+                            <div style="font-size:0.85rem;color:#94a3b8;">Temp HP</div>
+                            <input type="number" value="${c.tempHp}" onchange="updateTempHp(${i},this.value)" style="width:100%;">
+                        </div>
+                        <div style="margin-top:12px;">
+                            <div style="font-size:0.85rem;color:#94a3b8;">Non-lethal</div>
+                            <input type="number" value="${c.nonlethal}" onchange="updateNonlethal(${i},this.value)" style="width:100%;">
+                        </div>
+
+                        <div style="margin-top:24px;">
+                            <div style="font-size:0.85rem;color:#94a3b8;">Damage / Heal</div>
+                            <div style="display:flex;gap:6px;margin-top:6px;">
+                                <input type="number" id="dmg-input-${i}" placeholder="amount" style="flex:1;">
+                                <button onclick="applyDamage(${i}, parseInt(document.getElementById('dmg-input-${i}').value)||0);event.stopImmediatePropagation()" style="background:#ef4444;color:white;padding:8px 12px;border-radius:6px;border:none;cursor:pointer;">Damage</button>
+                                <button onclick="applyHeal(${i}, parseInt(document.getElementById('dmg-input-${i}').value)||0);event.stopImmediatePropagation()" style="background:#10b981;color:white;padding:8px 12px;border-radius:6px;border:none;cursor:pointer;">Heal</button>
+                            </div>
+                        </div>
+
+                        <button onclick="setCurrentTurn(${i});event.stopImmediatePropagation()" class="btn btn-secondary" style="margin-top:24px;width:100%;">Set as Current Turn</button>
+                    </div>
+
+                    <div>
+                        <div style="display:flex;gap:8px;align-items:baseline;margin-bottom:12px;">
+                            <h4 style="margin:0;font-size:1rem;">Attacks</h4>
+                            <button onclick="viewStatBlock(${i});event.stopImmediatePropagation()" class="btn btn-secondary" style="font-size:0.75rem;padding:4px 10px;">Stat Block</button>
+                            <button onclick="editFromCombat(${i});event.stopImmediatePropagation()" class="btn btn-secondary" style="font-size:0.75rem;padding:4px 10px;">Edit</button>
+                            <button onclick="saveToLibrary(${i});event.stopImmediatePropagation()" class="btn btn-secondary" style="font-size:0.75rem;padding:4px 10px;">Save to Library</button>
+                        </div>
+                        <ul style="margin:0;padding-left:20px;font-size:0.9rem;">
+                            ${attacksHtml}
+                        </ul>
+                        ${resistancesHtml}
+                        ${spellcastingHtml}
+                        ${abilitiesHtml}
+                    </div>
+                </div>
+            </td>
+        `;
+        tbody.appendChild(detailRow);
+    });
+}
+
+function castPreparedSpell(combatIdx, className, spellId) {
+    const c = currentCombat[combatIdx];
+    const sc = c.spellcasting.find(s => s.className === className);
+    if (!sc) return;
+
+    const spell = sc.spells.find(s => s.id === spellId);
+    if (!spell || spell.expended) return;
+
+    spell.expended = true;
+    saveData();
+    renderCombat();
+}
+
+function castSpontaneousSpell(combatIdx, className, level) {
+    const c = currentCombat[combatIdx];
+    const sc = c.spellcasting.find(s => s.className === className);
+    if (!sc) return;
+
+    const slots = sc.slots[level];
+    if (!slots || slots.current <= 0) {
+        alert('No level ' + level + ' slots remaining!');
+        return;
+    }
+
+    slots.current--;
+    saveData();
+    renderCombat();
+}
+
+function toggleExpand(i) {
+    if (expandedRows.has(i)) expandedRows.delete(i);
+    else expandedRows.add(i);
+    renderCombat();
+}
+
+function setCurrentTurn(i) {
+    currentTurnIndex = i;
+    saveData();
+    renderCombat();
+}
+
+function applyDamage(i, amt) {
+    if (amt <= 0) return;
+    let c = currentCombat[i];
+    if (c.tempHp > 0) {
+        const take = Math.min(amt, c.tempHp);
+        c.tempHp -= take;
+        amt -= take;
+    }
+    c.currentHp -= amt;
+    saveData();
+    renderCombat();
+}
+
+function applyHeal(i, amt) {
+    if (amt <= 0) return;
+    let c = currentCombat[i];
+    c.currentHp = Math.min(c.maxHp, c.currentHp + amt);
+    saveData();
+    renderCombat();
+}
+
+function removeCombatant(i) {
+    if (confirm(`Remove ${currentCombat[i].name}?`)) {
+        currentCombat.splice(i, 1);
+        if (currentTurnIndex >= currentCombat.length) currentTurnIndex = Math.max(0, currentCombat.length - 1);
+        expandedRows.clear();
+        saveData();
+        renderCombat();
+    }
+}
+
+function saveToLibrary(i) {
+    let clone = JSON.parse(JSON.stringify(currentCombat[i]));
+    clone.id = Date.now().toString(36) + Math.random().toString(36).substr(2);
+    delete clone.initiative;
+    delete clone.conditions;
+    clone.currentHp = clone.maxHp;
+    clone.tempHp = 0;
+    clone.nonlethal = 0;
+    characters.push(clone);
+    saveData();
+    renderCharacters();
+    alert(`${clone.name} saved to library`);
+}
+
+function editFromCombat(i) {
+    const c = currentCombat[i];
+    const existing = characters.find(ch => ch.id === c.id);
+    showCharacterModal(existing || c);
+}
+
+function updateInitiative(i, val) {
+    const num = parseInt(val);
+    currentCombat[i].initiative = isNaN(num) ? null : num;
+    sortCombat();
+    saveData();
+    renderCombat();
+}
+
+function updateTempHp(i, val) {
+    currentCombat[i].tempHp = parseInt(val) || 0;
+    saveData();
+    renderCombat();
+}
+
+function updateNonlethal(i, val) {
+    currentCombat[i].nonlethal = parseInt(val) || 0;
+    saveData();
+    renderCombat();
+}
+
+function spendAbility(i, idx) {
+    const ab = currentCombat[i].limitedAbilities[idx];
+    if (ab && ab.currentUses > 0) {
+        ab.currentUses--;
+        saveData();
+        renderCombat();
+    }
+}
+
+function sortCombat() {
+    currentCombat.sort((a, b) => {
+        if (a.initiative === null) return 1;
+        if (b.initiative === null) return -1;
+        return b.initiative - a.initiative;
+    });
+}
+
+function rollAllInitiatives() {
+    currentCombat.forEach(c => {
+        if (c.initiative === null) {
+            c.initiative = Math.floor(Math.random() * 20) + 1 + (c.initBonus || 0);
+        }
+    });
+    sortCombat();
+    saveData();
+    renderCombat();
+}
+
+function nextTurn() {
+    if (currentCombat.length === 0) return;
+    currentTurnIndex = (currentTurnIndex + 1) % currentCombat.length;
+    if (currentTurnIndex === 0) {
+        round++;
+        decrementTimedConditions();
+    }
+    saveData();
+    renderCombat();
+}
+
+function prevTurn() {
+    if (currentCombat.length === 0) return;
+    currentTurnIndex = (currentTurnIndex - 1 + currentCombat.length) % currentCombat.length;
+    saveData();
+    renderCombat();
+}
+
+function decrementTimedConditions() {
+    currentCombat.forEach(c => {
+        c.conditions = c.conditions.filter(cond => {
+            if (cond.duration === null) return true;
+            cond.duration = Math.max(0, cond.duration - 1);
+            return cond.duration > 0;
+        });
+    });
+}
+
+function newCombat() {
+    if (currentCombat.length && !confirm('Clear current combat?')) return;
+    currentCombat = [];
+    round = 1;
+    currentTurnIndex = 0;
+    expandedRows.clear();
+    saveData();
+    renderCombat();
+}
+
+// CONDITIONS
+function openConditionsModal(i) {
+    conditionsIndex = i;
+    renderCurrentConditions();
+    document.getElementById('conditions-modal').style.display = 'flex';
+}
+
+function hideConditionsModal() {
+    document.getElementById('conditions-modal').style.display = 'none';
+    conditionsIndex = -1;
+}
+
+function renderCurrentConditions() {
+    const container = document.getElementById('current-conditions-display');
+    container.innerHTML = '';
+    if (conditionsIndex < 0) return;
+    const c = currentCombat[conditionsIndex];
+    c.conditions.forEach((cond, idx) => {
+        const div = document.createElement('div');
+        div.className = 'condition';
+        let text = cond.name;
+        if (cond.duration !== null && cond.duration > 0) text += ` (${cond.duration})`;
+        div.innerHTML = `${text} <span onclick="removeConditionFromModal(${idx});event.stopImmediatePropagation()" style="cursor:pointer;color:#f87171;">×</span>`;
+        container.appendChild(div);
+    });
+}
+
+function removeCondition(i, idx) {
+    currentCombat[i].conditions.splice(idx, 1);
+    saveData();
+    renderCombat();
+}
+
+function removeConditionFromModal(idx) {
+    currentCombat[conditionsIndex].conditions.splice(idx, 1);
+    renderCurrentConditions();
+    saveData();
+    renderCombat();
+}
+
+function addConditionFromModal() {
+    const select = document.getElementById('condition-select');
+    const durInput = document.getElementById('condition-duration');
+    const name = select.value;
+    let duration = durInput.value.trim() ? parseInt(durInput.value) : null;
+    if (duration !== null && duration < 1) duration = null;
+
+    const c = currentCombat[conditionsIndex];
+    if (!c.conditions.some(cond => cond.name === name)) {
+        c.conditions.push({name, duration});
+        saveData();
+        renderCurrentConditions();
+        renderCombat();
+    }
+    durInput.value = '';
+}
+
+function addCustomConditionFromModal() {
+    const input = document.getElementById('custom-condition');
+    const name = input.value.trim();
+    if (!name) return;
+    const durInput = document.getElementById('condition-duration');
+    let duration = durInput.value.trim() ? parseInt(durInput.value) : null;
+    if (duration !== null && duration < 1) duration = null;
+
+    const c = currentCombat[conditionsIndex];
+    if (!c.conditions.some(cond => cond.name === name)) {
+        c.conditions.push({name, duration});
+        saveData();
+        renderCurrentConditions();
+        renderCombat();
+    }
+    input.value = '';
+    durInput.value = '';
+}
+
+// LIBRARY
+function showLibraryModal() {
+    renderLibraryList();
+    document.getElementById('library-modal').style.display = 'flex';
+}
+
+function hideLibraryModal() {
+    document.getElementById('library-modal').style.display = 'none';
+}
+
+function renderLibraryList(filter = '') {
+    const container = document.getElementById('library-list');
+    container.innerHTML = '';
+    let list = characters;
+    if (filter) list = characters.filter(c => c.name.toLowerCase().includes(filter.toLowerCase()));
+
+    list.forEach(char => {
+        const div = document.createElement('div');
+        div.style.display = 'flex';
+        div.style.alignItems = 'center';
+        div.style.padding = '12px';
+        div.style.background = '#1e2937';
+        div.style.borderRadius = '8px';
+        div.style.marginBottom = '8px';
+        div.innerHTML = `
+            <div style="flex:1;">
+                <div style="font-weight:600;">${char.name}</div>
+                <div style="font-size:0.8rem;color:#94a3b8;">${char.type} • ${char.maxHp} HP</div>
+            </div>
+            <input type="number" min="0" value="0" class="qty" data-id="${char.id}" style="width:60px;">
+        `;
+        container.appendChild(div);
+    });
+}
+
+function filterLibrary() {
+    renderLibraryList(document.getElementById('library-search').value);
+}
+
+function addSelectedToCombat() {
+    const qtys = document.querySelectorAll('.qty');
+    qtys.forEach(qtyInput => {
+        const qty = parseInt(qtyInput.value);
+        if (qty > 0) {
+            const source = characters.find(c => c.id === qtyInput.dataset.id);
+            if (source) {
+                for (let k = 0; k < qty; k++) {
+                    const copy = JSON.parse(JSON.stringify(source));
+                    if (qty > 1) copy.name += ` #${k + 1}`;
+                    copy.initiative = null;
+                    copy.conditions = [];
+                    copy.currentHp = copy.maxHp;
+                    copy.tempHp = 0;
+                    copy.nonlethal = 0;
+                    if (copy.limitedAbilities) {
+                        copy.limitedAbilities.forEach(ab => ab.currentUses = ab.maxUses);
+                    }
+                    if (copy.spellcasting) {
+                        copy.spellcasting.forEach(sc => {
+                            if (sc.casterType !== 'prepared') {
+                                Object.keys(sc.slots).forEach(l => {
+                                    sc.slots[l].current = sc.slots[l].max;
+                                });
+                            }
+                            // for prepared, spells are the preparations, no change
+                        });
+                    }
+                    currentCombat.push(copy);
+                }
+            }
+        }
+    });
+    saveData();
+    renderCombat();
+    hideLibraryModal();
+}
+
+// QUICK ADD
+function showQuickModal() {
+    document.getElementById('quick-modal').style.display = 'flex';
+}
+
+function hideQuickModal() {
+    document.getElementById('quick-modal').style.display = 'none';
+}
+
+function addQuickMonster() {
+    const name = document.getElementById('quick-name').value.trim() || 'Monster';
+    const maxHp = parseInt(document.getElementById('quick-maxhp').value) || 10;
+    const ac = parseInt(document.getElementById('quick-ac').value) || 10;
+    const initBonus = parseInt(document.getElementById('quick-init').value) || 0;
+    const qty = Math.max(1, parseInt(document.getElementById('quick-quantity').value) || 1);
+
+    for (let k = 0; k < qty; k++) {
+        const thisName = qty > 1 ? `${name} #${k+1}` : name;
+        currentCombat.push({
+            id: Date.now().toString(36) + Math.random().toString(36).substr(2),
+            name: thisName,
+            type: 'Monster',
+            maxHp, currentHp: maxHp, tempHp: 0, nonlethal: 0,
+            ac, initBonus, initiative: null, conditions: [],
+            attacks: [], resistances: [], limitedAbilities: [], spellcasting: [], statBlock: ''
+        });
+    }
+    saveData();
+    renderCombat();
+    hideQuickModal();
+}
+
+// STAT BLOCK
+function viewStatBlock(i) {
+    const text = currentCombat[i].statBlock || 'No stat block entered.';
+    document.getElementById('statblock-text').textContent = text;
+    document.getElementById('statblock-modal').style.display = 'flex';
+}
+
+function hideStatblockModal() {
+    document.getElementById('statblock-modal').style.display = 'none';
+}
+
+// EXPORT / IMPORT
+function exportData() {
+    const data = { characters, currentCombat, round, currentTurnIndex };
+    const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `rpg-tracker-${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+function handleImport(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+        try {
+            const imported = JSON.parse(ev.target.result);
+            if (imported.characters) characters = imported.characters;
+            if (imported.currentCombat) currentCombat = imported.currentCombat;
+            if (imported.round) round = imported.round;
+            if (imported.currentTurnIndex !== undefined) currentTurnIndex = imported.currentTurnIndex;
+
+            characters.forEach(loadData); // apply fixes
+            currentCombat.forEach(loadData);
+            saveData();
+            renderCharacters();
+            renderCombat();
+            alert('Imported successfully!');
+        } catch(err) {
+            alert('Import failed: ' + err.message);
+        }
+    };
+    reader.readAsText(file);
+}
+
+function clearAllData() {
+    if (!confirm('Erase ALL data?')) return;
+    localStorage.clear();
+    characters = [];
+    currentCombat = [];
+    round = 1;
+    currentTurnIndex = 0;
+    expandedRows.clear();
+    renderCharacters();
+    renderCombat();
+}
+
+window.onload = () => {
+    loadData();
+    switchTab(0);
+};
+</script>
+</body>
+</html>
