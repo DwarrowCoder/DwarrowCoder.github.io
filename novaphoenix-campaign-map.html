@@ -20,9 +20,16 @@
         <style>
             #map {
                 height: 80vh;
+                background: #000;        /* pure black space */
                 border: 2px solid #444;
                 border-radius: 8px;
             }
+
+            .leaflet-container {
+                background: #000 !important;
+            }
+
+
         </style>
     </head>
     <body class="w3-gray">
@@ -43,18 +50,24 @@
             <script>
                 // Map Init
                 const map = L.map('map', {
-                    minZoom: -3,
-                    maxZoom: 3,
+                    minZoom: -8,
+                    maxZoom: 6,
+                    zoomSnap: 0.5,                  // Smoother zoom steps
+                    zoomDelta: 0.5,
                     center: [0, 0],
-                    zoom: -1,
+                    zoom: -4,
                     crs: L.CRS.Simple
                 });
 
-                const imgWidth = 10800;
-                const imgHeight = 10800;
-                const imageBounds = [[0, 0], [imgHeight, imgWidth]];
-                L.imageOverlay('./images/swmap.jpg', imageBounds).addTo(map);
-                map.fitBounds(imageBounds);
+                L.tileLayer('', {
+                    attribution: 'Star Wars Galaxy – Data: parzivail/SWGalacticMap & galaxy-pathfinder',
+                }).addTo(map);
+
+                const galaxyBounds = L.latLngBounds(
+                    L.latLng(-90, -100),   // SW corner (y min, x min)
+                    L.latLng(80, 140)      // NE corner (y max, x max)
+                );
+                map.fitBounds(galaxyBounds, { padding: [50, 50] });
 
                 var boradin = L.marker([4740, 8365]).addTo(map);
                 boradin.bindTooltip('Boradin')
@@ -147,10 +160,15 @@
                         const marker = L.circleMarker([p.Y, p.X], { // Leaflet is [lat, lng] — swap if your CRS is flipped
                         radius: 4,
                         color: '#00ff00',
-                        fillOpacity: 0.8
-                    }).bindPopup(`<b>${p.Name}</b><br>${p.Region} • ${p.Sector}<br>Click to add waypoint`);
+                        fillColor: '#0066cc',
+                        fillOpacity: 0.8,
+                        interactive: true
+                    }).bindPopup(`<b>${p.Name}</b><br>${p.Region || 'Unknown'} • ${p.Sector || 'N/A'}`);
                     marker.planetData = p; // store full data
-                    marker.on('click', () => addWaypoint(marker));
+                    marker.on('click', (e) => {
+                        e.originalEvent.stopPropagation();
+                        addWaypoint(marker);
+                    });
                     planetLayer.addLayer(marker);
                 });
 
@@ -342,7 +360,7 @@
             </script>
         </section>
         <section class="w3-container">
-            <div id="controls" class="w3-container">
+            <div id="controls" class="w3-container w3-card">
                 <h3>Hyperspace Navicomputer</h3>
 
                 <p><strong>Waypoints:</strong></p>
@@ -352,14 +370,14 @@
                 <label>Hyperdrive Class: <input id="hdClass" type="number" value="1" step="0.5" style="width:60px"></label><br>
                 <label>User Modifier (e.g. superior nav): <input id="userMod" type="number" value="1" step="0.1" style="width:60px"></label><br><br>
   
-                <button onclick="calculateRoute('waypoint', parseFloat(document.getElementById('hdClass').value), parseFloat(document.getElementById('userMod').value))">Calculate Waypoint Route</button>
-                <button onclick="calculateRoute('fastest', parseFloat(document.getElementById('hdClass').value), parseFloat(document.getElementById('userMod').value))">Fastest Route (Lanes, First 2 Points)</button>
-                <button onclick="calculateRoute('direct', parseFloat(document.getElementById('hdClass').value), parseFloat(document.getElementById('userMod').value))">Direct Jump (Off-Route, First 2 Points)</button>
+                <button class="w3-border w3-button" onclick="calculateRoute('waypoint', parseFloat(document.getElementById('hdClass').value), parseFloat(document.getElementById('userMod').value))">Calculate Waypoint Route</button>
+                <button class="w3-border w3-button" onclick="calculateRoute('fastest', parseFloat(document.getElementById('hdClass').value), parseFloat(document.getElementById('userMod').value))">Fastest Route (Lanes, First 2 Points)</button>
+                <button class="w3-border w3-button" onclick="calculateRoute('direct', parseFloat(document.getElementById('hdClass').value), parseFloat(document.getElementById('userMod').value))">Direct Jump (Off-Route, First 2 Points)</button>
   
                 <div id="result" style="margin-top:15px; font-size:0.9em;"></div>
             </div>
         </section>
-        <footer>
+        <footer class="w3-container">
             <p><i>
                 Uses <a href="https://leafletjs.com/">Leaflet</a>, <a href="https://turfjs.org/">Turf</a>, <a href="https://github.com/perliedman/geojson-path-finder">geojson-path-finder</a>,
                 <a href="https://github.com/parzivail/SWGalacticMap">SWGalacticMap</a> for initial planet data, and <a href="https://gitlab.com/galaxy-pathfinder/galaxy-pathfinder.gitlab.io/">galaxy-pathfinder.gitlab.io</a> for initial route information.
