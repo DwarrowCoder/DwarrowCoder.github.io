@@ -15,8 +15,6 @@
      crossorigin=""></script>
         <!-- Turf.js -->
         <script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
-        <!-- geojson-path-finder (for network routing) -->
-        <script src="https://www.liedman.net/geojson-path-finder/dist/geojson-path-finder.min.js"></script>
         <style>
             #map {
                 height: 80vh;
@@ -68,7 +66,7 @@
         </section>
         <footer class="w3-container">
             <p><i>
-                Uses <a href="https://leafletjs.com/">Leaflet</a>, <a href="https://turfjs.org/">Turf</a>, <a href="https://github.com/perliedman/geojson-path-finder">geojson-path-finder</a>,
+                Uses <a href="https://leafletjs.com/">Leaflet</a>, <a href="https://turfjs.org/">Turf</a>,
                 <a href="https://github.com/parzivail/SWGalacticMap">SWGalacticMap</a> for initial planet data, and <a href="https://gitlab.com/galaxy-pathfinder/galaxy-pathfinder.gitlab.io/">galaxy-pathfinder.gitlab.io</a> for initial route information.
             </i></p>
         </footer>
@@ -142,6 +140,131 @@
                 return 1.0;
             }
 
+            // ====================== PRIORITY QUEUE (Binary Min-Heap) ======================
+            // Simple, efficient binary heap for numbers/strings (min-heap: smallest first)
+            class MinHeap {
+              constructor() {
+                this.heap = []; // { priority: number, key: string, data?: any }
+              }
+            
+              push(priority, key) {
+                this.heap.push({ priority, key });
+                this._bubbleUp(this.heap.length - 1);
+              }
+            
+              pop() {
+                if (this.heap.length === 0) return null;
+                if (this.heap.length === 1) return this.heap.pop();
+            
+                const min = this.heap[0];
+                this.heap[0] = this.heap.pop();
+                this._sinkDown(0);
+                return min;
+              }
+            
+              isEmpty() {
+                return this.heap.length === 0;
+              }
+            
+              _bubbleUp(index) {
+                const element = this.heap[index];
+                while (index > 0) {
+                  const parentIndex = Math.floor((index - 1) / 2);
+                  const parent = this.heap[parentIndex];
+                  if (parent.priority <= element.priority) break;
+                  this.heap[index] = parent;
+                  index = parentIndex;
+                }
+                this.heap[index] = element;
+              }
+            
+              _sinkDown(index) {
+                const length = this.heap.length;
+                const element = this.heap[index];
+            
+                while (true) {
+                  let left = 2 * index + 1;
+                  let right = 2 * index + 2;
+                  let swap = null;
+                  let smallest = index;
+            
+                  if (left < length && this.heap[left].priority < this.heap[smallest].priority) {
+                    smallest = left;
+                  }
+                  if (right < length && this.heap[right].priority < this.heap[smallest].priority) {
+                    smallest = right;
+                  }
+                  if (smallest === index) break;
+            
+                  this.heap[index] = this.heap[smallest];
+                  index = smallest;
+                }
+                this.heap[index] = element;
+              }
+            }
+
+            // ====================== OPTIMIZED DIJKSTRA FUNCTION ======================
+            function findShortestPath(startCoord, endCoord) {
+              const startKey = `${startCoord[0]},${startCoord[1]}`;
+              const endKey   = `${endCoord[0]},${endCoord[1]}`;
+            
+              if (!graph.has(startKey) || !graph.has(endKey)) return null;
+            
+              const distances = new Map();   // key → best known distance
+              const previous  = new Map();   // key → previous key for path reconstruction
+              const pq = new MinHeap();
+            
+              // Init
+              distances.set(startKey, 0);
+              pq.push(0, startKey);
+            
+              while (!pq.isEmpty()) {
+                const { priority: currentDist, key: current } = pq.pop();
+            
+                // Skip outdated entries (lazy deletion style)
+                if (currentDist > (distances.get(current) || Infinity)) continue;
+            
+                // Early exit when we dequeue the target (optimal in Dijkstra)
+                if (current === endKey) break;
+            
+                const node = graph.get(current);
+                if (!node) continue;
+            
+                for (const { key: neighbor, weight, type } of node.neighbors) {
+                  // Apply your per-edge cost logic here (major/minor hours)
+                  const edgeCost = (weight / GRID_UNITS_PER_SQUARE) *
+                    (type === 'major' ? HOURS_PER_SQUARE.major : HOURS_PER_SQUARE.minor);
+            
+                  const alt = currentDist + edgeCost;
+            
+                  if (alt < (distances.get(neighbor) || Infinity)) {
+                    distances.set(neighbor, alt);
+                    previous.set(neighbor, current);
+                    pq.push(alt, neighbor); // push new better estimate (multiple entries OK)
+                  }
+                }
+              }
+            
+              if (!distances.has(endKey)) return null;
+            
+              // Reconstruct path
+              const path = [];
+              let current = endKey;
+              while (current !== startKey) {
+                const [x, y] = current.split(',').map(Number);
+                path.unshift([x, y]);
+                current = previous.get(current);
+                if (!current) return null; // safety
+              }
+              const [sx, sy] = startKey.split(',').map(Number);
+              path.unshift([sx, sy]);
+            
+              return {
+                path,                // array of [x, y] coords
+                cost: distances.get(endKey)  // total base hours (before class/mod)
+              };
+            }
+
             // ====================== LOAD DATA ======================
             let pathFinder, hyperspaceFC, planetsData, planetLayer, routeLayer;
             let userWaypoints = [];
@@ -177,14 +300,27 @@
                     f.properties.type = isMajorRoute(name) ? 'major' : 'minor';
                 });
 
-                // Build pathfinder with custom time cost
-                pathFinder = new PathFinder(hyperspaceFC, {
-                    costFn: (edge) => {
-                        const len = edge.properties.length || planarLength(edge.geometry.coordinates);
-                        const hoursPerUnit = (len / GRID_UNITS_PER_SQUARE) * 
-                        (edge.properties.type === 'major' ? HOURS_PER_SQUARE.major : HOURS_PER_SQUARE.minor);
-                        return hoursPerUnit;
-                    }
+                // ====================== BUILD GRAPH ONCE (in initNavigator) ======================
+                const graph = new Map(); // key: "x,y" → { neighbors: [{key: "x2,y2", weight: number, type: "major"|"minor"}], ... }
+                
+                hyperspaceFC.features.forEach(feature => {
+                  const coords = feature.geometry.coordinates;
+                  const type = feature.properties.type; // 'major' or 'minor' (already tagged)
+                
+                  for (let i = 0; i < coords.length - 1; i++) {
+                    const a = coords[i];
+                    const b = coords[i + 1];
+                    const keyA = `${a[0]},${a[1]}`;
+                    const keyB = `${b[0]},${b[1]}`;
+                
+                    const weight = planarLength([a, b]); // your helper function
+                
+                    if (!graph.has(keyA)) graph.set(keyA, { neighbors: [] });
+                    if (!graph.has(keyB)) graph.set(keyB, { neighbors: [] });
+                
+                    graph.get(keyA).neighbors.push({ key: keyB, weight, type });
+                    graph.get(keyB).neighbors.push({ key: keyA, weight, type }); // undirected
+                  }
                 });
 
                 // Add planets to map (assume your map var is called "map")
@@ -261,7 +397,7 @@
                 const startSnap = turf.nearestPointOnLine(hyperspaceFC, turf.point(startPt)); // turf works on coords
                 const endSnap = turf.nearestPointOnLine(hyperspaceFC, turf.point(endPt));
 
-                const pathResult = pathFinder.findPath(startSnap.geometry.coordinates, endSnap.geometry.coordinates);
+                const pathResult = findShortestPath(startSnap.geometry.coordinates, endSnap.geometry.coordinates);
                 if (!pathResult) return alert('No hyperspace route found');
 
                 // Draw route
@@ -309,7 +445,7 @@
                     // Try network route first
                     const startSnap = turf.nearestPointOnLine(hyperspaceFC, turf.point(startPt));
                     const endSnap = turf.nearestPointOnLine(hyperspaceFC, turf.point(endPt));
-                    const pathResult = pathFinder.findPath(startSnap.geometry.coordinates, endSnap.geometry.coordinates);
+                    const pathResult = findShortestPath(startSnap.geometry.coordinates, endSnap.geometry.coordinates);
 
                     if (pathResult && pathResult.path.length > 1) {
                         // Network route found
