@@ -87,8 +87,8 @@
             }).addTo(map);
 
             const galaxyBounds = L.latLngBounds(
-                L.latLng(-90, -100),   // SW corner (y min, x min)
-                L.latLng(80, 140)      // NE corner (y max, x max)
+                L.latLng(-85, -95),   // SW corner (y min, x min)
+                L.latLng(70, 135)      // NE corner (y max, x max)
             );
             map.fitBounds(galaxyBounds, { padding: [50, 50] });
 
@@ -266,7 +266,7 @@
             }
 
             // ====================== LOAD DATA ======================
-            let pathFinder, hyperspaceFC, planetsData, planetLayer, routeLayer;
+            let pathFinder, hyperspaceFC, planetsData, planetLayer, routeLayer, lanesLayer;
             let userWaypoints = [];
             let graph = new Map(); // key: "x,y" → { neighbors: [{key: "x2,y2", weight: number, type: "major"|"minor"}], ... }
 
@@ -302,6 +302,26 @@
                     const name = f.properties.hyperspace || f.properties.name_web || '';
                     f.properties.type = isMajorRoute(name) ? 'major' : 'minor';
                 });
+
+                // ====================== ADD VISIBLE HYPERSPACE LANES ======================
+                lanesLayer = L.geoJSON(hyperspaceFC, {
+                  style: function (feature) {
+                    const type = feature.properties.type || 'minor';
+                    return {
+                      color: type === 'major' ? '#88ccff' : '#444466',  // bright cyan for major, dim purple-gray for minor
+                      weight: type === 'major' ? 3 : 1.5,               // thicker for major lanes
+                      opacity: type === 'major' ? 0.9 : 0.5,            // more visible major lanes
+                      dashArray: type === 'major' ? null : '5, 3'       // dashed minor for distinction (optional)
+                    };
+                  },
+                  onEachFeature: function (feature, layer) {
+                    // Optional: tooltip/popup with route name
+                    const name = feature.properties.hyperspace || 
+                                 feature.properties.name_web || 
+                                 'Unnamed Lane';
+                    layer.bindTooltip(name, { sticky: true, direction: 'center', opacity: 0.8 });
+                  }
+                }).addTo(map);
 
                 // ====================== BUILD GRAPH ONCE (in initNavigator) ======================
                 hyperspaceFC.features.forEach(feature => {
