@@ -345,7 +345,7 @@
                       fillColor: '#0066cc',
                       fillOpacity: 0.8,
                       interactive: true
-                    }).bindTooltip(`<b>${p.Name}</b><br>${p.Region || 'Unknown'} • ${p.Sector || 'N/A'}`);
+                    });
                     marker.planetData = {  // mimic your old structure
                       Name: props.name,
                       Region: props.region,
@@ -355,6 +355,7 @@
                         e.originalEvent.stopPropagation();
                         addWaypoint(marker);
                     });
+                    marker.bindTooltip(`<b>${p.Name}</b><br>${p.Region || 'Unknown'} • ${p.Sector || 'N/A'}`);
                     planetLayer.addLayer(marker);
                 });
 
