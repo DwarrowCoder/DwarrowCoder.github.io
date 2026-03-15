@@ -67,7 +67,7 @@
         <footer class="w3-container">
             <p><i>
                 Uses <a href="https://leafletjs.com/">Leaflet</a>, <a href="https://turfjs.org/">Turf</a>,
-                <a href="https://github.com/parzivail/SWGalacticMap">SWGalacticMap</a> for initial planet data, and <a href="https://gitlab.com/galaxy-pathfinder/galaxy-pathfinder.gitlab.io/">galaxy-pathfinder.gitlab.io</a> for initial route information.
+                <a href="https://github.com/Wason1797/StarWarsMap">https://github.com/Wason1797/StarWarsMap</a> for initial planet data, and <a href="https://gitlab.com/galaxy-pathfinder/galaxy-pathfinder.gitlab.io/">galaxy-pathfinder.gitlab.io</a> for initial route information.
             </i></p>
         </footer>
         <script>
@@ -99,9 +99,6 @@
 
             // ====================== CONFIG ======================
             const MAX_WAYPOINTS = 10;
-            const SCALE_FACTOR = 6.0; // Set to e.g. 6.5 if using parzivail planets (0-20) with hyperspace grid (~100 range). Test with known planets!
-            const OFFSET_X = -26;
-            const OFFSET_Y = -81;
             const GRID_UNITS_PER_SQUARE = 100; // Tune this once so a typical Core-to-Rim major route = ~40-80 hours on Class 1
             const HOURS_PER_SQUARE = {
                 major: 8,
@@ -281,22 +278,13 @@
                     hyperspaceFC = await hsRes.json();
 
                     // Load planets (parzivail style)
-                    const pRes = await fetch('./data/planets.json');
+                    const pRes = await fetch('./data/planets.geojson');
                     if (!pRes.ok) throw new Error(`Planets fetch failed: ${pRes.status}`);
-                    planetsData = await pRes.json();
+                    const planetsGeo = await pRes.json();
+                    planetsData = planetsGeo.features;
                 } catch(err) {
                     console.error(err);
                     alert("Failed to load galaxy data: check console & file paths");
-                }
-
-                // Optional scaling
-                if (SCALE_FACTOR !== 1) {
-                    planetsData.forEach(p => {
-                        fullX = p.X + p.SubGridX;
-                        p.X = fullX * SCALE_FACTOR + OFFSET_X;
-                        fullY = p.Y + p.SubGridY;
-                        p.Y = fullY * SCALE_FACTOR + OFFSET_Y;
-                    });
                 }
 
                 // Tag route types
@@ -348,15 +336,21 @@
 
                 // Add planets to map (assume your map var is called "map")
                 planetLayer = L.layerGroup().addTo(map);
-                planetsData.forEach(p => {
-                    const marker = L.circleMarker([p.Y, p.X], { // Leaflet is [lat, lng] — swap if your CRS is flipped
-                    radius: 8,
-                    color: '#00ff00',
-                    fillColor: '#0066cc',
-                    fillOpacity: 0.8,
-                    interactive: true
+                planetsData.forEach(feature => {
+                    const props = feature.properties;
+                    const coords = feature.geometry.coordinates;  // [lng/x, lat/y]
+                    const marker = L.circleMarker([coords[1], coords[0]], {  // Leaflet [lat, lng]
+                      radius: 6,
+                      color: '#00ff00',
+                      fillColor: '#0066cc',
+                      fillOpacity: 0.8,
+                      interactive: true
                     }).bindTooltip(`<b>${p.Name}</b><br>${p.Region || 'Unknown'} • ${p.Sector || 'N/A'}`);
-                    marker.planetData = p; // store full data
+                    marker.planetData = {  // mimic your old structure
+                      Name: props.name,
+                      Region: props.region,
+                      Sector: props.sector
+                    };
                     marker.on('click', (e) => {
                         e.originalEvent.stopPropagation();
                         addWaypoint(marker);
