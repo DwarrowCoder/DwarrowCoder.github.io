@@ -348,14 +348,13 @@
                     });
                     marker.planetData = {  // mimic your old structure
                       Name: props.name,
-                      Region: props.region,
-                      Sector: props.sector
+                      Region: props.region
                     };
                     marker.on('click', (e) => {
                         e.originalEvent.stopPropagation();
                         addWaypoint(marker);
                     });
-                    marker.bindTooltip(`<b>${p.Name}</b><br>${p.Region || 'Unknown'} • ${p.Sector || 'N/A'}`);
+                    marker.bindTooltip(`<b>${marker.planetData.Name}</b><br>${marker.planetData.Region || 'Unknown'}`);
                     planetLayer.addLayer(marker);
                 });
 
