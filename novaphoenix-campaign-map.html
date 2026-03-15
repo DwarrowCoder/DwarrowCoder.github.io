@@ -292,9 +292,9 @@
                 // Optional scaling
                 if (SCALE_FACTOR !== 1) {
                     planetsData.forEach(p => {
-                        fullX = p.X + P.SubGridX;
+                        fullX = p.X + p.SubGridX;
                         p.X = fullX * SCALE_FACTOR + OFFSET_X;
-                        fullY = p.Y + P.SubGridY;
+                        fullY = p.Y + p.SubGridY;
                         p.Y = fullY * SCALE_FACTOR + OFFSET_Y;
                     });
                 }
