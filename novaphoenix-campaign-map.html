@@ -268,6 +268,7 @@
             // ====================== LOAD DATA ======================
             let pathFinder, hyperspaceFC, planetsData, planetLayer, routeLayer;
             let userWaypoints = [];
+            let graph = new Map(); // key: "x,y" → { neighbors: [{key: "x2,y2", weight: number, type: "major"|"minor"}], ... }
 
             async function initNavigator() {
                 try
@@ -301,8 +302,6 @@
                 });
 
                 // ====================== BUILD GRAPH ONCE (in initNavigator) ======================
-                const graph = new Map(); // key: "x,y" → { neighbors: [{key: "x2,y2", weight: number, type: "major"|"minor"}], ... }
-                
                 hyperspaceFC.features.forEach(feature => {
                   const coords = feature.geometry.coordinates;
                   const type = feature.properties.type; // 'major' or 'minor' (already tagged)
@@ -342,6 +341,7 @@
             });
 
             routeLayer = L.layerGroup().addTo(map);
+            updateWaypointList();
 
             console.log('✅ Star Wars Hyperspace Navigator ready!');
         }
@@ -497,32 +497,42 @@
             const hours = totalHours.toFixed(1);
             const days = (totalHours / 24).toFixed(1);
 
-            if(mode === 'direct' || mode === "fastest") {
-                document.getElementById('result').innerHTML = `
-                    <h3>${start.Name} → ${end.Name}</h3>
-                    <p><strong>${hours} hours (${days} days)</strong> at Class ${hyperdriveClass}</p>
-                    <small>Region mod: ×${getRegionModifier(start.Region, end.Region).toFixed(1)} | User mod: ×${userMod}</small>
-                    <ul>${breakdown.map(b => `<li>${b}</li>`).join('')}</ul>
-                `;
+            let title = 'Route Calculation';
+            let extraInfo = '';
+            
+            if (mode === 'waypoint') {
+              title = `Waypoint Route (${userWaypoints.length} stops)`;
+              extraInfo = `
+                <small>User mod: ×${userMod} | Segments: ${userWaypoints.length - 1}</small>
+                <table style="width:100%; margin-top:10px; border-collapse:collapse;">
+                  <tr><th>Leg</th><th>Type</th><th>Base hrs</th><th>Mods</th><th>Final hrs</th></tr>
+                  ${breakdown.map(b => `
+                    <tr style="border-bottom:1px solid #ddd;">
+                      <td>${b.leg}</td><td>${b.type}</td><td>${b.base}</td><td>${b.mod}</td><td><b>${b.hours}</b></td>
+                    </tr>
+                  `).join('')}
+                </table>
+              `;
+            } else {
+              const startName = userWaypoints[0]?.planetData?.Name || 'Start';
+              const endName = userWaypoints[1]?.planetData?.Name || 'End';
+              title = `${startName} → ${endName}`;
+              extraInfo = `
+                <small>Region mod: ×${getRegionModifier(userWaypoints[0]?.planetData?.Region || '', userWaypoints[1]?.planetData?.Region || '').toFixed(1)} | User mod: ×${userMod}</small>
+                <ul>${breakdown.map(b => `<li>${b}</li>`).join('')}</ul>
+              `;
             }
-            else if(mode === "waypoint"){
-                document.getElementById('result').innerHTML = `
-                    <h3>Waypoint Route (${userWaypoints.length} stops)</h3>
-                    <p><strong>Total: ${hours} hours (${days} days)</strong> at Class ${hyperdriveClass}</p>
-                    <small>User mod: ×${userMod} | Segments: ${userWaypoints.length - 1}</small>
-                    <table style="width:100%; margin-top:10px; border-collapse:collapse;">
-                        <tr><th>Leg</th><th>Type</th><th>Base hrs</th><th>Mods</th><th>Final hrs</th></tr>
-                        ${breakdown.map(b => `
-                        <tr style="border-bottom:1px solid #ddd;">
-                            <td>${b.leg}</td><td>${b.type}</td><td>${b.base}</td><td>${b.mod}</td><td><b>${b.hours}</b></td>
-                        </tr>
-                        `).join('')}
-                    </table>
-                `;
-            }
+            
+            document.getElementById('result').innerHTML = `
+              <h3>${title}</h3>
+              <p><strong>${hours} hours (${days} days)</strong> at Class ${hyperdriveClass}</p>
+              ${extraInfo}
+            `;
         }
 
-        initNavigator();
+        document.addEventListener('DOMContentLoaded', () => {
+          initNavigator();
+        });
         </script>
     </body>
 </html>
