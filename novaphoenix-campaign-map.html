@@ -47,317 +47,6 @@
         </header>
         <section class="w3-container">
             <div id="map"></div>
-            <script>
-                // Map Init
-                const map = L.map('map', {
-                    minZoom: -8,
-                    maxZoom: 6,
-                    zoomSnap: 0.5,                  // Smoother zoom steps
-                    zoomDelta: 0.5,
-                    center: [0, 0],
-                    zoom: -4,
-                    crs: L.CRS.Simple
-                });
-
-                L.tileLayer('', {
-                    attribution: 'Star Wars Galaxy – Data: parzivail/SWGalacticMap & galaxy-pathfinder',
-                }).addTo(map);
-
-                const galaxyBounds = L.latLngBounds(
-                    L.latLng(-90, -100),   // SW corner (y min, x min)
-                    L.latLng(80, 140)      // NE corner (y max, x max)
-                );
-                map.fitBounds(galaxyBounds, { padding: [50, 50] });
-
-                var boradin = L.marker([4740, 8365]).addTo(map);
-                boradin.bindTooltip('Boradin')
-                var unknown = L.marker([2300, 9450]).addTo(map);
-                unknown.bindTooltip('[Unkown System]')
-
-                // ====================== CONFIG ======================
-                const MAX_WAYPOINTS = 10;
-                const SCALE_FACTOR = 1; // Set to e.g. 6.5 if using parzivail planets (0-20) with hyperspace grid (~100 range). Test with known planets!
-                const GRID_UNITS_PER_SQUARE = 100; // Tune this once so a typical Core-to-Rim major route = ~40-80 hours on Class 1
-                const HOURS_PER_SQUARE = {
-                    major: 8,
-                    minor: 14,
-                    offroute: 20,
-                    deepCore: 24
-                };
-
-                // Major route names (add more as needed)
-                const MAJOR_ROUTES = new Set([
-                    "Corellian Run", "Hydian Way", "Perlemian Trade Route", "Rimma Trade Route",
-                    "Corellian Trade Spine", "Corellian Trade Route", "Hydian", "Perlemian"
-                ]);
-
-                // ====================== HELPERS ======================
-                function isMajorRoute(name) {
-                    if (!name) return false;
-                    return MAJOR_ROUTES.has(name) || name.toLowerCase().includes("corellian") || name.toLowerCase().includes("hydian");
-                }
-
-                function planarLength(coords) { // LineString or array of [x,y]
-                    let total = 0;
-                    for (let i = 1; i < coords.length; i++) {
-                        const dx = coords[i][0] - coords[i-1][0];
-                        const dy = coords[i][1] - coords[i-1][1];
-                        total += Math.hypot(dx, dy);
-                    }
-                    return total;
-                }
-
-                function planarDistance(pt1, pt2) {
-                    return Math.hypot(pt1[0] - pt2[0], pt1[1] - pt2[1]);
-                }
-
-                function getRegionModifier(region1, region2) {
-                    const deep = ["Deep Core", "Core Worlds"];
-                    if (deep.some(r => region1.includes(r) || region2.includes(r))) return 1.5;
-                    return 1.0;
-                }
-
-                // ====================== LOAD DATA ======================
-                let pathFinder, hyperspaceFC, planetsData, planetLayer, routeLayer;
-                let userWaypoints = [];
-
-                async function initNavigator() {
-                    // Load hyperspace (your existing GeoJSON)
-                    const hsRes = await fetch('./data/hyperspace_singlepart_new.json');
-                    hyperspaceFC = await hsRes.json();
-
-                    // Load planets (parzivail style)
-                    const pRes = await fetch('./data/planets.json');
-                    planetsData = await pRes.json();
-
-                    // Optional scaling
-                    if (SCALE_FACTOR !== 1) {
-                        planetsData.forEach(p => {
-                            p.X *= SCALE_FACTOR;
-                            p.Y *= SCALE_FACTOR;
-                        });
-                    }
-
-                    // Tag route types
-                    hyperspaceFC.features.forEach(f => {
-                        const name = f.properties.hyperspace || f.properties.name_web || '';
-                        f.properties.type = isMajorRoute(name) ? 'major' : 'minor';
-                    });
-
-                    // Build pathfinder with custom time cost
-                    pathFinder = new PathFinder(hyperspaceFC, {
-                        costFn: (edge) => {
-                            const len = edge.properties.length || planarLength(edge.geometry.coordinates);
-                            const hoursPerUnit = (len / GRID_UNITS_PER_SQUARE) * 
-                            (edge.properties.type === 'major' ? HOURS_PER_SQUARE.major : HOURS_PER_SQUARE.minor);
-                            return hoursPerUnit;
-                        }
-                    });
-
-                    // Add planets to map (assume your map var is called "map")
-                    planetLayer = L.layerGroup().addTo(map);
-                    planetsData.forEach(p => {
-                        const marker = L.circleMarker([p.Y, p.X], { // Leaflet is [lat, lng] — swap if your CRS is flipped
-                        radius: 8,
-                        color: '#00ff00',
-                        fillColor: '#0066cc',
-                        fillOpacity: 0.8,
-                        interactive: true
-                    }).bindPopup(`<b>${p.Name}</b><br>${p.Region || 'Unknown'} • ${p.Sector || 'N/A'}`);
-                    marker.planetData = p; // store full data
-                    marker.on('click', (e) => {
-                        e.originalEvent.stopPropagation();
-                        addWaypoint(marker);
-                    });
-                    planetLayer.addLayer(marker);
-                });
-
-                routeLayer = L.layerGroup().addTo(map);
-
-                L.control({position: 'topright'}).addTo(map).onAdd = function () {
-                    const div = L.DomUtil.create('div', 'info');
-                    div.innerHTML = '<button onclick="clearWaypoints()">Clear Waypoints</button>';
-                    return div;
-                };
-                console.log('✅ Star Wars Hyperspace Navigator ready!');
-            }
-
-            // ====================== WAYPOINTS ======================
-            function addWaypoint(marker) {
-                if (userWaypoints.length >= MAX_WAYPOINTS) {
-                    alert(`Max ${MAX_WAYPOINTS} waypoints reached. Clear first.`);
-                    return;
-                }
-
-                userWaypoints.push(marker);
-                marker.setStyle({fillColor: '#ff6600', color: '#ff9900'}); // Highlight added
-
-                updateWaypointList();
-            }
-
-            function clearWaypoints() {
-                userWaypoints.forEach(m => {
-                    m.setStyle({fillColor: '#0066cc', color: '#00ccff'});
-                });
-                userWaypoints = [];
-                routeLayer.clearLayers();
-                updateWaypointList();
-            }
-
-            function updateWaypointList() {
-                const list = document.getElementById('waypointList');
-                if (!list) return;
-                list.innerHTML = userWaypoints.map((m, i) => 
-                    `<li>#${i+1}: ${m.planetData.Name}</li>`
-                ).join('') || '<li>No waypoints added yet</li>';
-            }
-
-            // ====================== CALCULATORS ======================
-            function calculateRoute(mode = 'fastest', hyperdriveClass = 1, userMod = 1) {
-                if (userWaypoints.length < 2) return alert('Add at least 2 waypoints by clicking planets');
-
-                routeLayer.clearLayers();
-                let segments = [];
-                let totalHours = 0;
-                let breakdown = [];
-
-                if (mode === 'fastest') {
-                    const start = userWaypoints[0].planetData;
-                    const end = userWaypoints[1].planetData;
-                    const startPt = [start.X, start.Y];
-                    const endPt = [end.X, end.Y];
-
-                    // Snap to network
-                    const startSnap = turf.nearestPointOnLine(hyperspaceFC, turf.point(startPt)); // turf works on coords
-                    const endSnap = turf.nearestPointOnLine(hyperspaceFC, turf.point(endPt));
-
-                    const pathResult = pathFinder.findPath(startSnap.geometry.coordinates, endSnap.geometry.coordinates);
-                    if (!pathResult) return alert('No hyperspace route found');
-
-                    // Draw route
-                    const routeLine = L.polyline(pathResult.path.map(c => [c[1], c[0]]), { // swap for Leaflet [lat,lng]
-                        color: '#00ff00',
-                        weight: 5,
-                        opacity: 0.8
-                    }).addTo(routeLayer);
-
-                    // Time
-                    const baseHours = pathResult.cost;
-                    const regionMod = getRegionModifier(start.Region, end.Region);
-                    totalHours = baseHours * hyperdriveClass * regionMod * userMod;
-
-                    breakdown.push(`Network route: ${baseHours.toFixed(1)} base hours`);
-                } 
-                else if (mode === 'direct') {
-                    const start = userWaypoints[0].planetData;
-                    const end = userWaypoints[1].planetData;
-                    const startPt = [start.X, start.Y];
-                    const endPt = [end.X, end.Y];
-                    const dist = planarDistance(startPt, endPt);
-                    const baseHours = (dist / GRID_UNITS_PER_SQUARE) * HOURS_PER_SQUARE.offroute;
-                    const regionMod = getRegionModifier(start.Region, end.Region);
-                    totalHours = baseHours * hyperdriveClass * regionMod * userMod * 1.3; // off-route penalty
-
-                    L.polyline([[start.Y, start.X], [end.Y, end.X]], {color: '#ff0000', dashArray: '5,10'}).addTo(routeLayer);
-                    breakdown.push(`Direct off-route: ${baseHours.toFixed(1)} base hours`);
-                } 
-                else if (mode === 'waypoint') {
-                    for (let i = 0; i < userWaypoints.length - 1; i++) {
-                        const start = userWaypoints[i].planetData;
-                        const end = userWaypoints[i+1].planetData;
-                        const startPt = [start.X, start.Y];
-                        const endPt = [end.X, end.Y];
-
-                        let segment = {
-                            from: start.Name,
-                            to: end.Name,
-                            type: 'unknown',
-                            baseHours: 0,
-                            color: '#888'
-                        };
-
-                        // Try network route first
-                        const startSnap = turf.nearestPointOnLine(hyperspaceFC, turf.point(startPt));
-                        const endSnap = turf.nearestPointOnLine(hyperspaceFC, turf.point(endPt));
-                        const pathResult = pathFinder.findPath(startSnap.geometry.coordinates, endSnap.geometry.coordinates);
-
-                        if (pathResult && pathResult.path.length > 1) {
-                            // Network route found
-                            const baseHours = pathResult.cost;
-                            segment.baseHours = baseHours;
-                            segment.type = pathResult.path.some(p => /* check if major */ true) ? 'major' : 'minor'; // simplistic; improve if needed
-                            segment.color = segment.type === 'major' ? '#00ff00' : '#ffcc00';
-
-                            // Draw polyline
-                            L.polyline(pathResult.path.map(c => [c[1], c[0]]), {
-                                color: segment.color,
-                                weight: 6,
-                                opacity: 0.85
-                            }).addTo(routeLayer).bindPopup(`${start.Name} → ${end.Name}<br>${segment.type} route<br>${baseHours.toFixed(1)} base hrs`);
-
-                        } else {
-                            // Fallback: direct off-route
-                            const dist = planarDistance(startPt, endPt);
-                            const baseHours = (dist / GRID_UNITS_PER_SQUARE) * HOURS_PER_SQUARE.offroute;
-                            segment.baseHours = baseHours;
-                            segment.type = 'direct/off-route';
-                            segment.color = '#ff0000';
-
-                            L.polyline([[start.Y, start.X], [end.Y, end.X]], {
-                                color: segment.color,
-                                dashArray: '10, 5',
-                                weight: 4
-                            }).addTo(routeLayer).bindPopup(`${start.Name} → ${end.Name}<br>Direct jump (off-route)<br>${baseHours.toFixed(1)} base hrs`);
-                        }
-
-                        // Apply modifiers per segment
-                        const regionMod = getRegionModifier(start.Region, end.Region);
-                        const segmentHours = segment.baseHours * hyperdriveClass * regionMod * userMod;
-                        totalHours += segmentHours;
-
-                        breakdown.push({
-                            leg: `${i+1}: ${start.Name} → ${end.Name}`,
-                            type: segment.type,
-                            base: segment.baseHours.toFixed(1),
-                            mod: `×${hyperdriveClass.toFixed(1)} ×${regionMod.toFixed(1)} ×${userMod.toFixed(1)}`,
-                            hours: segmentHours.toFixed(1)
-                        });
-
-                        segments.push(segment);
-                    }
-                }
-
-                // Final display
-                const hours = totalHours.toFixed(1);
-                const days = (totalHours / 24).toFixed(1);
-
-                if(mode === 'direct' || mode === "fastest") {
-                    document.getElementById('result').innerHTML = `
-                        <h3>${start.Name} → ${end.Name}</h3>
-                        <p><strong>${hours} hours (${days} days)</strong> at Class ${hyperdriveClass}</p>
-                        <small>Region mod: ×${getRegionModifier(start.Region, end.Region).toFixed(1)} | User mod: ×${userMod}</small>
-                        <ul>${breakdown.map(b => `<li>${b}</li>`).join('')}</ul>
-                    `;
-                }
-                else if(mode === "waypoint"){
-                    document.getElementById('result').innerHTML = `
-                        <h3>Waypoint Route (${userWaypoints.length} stops)</h3>
-                        <p><strong>Total: ${hours} hours (${days} days)</strong> at Class ${hyperdriveClass}</p>
-                        <small>User mod: ×${userMod} | Segments: ${userWaypoints.length - 1}</small>
-                        <table style="width:100%; margin-top:10px; border-collapse:collapse;">
-                            <tr><th>Leg</th><th>Type</th><th>Base hrs</th><th>Mods</th><th>Final hrs</th></tr>
-                            ${breakdown.map(b => `
-                            <tr style="border-bottom:1px solid #ddd;">
-                                <td>${b.leg}</td><td>${b.type}</td><td>${b.base}</td><td>${b.mod}</td><td><b>${b.hours}</b></td>
-                            </tr>
-                            `).join('')}
-                        </table>
-                    `;
-                }
-            }
-
-            initNavigator();
-            </script>
         </section>
         <section class="w3-container">
             <div id="controls" class="w3-container w3-card">
@@ -383,5 +72,326 @@
                 <a href="https://github.com/parzivail/SWGalacticMap">SWGalacticMap</a> for initial planet data, and <a href="https://gitlab.com/galaxy-pathfinder/galaxy-pathfinder.gitlab.io/">galaxy-pathfinder.gitlab.io</a> for initial route information.
             </i></p>
         </footer>
+        <script>
+            // Map Init
+            const map = L.map('map', {
+                minZoom: -8,
+                maxZoom: 6,
+                zoomSnap: 0.5,                  // Smoother zoom steps
+                zoomDelta: 0.5,
+                center: [0, 0],
+                zoom: -4,
+                crs: L.CRS.Simple
+            });
+
+            L.tileLayer('', {
+                attribution: 'Star Wars Galaxy – Data: parzivail/SWGalacticMap & galaxy-pathfinder',
+            }).addTo(map);
+
+            const galaxyBounds = L.latLngBounds(
+                L.latLng(-90, -100),   // SW corner (y min, x min)
+                L.latLng(80, 140)      // NE corner (y max, x max)
+            );
+            map.fitBounds(galaxyBounds, { padding: [50, 50] });
+
+            //var boradin = L.marker([4740, 8365]).addTo(map);
+            //boradin.bindTooltip('Boradin')
+            //var unknown = L.marker([2300, 9450]).addTo(map);
+            //unknown.bindTooltip('[Unkown System]')
+
+            // ====================== CONFIG ======================
+            const MAX_WAYPOINTS = 10;
+            const SCALE_FACTOR = 6.8; // Set to e.g. 6.5 if using parzivail planets (0-20) with hyperspace grid (~100 range). Test with known planets!
+            const GRID_UNITS_PER_SQUARE = 100; // Tune this once so a typical Core-to-Rim major route = ~40-80 hours on Class 1
+            const HOURS_PER_SQUARE = {
+                major: 8,
+                minor: 14,
+                offroute: 20,
+                deepCore: 24
+            };
+
+            // Major route names (add more as needed)
+            const MAJOR_ROUTES = new Set([
+                "Corellian Run", "Hydian Way", "Perlemian Trade Route", "Rimma Trade Route",
+                "Corellian Trade Spine", "Corellian Trade Route", "Hydian", "Perlemian"
+            ]);
+
+            // ====================== HELPERS ======================
+            function isMajorRoute(name) {
+                if (!name) return false;
+                return MAJOR_ROUTES.has(name) || name.toLowerCase().includes("corellian") || name.toLowerCase().includes("hydian");
+            }
+
+            function planarLength(coords) { // LineString or array of [x,y]
+                let total = 0;
+                for (let i = 1; i < coords.length; i++) {
+                    const dx = coords[i][0] - coords[i-1][0];
+                    const dy = coords[i][1] - coords[i-1][1];
+                    total += Math.hypot(dx, dy);
+                }
+                return total;
+            }
+
+            function planarDistance(pt1, pt2) {
+                return Math.hypot(pt1[0] - pt2[0], pt1[1] - pt2[1]);
+            }
+
+            function getRegionModifier(region1, region2) {
+                const deep = ["Deep Core", "Core Worlds"];
+                if (deep.some(r => region1.includes(r) || region2.includes(r))) return 1.5;
+                return 1.0;
+            }
+
+            // ====================== LOAD DATA ======================
+            let pathFinder, hyperspaceFC, planetsData, planetLayer, routeLayer;
+            let userWaypoints = [];
+
+            async function initNavigator() {
+                try
+                {
+                    // Load hyperspace (your existing GeoJSON)
+                    const hsRes = await fetch('./data/hyperspace_singlepart_new.json');
+                    if (!hsRes.ok) throw new Error(`Hyperspace fetch failed: ${hsRes.status}`);
+                    hyperspaceFC = await hsRes.json();
+
+                    // Load planets (parzivail style)
+                    const pRes = await fetch('./data/planets.json');
+                    if (!pRes.ok) throw new Error(`Planets fetch failed: ${pRes.status}`);
+                    planetsData = await pRes.json();
+                } catch(err) {
+                    console.error(err);
+                    alert("Failed to load galaxy data: check console & file paths");
+                }
+
+                // Optional scaling
+                if (SCALE_FACTOR !== 1) {
+                    planetsData.forEach(p => {
+                        p.X *= SCALE_FACTOR;
+                        p.Y *= SCALE_FACTOR;
+                    });
+                }
+
+                // Tag route types
+                hyperspaceFC.features.forEach(f => {
+                    const name = f.properties.hyperspace || f.properties.name_web || '';
+                    f.properties.type = isMajorRoute(name) ? 'major' : 'minor';
+                });
+
+                // Build pathfinder with custom time cost
+                pathFinder = new PathFinder(hyperspaceFC, {
+                    costFn: (edge) => {
+                        const len = edge.properties.length || planarLength(edge.geometry.coordinates);
+                        const hoursPerUnit = (len / GRID_UNITS_PER_SQUARE) * 
+                        (edge.properties.type === 'major' ? HOURS_PER_SQUARE.major : HOURS_PER_SQUARE.minor);
+                        return hoursPerUnit;
+                    }
+                });
+
+                // Add planets to map (assume your map var is called "map")
+                planetLayer = L.layerGroup().addTo(map);
+                planetsData.forEach(p => {
+                    const marker = L.circleMarker([p.Y, p.X], { // Leaflet is [lat, lng] — swap if your CRS is flipped
+                    radius: 8,
+                    color: '#00ff00',
+                    fillColor: '#0066cc',
+                    fillOpacity: 0.8,
+                    interactive: true
+                }).bindPopup(`<b>${p.Name}</b><br>${p.Region || 'Unknown'} • ${p.Sector || 'N/A'}`);
+                marker.planetData = p; // store full data
+                marker.on('click', (e) => {
+                    e.originalEvent.stopPropagation();
+                    addWaypoint(marker);
+                });
+                planetLayer.addLayer(marker);
+            });
+
+            routeLayer = L.layerGroup().addTo(map);
+
+            L.control({position: 'topright'}).addTo(map).onAdd = function () {
+                const div = L.DomUtil.create('div', 'info');
+                div.innerHTML = '<button onclick="clearWaypoints()">Clear Waypoints</button>';
+                return div;
+            };
+            console.log('✅ Star Wars Hyperspace Navigator ready!');
+        }
+
+        // ====================== WAYPOINTS ======================
+        function addWaypoint(marker) {
+            if (userWaypoints.length >= MAX_WAYPOINTS) {
+                alert(`Max ${MAX_WAYPOINTS} waypoints reached. Clear first.`);
+                return;
+            }
+
+            userWaypoints.push(marker);
+            marker.setStyle({fillColor: '#ff6600', color: '#ff9900'}); // Highlight added
+
+            updateWaypointList();
+        }
+
+        function clearWaypoints() {
+            userWaypoints.forEach(m => {
+                m.setStyle({fillColor: '#0066cc', color: '#00ccff'});
+            });
+            userWaypoints = [];
+            routeLayer.clearLayers();
+            updateWaypointList();
+        }
+
+        function updateWaypointList() {
+            const list = document.getElementById('waypointList');
+            if (!list) return;
+            list.innerHTML = userWaypoints.map((m, i) => 
+                `<li>#${i+1}: ${m.planetData.Name}</li>`
+            ).join('') || '<li>No waypoints added yet</li>';
+        }
+
+        // ====================== CALCULATORS ======================
+        function calculateRoute(mode = 'fastest', hyperdriveClass = 1, userMod = 1) {
+            if (userWaypoints.length < 2) return alert('Add at least 2 waypoints by clicking planets');
+
+            routeLayer.clearLayers();
+            let segments = [];
+            let totalHours = 0;
+            let breakdown = [];
+            let start;
+            let end;
+
+            if (mode === 'fastest') {
+                start = userWaypoints[0].planetData;
+                end = userWaypoints[1].planetData;
+                const startPt = [start.X, start.Y];
+                const endPt = [end.X, end.Y];
+
+                // Snap to network
+                const startSnap = turf.nearestPointOnLine(hyperspaceFC, turf.point(startPt)); // turf works on coords
+                const endSnap = turf.nearestPointOnLine(hyperspaceFC, turf.point(endPt));
+
+                const pathResult = pathFinder.findPath(startSnap.geometry.coordinates, endSnap.geometry.coordinates);
+                if (!pathResult) return alert('No hyperspace route found');
+
+                // Draw route
+                const routeLine = L.polyline(pathResult.path.map(c => [c[1], c[0]]), { // swap for Leaflet [lat,lng]
+                    color: '#00ff00',
+                    weight: 5,
+                    opacity: 0.8
+                }).addTo(routeLayer);
+
+                // Time
+                const baseHours = pathResult.cost;
+                const regionMod = getRegionModifier(start.Region, end.Region);
+                totalHours = baseHours * hyperdriveClass * regionMod * userMod;
+
+                breakdown.push(`Network route: ${baseHours.toFixed(1)} base hours`);
+            } 
+            else if (mode === 'direct') {
+                start = userWaypoints[0].planetData;
+                end = userWaypoints[1].planetData;
+                const startPt = [start.X, start.Y];
+                const endPt = [end.X, end.Y];
+                const dist = planarDistance(startPt, endPt);
+                const baseHours = (dist / GRID_UNITS_PER_SQUARE) * HOURS_PER_SQUARE.offroute;
+                const regionMod = getRegionModifier(start.Region, end.Region);
+                totalHours = baseHours * hyperdriveClass * regionMod * userMod * 1.3; // off-route penalty
+
+                L.polyline([[start.Y, start.X], [end.Y, end.X]], {color: '#ff0000', dashArray: '5,10'}).addTo(routeLayer);
+                breakdown.push(`Direct off-route: ${baseHours.toFixed(1)} base hours`);
+            } 
+            else if (mode === 'waypoint') {
+                for (let i = 0; i < userWaypoints.length - 1; i++) {
+                    start = userWaypoints[i].planetData;
+                    end = userWaypoints[i+1].planetData;
+                    const startPt = [start.X, start.Y];
+                    const endPt = [end.X, end.Y];
+
+                    let segment = {
+                        from: start.Name,
+                        to: end.Name,
+                        type: 'unknown',
+                        baseHours: 0,
+                        color: '#888'
+                    };
+
+                    // Try network route first
+                    const startSnap = turf.nearestPointOnLine(hyperspaceFC, turf.point(startPt));
+                    const endSnap = turf.nearestPointOnLine(hyperspaceFC, turf.point(endPt));
+                    const pathResult = pathFinder.findPath(startSnap.geometry.coordinates, endSnap.geometry.coordinates);
+
+                    if (pathResult && pathResult.path.length > 1) {
+                        // Network route found
+                        const baseHours = pathResult.cost;
+                        segment.baseHours = baseHours;
+                        segment.type = pathResult.path.some(p => /* check if major */ true) ? 'major' : 'minor'; // simplistic; improve if needed
+                        segment.color = segment.type === 'major' ? '#00ff00' : '#ffcc00';
+
+                        // Draw polyline
+                        L.polyline(pathResult.path.map(c => [c[1], c[0]]), {
+                            color: segment.color,
+                            weight: 6,
+                            opacity: 0.85
+                        }).addTo(routeLayer).bindPopup(`${start.Name} → ${end.Name}<br>${segment.type} route<br>${baseHours.toFixed(1)} base hrs`);
+
+                    } else {
+                        // Fallback: direct off-route
+                        const dist = planarDistance(startPt, endPt);
+                        const baseHours = (dist / GRID_UNITS_PER_SQUARE) * HOURS_PER_SQUARE.offroute;
+                        segment.baseHours = baseHours;
+                        segment.type = 'direct/off-route';
+                        segment.color = '#ff0000';
+
+                        L.polyline([[start.Y, start.X], [end.Y, end.X]], {
+                            color: segment.color,
+                            dashArray: '10, 5',
+                            weight: 4
+                        }).addTo(routeLayer).bindPopup(`${start.Name} → ${end.Name}<br>Direct jump (off-route)<br>${baseHours.toFixed(1)} base hrs`);
+                    }
+
+                    // Apply modifiers per segment
+                    const regionMod = getRegionModifier(start.Region, end.Region);
+                    const segmentHours = segment.baseHours * hyperdriveClass * regionMod * userMod;
+                    totalHours += segmentHours;
+
+                    breakdown.push({
+                        leg: `${i+1}: ${start.Name} → ${end.Name}`,
+                        type: segment.type,
+                        base: segment.baseHours.toFixed(1),
+                        mod: `×${hyperdriveClass.toFixed(1)} ×${regionMod.toFixed(1)} ×${userMod.toFixed(1)}`,
+                        hours: segmentHours.toFixed(1)
+                    });
+
+                    segments.push(segment);
+                }
+            }
+
+            // Final display
+            const hours = totalHours.toFixed(1);
+            const days = (totalHours / 24).toFixed(1);
+
+            if(mode === 'direct' || mode === "fastest") {
+                document.getElementById('result').innerHTML = `
+                    <h3>${start.Name} → ${end.Name}</h3>
+                    <p><strong>${hours} hours (${days} days)</strong> at Class ${hyperdriveClass}</p>
+                    <small>Region mod: ×${getRegionModifier(start.Region, end.Region).toFixed(1)} | User mod: ×${userMod}</small>
+                    <ul>${breakdown.map(b => `<li>${b}</li>`).join('')}</ul>
+                `;
+            }
+            else if(mode === "waypoint"){
+                document.getElementById('result').innerHTML = `
+                    <h3>Waypoint Route (${userWaypoints.length} stops)</h3>
+                    <p><strong>Total: ${hours} hours (${days} days)</strong> at Class ${hyperdriveClass}</p>
+                    <small>User mod: ×${userMod} | Segments: ${userWaypoints.length - 1}</small>
+                    <table style="width:100%; margin-top:10px; border-collapse:collapse;">
+                        <tr><th>Leg</th><th>Type</th><th>Base hrs</th><th>Mods</th><th>Final hrs</th></tr>
+                        ${breakdown.map(b => `
+                        <tr style="border-bottom:1px solid #ddd;">
+                            <td>${b.leg}</td><td>${b.type}</td><td>${b.base}</td><td>${b.mod}</td><td><b>${b.hours}</b></td>
+                        </tr>
+                        `).join('')}
+                    </table>
+                `;
+            }
+        }
+
+        initNavigator();
+        </script>
     </body>
 </html>
