@@ -99,7 +99,7 @@
 
             // ====================== CONFIG ======================
             const MAX_WAYPOINTS = 10;
-            const SCALE_FACTOR = 6.8; // Set to e.g. 6.5 if using parzivail planets (0-20) with hyperspace grid (~100 range). Test with known planets!
+            const SCALE_FACTOR = 7.0; // Set to e.g. 6.5 if using parzivail planets (0-20) with hyperspace grid (~100 range). Test with known planets!
             const GRID_UNITS_PER_SQUARE = 100; // Tune this once so a typical Core-to-Rim major route = ~40-80 hours on Class 1
             const HOURS_PER_SQUARE = {
                 major: 8,
@@ -292,8 +292,10 @@
                     planetsData.forEach(p => {
                         p.X += p.SubGridX;
                         p.X *= SCALE_FACTOR;
+                        p.X += 10; 
                         p.Y += p.SubGridY;
                         p.Y *= SCALE_FACTOR;
+                        p.Y += -15;
                     });
                 }
 
