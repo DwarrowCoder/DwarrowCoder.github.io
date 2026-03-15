@@ -331,7 +331,7 @@
                     fillColor: '#0066cc',
                     fillOpacity: 0.8,
                     interactive: true
-                }).bindPopup(`<b>${p.Name}</b><br>${p.Region || 'Unknown'} • ${p.Sector || 'N/A'}`);
+                }).bindTooltip(`<b>${p.Name}</b><br>${p.Region || 'Unknown'} • ${p.Sector || 'N/A'}`);
                 marker.planetData = p; // store full data
                 marker.on('click', (e) => {
                     e.originalEvent.stopPropagation();
