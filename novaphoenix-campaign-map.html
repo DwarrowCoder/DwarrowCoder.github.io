@@ -286,10 +286,11 @@
                 // ====================== BUILD GRAPH ONCE ======================
                 hyperspaceFC.forEach(route => {
                   const type = route.type; // 'major' or 'minor' (already tagged)
+                  const nodes = route.nodes;
                 
-                  for (let i = 0; i < route.nodes.length - 1; i++) {
-                    const fromName = route.nodes[i];
-                    const toName   = route.nodes[i + 1];
+                  for (let i = 0; i < nodes.length - 1; i++) {
+                    const fromName = nodes[i];
+                    const toName   = nodes[i + 1];
 
                     const fromPlanet = planetsData.find(p => p.Name.toLowerCase() === fromName.toLowerCase());
                     const toPlanet   = planetsData.find(p => p.Name.toLowerCase() === toName.toLowerCase());
