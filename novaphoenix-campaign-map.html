@@ -304,8 +304,8 @@
                     const fromName = String(nodes[i]);
                     const toName   = String(nodes[i + 1]);
 
-                    const fromPlanet = planetsData.find(p => p.name.toLowerCase() === fromName.toLowerCase());
-                    const toPlanet   = planetsData.find(p => p.name.toLowerCase() === toName.toLowerCase());
+                    const fromPlanet = planetsData.find(p => p.properties.name.toLowerCase() === fromName.toLowerCase());
+                    const toPlanet   = planetsData.find(p => p.properties.name.toLowerCase() === toName.toLowerCase());
 
                     if (!fromPlanet || !toPlanet) {
                         console.warn(`Skipping connection ${fromName} → ${toName} (planet not found in data)`);
