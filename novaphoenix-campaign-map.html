@@ -66,8 +66,8 @@
         </section>
         <footer class="w3-container">
             <p><i>
-                Uses <a href="https://leafletjs.com/">Leaflet</a>, <a href="https://turfjs.org/">Turf</a>,
-                <a href="https://github.com/Wason1797/StarWarsMap">https://github.com/Wason1797/StarWarsMap</a> for initial planet data, and <a href="https://gitlab.com/galaxy-pathfinder/galaxy-pathfinder.gitlab.io/">galaxy-pathfinder.gitlab.io</a> for initial route information.
+                Uses <a href="https://leafletjs.com/">Leaflet</a>, <a href="https://turfjs.org/">Turf</a>, and
+                <a href="https://github.com/Wason1797/StarWarsMap">Wladymir Brborich (StarWarsMap)</a> for initial planet data and for initial route information.
             </i></p>
         </footer>
         <script>
@@ -83,7 +83,7 @@
             });
 
             L.tileLayer('', {
-                attribution: 'Star Wars Galaxy – Data: parzivail/SWGalacticMap & galaxy-pathfinder',
+                attribution: 'Star Wars Galaxy – Data: Wladymir Brborich (StarWarsMap)',
             }).addTo(map);
 
             const galaxyBounds = L.latLngBounds(
