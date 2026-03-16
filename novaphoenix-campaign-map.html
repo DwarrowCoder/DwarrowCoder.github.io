@@ -289,8 +289,8 @@
                   const nodes = route.nodes;
                 
                   for (let i = 0; i < nodes.length - 1; i++) {
-                    const fromName = nodes[i];
-                    const toName   = nodes[i + 1];
+                    const fromName = String(nodes[i]);
+                    const toName   = String(nodes[i + 1]);
 
                     const fromPlanet = planetsData.find(p => p.Name.toLowerCase() === fromName.toLowerCase());
                     const toPlanet   = planetsData.find(p => p.Name.toLowerCase() === toName.toLowerCase());
