@@ -346,7 +346,7 @@
                       interactive: true
                     });
                     marker.planetData = {  // mimic your old structure
-                      Name: props.name,
+                      Name: props.name || "unknown",
                       Region: props.region
                     };
                     marker.on('click', (e) => {
