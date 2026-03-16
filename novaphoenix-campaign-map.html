@@ -202,61 +202,73 @@
               }
             }
 
-            // ====================== OPTIMIZED DIJKSTRA FUNCTION ======================
+            // ====================== OPTIMIZED DIJKSTRA FOR PLANET-TO-PLANET GRAPH ======================
             function findShortestPath(startKey, endKey) {
+              // startKey and endKey are planet names (strings), e.g. "Coruscant", "Tatooine"
             
-              if (!graph.has(startKey) || !graph.has(endKey)) return null;
+              if (typeof startKey !== 'string' || typeof endKey !== 'string') {
+                console.error("findShortestPath: startKey and endKey must be planet name strings");
+                return null;
+              }
             
-              const distances = new Map();   // key → best known distance
-              const previous  = new Map();   // key → previous key for path reconstruction
-              const pq = new MinHeap();
+              if (!graph.has(startKey) || !graph.has(endKey)) {
+                console.warn(`No path possible: ${startKey} or ${endKey} not in graph`);
+                return null;
+              }
             
-              // Init
+              const distances = new Map();   // planetName → best known total cost
+              const previous  = new Map();   // planetName → previous planetName
+              const pq = new MinHeap();      // min-heap priority queue
+            
+              // Initialize
               distances.set(startKey, 0);
               pq.push(0, startKey);
             
               while (!pq.isEmpty()) {
-                const { priority: currentDist, key: current } = pq.pop();
+                const { priority: currentCost, key: current } = pq.pop();
             
-                // Skip outdated entries (lazy deletion style)
-                if (currentDist > (distances.get(current) || Infinity)) continue;
+                // Skip outdated entries (multiple entries allowed for same node)
+                if (currentCost > (distances.get(current) || Infinity)) continue;
             
-                // Early exit when we dequeue the target (optimal in Dijkstra)
+                // Early exit when we dequeue the destination (optimal path found)
                 if (current === endKey) break;
             
                 const node = graph.get(current);
                 if (!node) continue;
             
-                for (const { key: neighbor, weight, type } of node.neighbors) {
-                  // weight is already pre-calculated in graph building (distance × hours_per_square)
+                for (const { key: neighbor, weight } of node.neighbors) {
+                  // weight is pre-calculated (distance × hours_per_square)
                   const alt = currentCost + weight;
             
                   if (alt < (distances.get(neighbor) || Infinity)) {
                     distances.set(neighbor, alt);
                     previous.set(neighbor, current);
-                    pq.push(alt, neighbor); // push new better estimate (multiple entries OK)
+                    pq.push(alt, neighbor);  // push new better estimate
                   }
                 }
               }
             
-              if (!distances.has(endKey)) return null;
+              if (!distances.has(endKey)) {
+                console.warn(`No route found between ${startKey} and ${endKey}`);
+                return null;
+              }
             
-              // Reconstruct the path as array of planet names
+              // Reconstruct path as array of planet names
               const pathNames = [];
               let current = endKey;
               while (current !== startKey) {
                 pathNames.unshift(current);
                 current = previous.get(current);
                 if (!current) {
-                    console.error("Path reconstruction failed - broken previous map");
-                    return null;
+                  console.error("Path reconstruction failed - broken previous map");
+                  return null;
                 }
               }
               pathNames.unshift(startKey);
             
               return {
-                path,                // array of [x, y] coords
-                cost: distances.get(endKey)  // total base hours (before class/mod)
+                path: pathNames,               // e.g. ["Coruscant", "Corellia", "Tatooine"]
+                cost: distances.get(endKey)    // total base hours (before hyperdrive class / modifiers)
               };
             }
 
@@ -393,27 +405,47 @@
                 let end;
     
                 if (mode === 'fastest') {
-                    start = userWaypoints[0].planetData;
-                    end = userWaypoints[1].planetData;
-                    const startKey = start.name;
-                    const endKey = end.start;
-    
-                    const pathResult = findShortestPath(startKey, endKey);
-                    if (!pathResult) return alert('No hyperspace route found');
-    
-                    // Draw route
-                    const routeLine = L.polyline(pathResult.path.map(c => [c[1], c[0]]), { // swap for Leaflet [lat,lng]
+                    const startName = userWaypoints[0].planetData.Name;
+                    const endName   = userWaypoints[1].planetData.Name;
+                  
+                    const pathResult = findShortestPath(startName, endName);
+                  
+                    if (pathResult) {
+                      // Build coordinates for polyline from planet positions
+                      const pathCoords = pathResult.path.map(name => {
+                        const planet = planetsData.find(p => p.properties?.name === name || p.Name === name);
+                        if (!planet) return null;
+                        const coords = planet.geometry?.coordinates || [planet.X, planet.Y];
+                        return [coords[1], coords[0]];  // [lat=Y, lng=X]
+                      }).filter(Boolean);
+                  
+                      L.polyline(pathCoords, {
                         color: '#00ff00',
                         weight: 5,
                         opacity: 0.8
-                    }).addTo(routeLayer);
-    
-                    // Time
-                    const baseHours = pathResult.cost;
-                    const regionMod = getRegionModifier(start.Region, end.Region);
-                    totalHours = baseHours * hyperdriveClass * regionMod * userMod;
-    
-                    breakdown.push(`Network route: ${baseHours.toFixed(1)} base hours`);
+                      }).addTo(routeLayer);
+                  
+                      const baseHours = pathResult.cost;
+                      const regionMod = getRegionModifier(
+                        userWaypoints[0].planetData.Region || userWaypoints[0].planetData.properties?.region,
+                        userWaypoints[1].planetData.Region || userWaypoints[1].planetData.properties?.region
+                      );
+                      totalHours = baseHours * hyperdriveClass * regionMod * userMod;
+                  
+                      breakdown.push(`Network route via ${pathResult.path.length - 2} intermediate systems: ${baseHours.toFixed(1)} base hours`);
+                    } else {
+                      start = userWaypoints[0].planetData;
+                      end = userWaypoints[1].planetData;
+                      const startPt = [start.X, start.Y];
+                      const endPt = [end.X, end.Y];
+                      const dist = planarDistance(startPt, endPt);
+                      const baseHours = (dist / GRID_UNITS_PER_SQUARE) * HOURS_PER_SQUARE.offroute;
+                      const regionMod = getRegionModifier(start.Region, end.Region);
+                      totalHours = baseHours * hyperdriveClass * regionMod * userMod * 1.3; // off-route penalty
+      
+                      L.polyline([[start.Y, start.X], [end.Y, end.X]], {color: '#ff0000', dashArray: '5,10'}).addTo(routeLayer);
+                      breakdown.push(`Direct off-route: ${baseHours.toFixed(1)} base hours`);
+                    }
                 } 
                 else if (mode === 'direct') {
                     start = userWaypoints[0].planetData;
@@ -430,10 +462,8 @@
                 } 
                 else if (mode === 'waypoint') {
                     for (let i = 0; i < userWaypoints.length - 1; i++) {
-                        start = userWaypoints[i].planetData;
-                        end = userWaypoints[i+1].planetData;
-                        const startKey = start.name;
-                        const endKey = end.start;
+                        const startKey = userWaypoints[i].planetData.Name;
+                        const endKey = userWaypoints[i+1].planetData.Name;
     
                         let segment = {
                             from: start.Name,
@@ -446,25 +476,29 @@
                         // Try network route first
                         const pathResult = findShortestPath(startKey, endKey);
     
-                        if (pathResult && pathResult.path.length > 1) {
-                            // Reconstruct path as list of planet names
-                            const pathPlanets = pathResult.path.map(key => {
-                                const planet = planetsData.find(p => p.Name === key);
-                                return planet ? [planet.Y, planet.X] : null;  // [lat, lng]
+                        if (pathResult) {
+                            // Build coordinates for polyline from planet positions
+                            const pathCoords = pathResult.path.map(name => {
+                            const planet = planetsData.find(p => p.properties?.name === name || p.Name === name);
+                            if (!planet) return null;
+                            const coords = planet.geometry?.coordinates || [planet.X, planet.Y];
+                            return [coords[1], coords[0]];  // [lat=Y, lng=X]
                             }).filter(Boolean);
-
-                            // Network route found
+                        
+                            L.polyline(pathCoords, {
+                            color: '#00ff00',
+                            weight: 5,
+                            opacity: 0.8
+                            }).addTo(routeLayer);
+                        
                             const baseHours = pathResult.cost;
-                            segment.baseHours = baseHours;
-                            segment.type = pathResult.path.some(p => /* check if major */ true) ? 'major' : 'minor'; // simplistic; improve if needed
-                            segment.color = segment.type === 'major' ? '#00ff00' : '#ffcc00';
-    
-                            // Draw polyline
-                            L.polyline(pathPlanets, {
-                                color: segment.color,
-                                weight: 6,
-                                opacity: 0.85
-                            }).addTo(routeLayer).bindTooltip(`${start.Name} → ${end.Name}<br>${segment.type} route<br>${baseHours.toFixed(1)} base hrs`);
+                            const regionMod = getRegionModifier(
+                            userWaypoints[0].planetData.Region || userWaypoints[0].planetData.properties?.region,
+                            userWaypoints[1].planetData.Region || userWaypoints[1].planetData.properties?.region
+                            );
+                            totalHours = baseHours * hyperdriveClass * regionMod * userMod;
+                        
+                            breakdown.push(`Network route via ${pathResult.path.length - 2} intermediate systems: ${baseHours.toFixed(1)} base hours`);
     
                         } else {
                             // Fallback: direct off-route
