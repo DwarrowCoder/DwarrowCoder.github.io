@@ -304,16 +304,16 @@
                     const fromName = String(nodes[i]);
                     const toName   = String(nodes[i + 1]);
 
-                    const fromPlanet = planetsData.find(p => p.Name.toLowerCase() === fromName.toLowerCase());
-                    const toPlanet   = planetsData.find(p => p.Name.toLowerCase() === toName.toLowerCase());
+                    const fromPlanet = planetsData.find(p => p.name.toLowerCase() === fromName.toLowerCase());
+                    const toPlanet   = planetsData.find(p => p.name.toLowerCase() === toName.toLowerCase());
 
                     if (!fromPlanet || !toPlanet) {
                         console.warn(`Skipping connection ${fromName} → ${toName} (planet not found in data)`);
                         continue;
                     }
 
-                    const fromKey = fromPlanet.Name;  // or normalize: fromPlanet.Name.replace(/\s+/g, '_')
-                    const toKey   = toPlanet.Name;
+                    const fromKey = fromPlanet.name;  // or normalize: fromPlanet.name.replace(/\s+/g, '_')
+                    const toKey   = toPlanet.name;
 
                     // Calculate distance between planets (your planarDistance function)
                     const dist = planarDistance([fromPlanet.X, fromPlanet.Y], [toPlanet.X, toPlanet.Y]);
@@ -427,15 +427,15 @@
                   
                       const baseHours = pathResult.cost;
                       const regionMod = getRegionModifier(
-                        userWaypoints[0].planetData.Region || userWaypoints[0].planetData.properties?.region,
-                        userWaypoints[1].planetData.Region || userWaypoints[1].planetData.properties?.region
+                        userWaypoints[0].planetData.properties.region,
+                        userWaypoints[1].planetData.properties.region
                       );
                       totalHours = baseHours * hyperdriveClass * regionMod * userMod;
                   
                       breakdown.push(`Network route via ${pathResult.path.length - 2} intermediate systems: ${baseHours.toFixed(1)} base hours`);
                     } else {
-                      start = userWaypoints[0].planetData;
-                      end = userWaypoints[1].planetData;
+                      start = userWaypoints[0];
+                      end = userWaypoints[1];
                       const startPt = [start.X, start.Y];
                       const endPt = [end.X, end.Y];
                       const dist = planarDistance(startPt, endPt);
@@ -448,8 +448,8 @@
                     }
                 } 
                 else if (mode === 'direct') {
-                    start = userWaypoints[0].planetData;
-                    end = userWaypoints[1].planetData;
+                    start = userWaypoints[0];
+                    end = userWaypoints[1];
                     const startPt = [start.X, start.Y];
                     const endPt = [end.X, end.Y];
                     const dist = planarDistance(startPt, endPt);
@@ -493,8 +493,8 @@
                         
                             const baseHours = pathResult.cost;
                             const regionMod = getRegionModifier(
-                            userWaypoints[0].planetData.Region || userWaypoints[0].planetData.properties?.region,
-                            userWaypoints[1].planetData.Region || userWaypoints[1].planetData.properties?.region
+                            userWaypoints[0].planetData.properties.region,
+                            userWaypoints[1].planetData.properties.region
                             );
                             totalHours = baseHours * hyperdriveClass * regionMod * userMod;
                         
@@ -553,11 +553,11 @@
                     </table>
                   `;
                 } else {
-                  const startName = userWaypoints[0]?.planetData?.Name || 'Start';
-                  const endName = userWaypoints[1]?.planetData?.Name || 'End';
+                  const startName = userWaypoints[0].planetData.Name || 'Start';
+                  const endName = userWaypoints[1].planetData.Name || 'End';
                   title = `${startName} → ${endName}`;
                   extraInfo = `
-                    <small>Region mod: ×${getRegionModifier(userWaypoints[0]?.planetData?.Region || '', userWaypoints[1]?.planetData?.Region || '').toFixed(1)} | User mod: ×${userMod}</small>
+                    <small>Region mod: ×${getRegionModifier(userWaypoints[0].planetData.Region || '', userWaypoints[1].planetData.Region || '').toFixed(1)} | User mod: ×${userMod}</small>
                     <ul>${breakdown.map(b => `<li>${b}</li>`).join('')}</ul>
                   `;
                 }
