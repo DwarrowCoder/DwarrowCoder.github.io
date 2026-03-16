@@ -203,9 +203,7 @@
             }
 
             // ====================== OPTIMIZED DIJKSTRA FUNCTION ======================
-            function findShortestPath(startCoord, endCoord) {
-              const startKey = `${startCoord[0]},${startCoord[1]}`;
-              const endKey   = `${endCoord[0]},${endCoord[1]}`;
+            function findShortestPath(startKey, endKey) {
             
               if (!graph.has(startKey) || !graph.has(endKey)) return null;
             
@@ -230,11 +228,8 @@
                 if (!node) continue;
             
                 for (const { key: neighbor, weight, type } of node.neighbors) {
-                  // Apply your per-edge cost logic here (major/minor hours)
-                  const edgeCost = (weight / GRID_UNITS_PER_SQUARE) *
-                    (type === 'major' ? HOURS_PER_SQUARE.major : HOURS_PER_SQUARE.minor);
-            
-                  const alt = currentDist + edgeCost;
+                  // weight is already pre-calculated in graph building (distance × hours_per_square)
+                  const alt = currentCost + weight;
             
                   if (alt < (distances.get(neighbor) || Infinity)) {
                     distances.set(neighbor, alt);
@@ -246,17 +241,18 @@
             
               if (!distances.has(endKey)) return null;
             
-              // Reconstruct path
-              const path = [];
+              // Reconstruct the path as array of planet names
+              const pathNames = [];
               let current = endKey;
               while (current !== startKey) {
-                const [x, y] = current.split(',').map(Number);
-                path.unshift([x, y]);
+                pathNames.unshift(current);
                 current = previous.get(current);
-                if (!current) return null; // safety
+                if (!current) {
+                    console.error("Path reconstruction failed - broken previous map");
+                    return null;
+                }
               }
-              const [sx, sy] = startKey.split(',').map(Number);
-              path.unshift([sx, sy]);
+              pathNames.unshift(startKey);
             
               return {
                 path,                // array of [x, y] coords
@@ -273,7 +269,7 @@
                 try
                 {
                     // Load hyperspace (your existing GeoJSON)
-                    const hsRes = await fetch('./data/hyperspace_singlepart_new.json');
+                    const hsRes = await fetch('./data/hyperlanes.json');
                     if (!hsRes.ok) throw new Error(`Hyperspace fetch failed: ${hsRes.status}`);
                     hyperspaceFC = await hsRes.json();
 
@@ -287,52 +283,42 @@
                     alert("Failed to load galaxy data: check console & file paths");
                 }
 
-                // Tag route types
-                hyperspaceFC.features.forEach(f => {
-                    const name = f.properties.hyperspace || f.properties.name_web || '';
-                    f.properties.type = isMajorRoute(name) ? 'major' : 'minor';
-                });
+                // ====================== BUILD GRAPH ONCE ======================
+                hyperspaceFC.forEach(route => {
+                  const type = route.type; // 'major' or 'minor' (already tagged)
+                
+                  for (let i = 0; i < route.nodes.length - 1; i++) {
+                    const fromName = route.nodes[i];
+                    const toName   = route.nodes[i + 1];
 
-                // ====================== ADD VISIBLE HYPERSPACE LANES ======================
-                lanesLayer = L.geoJSON(hyperspaceFC, {
-                  style: function (feature) {
-                    const type = feature.properties.type || 'minor';
-                    return {
-                      color: type === 'major' ? '#88ccff' : '#444466',  // bright cyan for major, dim purple-gray for minor
-                      weight: type === 'major' ? 3 : 1.5,               // thicker for major lanes
-                      opacity: type === 'major' ? 0.9 : 0.5,            // more visible major lanes
-                      dashArray: type === 'major' ? null : '5, 3'       // dashed minor for distinction (optional)
-                    };
-                  },
-                  onEachFeature: function (feature, layer) {
-                    // Optional: tooltip/popup with route name
-                    const name = feature.properties.hyperspace || 
-                                 feature.properties.name_web || 
-                                 'Unnamed Lane';
-                    layer.bindTooltip(name, { sticky: true, direction: 'center', opacity: 0.8 });
-                  }
-                }).addTo(map);
+                    const fromPlanet = planetsData.find(p => p.Name.toLowerCase() === fromName.toLowerCase());
+                    const toPlanet   = planetsData.find(p => p.Name.toLowerCase() === toName.toLowerCase());
 
-                // ====================== BUILD GRAPH ONCE (in initNavigator) ======================
-                hyperspaceFC.features.forEach(feature => {
-                  const coords = feature.geometry.coordinates;
-                  const type = feature.properties.type; // 'major' or 'minor' (already tagged)
-                
-                  for (let i = 0; i < coords.length - 1; i++) {
-                    const a = coords[i];
-                    const b = coords[i + 1];
-                    const keyA = `${a[0]},${a[1]}`;
-                    const keyB = `${b[0]},${b[1]}`;
-                
-                    const weight = planarLength([a, b]); // your helper function
-                
-                    if (!graph.has(keyA)) graph.set(keyA, { neighbors: [] });
-                    if (!graph.has(keyB)) graph.set(keyB, { neighbors: [] });
-                
-                    graph.get(keyA).neighbors.push({ key: keyB, weight, type });
-                    graph.get(keyB).neighbors.push({ key: keyA, weight, type }); // undirected
+                    if (!fromPlanet || !toPlanet) {
+                        console.warn(`Skipping connection ${fromName} → ${toName} (planet not found in data)`);
+                        continue;
+                    }
+
+                    const fromKey = fromPlanet.Name;  // or normalize: fromPlanet.Name.replace(/\s+/g, '_')
+                    const toKey   = toPlanet.Name;
+
+                    // Calculate distance between planets (your planarDistance function)
+                    const dist = planarDistance([fromPlanet.X, fromPlanet.Y], [toPlanet.X, toPlanet.Y]);
+
+                    // Convert to "travel cost" (same as before)
+                    const weight = (dist / GRID_UNITS_PER_SQUARE) *
+                        (type === 'major' ? HOURS_PER_SQUARE.major : HOURS_PER_SQUARE.minor);
+                    
+                    // Add bidirectional edge
+                    if (!graph.has(fromKey)) graph.set(fromKey, { neighbors: [] });
+                    if (!graph.has(toKey))   graph.set(toKey,   { neighbors: [] });
+
+                    graph.get(fromKey).neighbors.push({ key: toKey,   weight, type, route: route.name });
+                    graph.get(toKey).neighbors.push(  { key: fromKey, weight, type, route: route.name });
                   }
                 });
+
+                console.log(`Graph built with ${graph.size} planet nodes and ${hyperspaceFC.length} routes`);
 
                 // Add planets to map (assume your map var is called "map")
                 planetLayer = L.layerGroup().addTo(map);
@@ -408,14 +394,10 @@
                 if (mode === 'fastest') {
                     start = userWaypoints[0].planetData;
                     end = userWaypoints[1].planetData;
-                    const startPt = [start.X, start.Y];
-                    const endPt = [end.X, end.Y];
+                    const startKey = start.name;
+                    const endKey = end.start;
     
-                    // Snap to network
-                    const startSnap = turf.nearestPointOnLine(hyperspaceFC, turf.point(startPt)); // turf works on coords
-                    const endSnap = turf.nearestPointOnLine(hyperspaceFC, turf.point(endPt));
-    
-                    const pathResult = findShortestPath(startSnap.geometry.coordinates, endSnap.geometry.coordinates);
+                    const pathResult = findShortestPath(startKey, endKey);
                     if (!pathResult) return alert('No hyperspace route found');
     
                     // Draw route
@@ -449,8 +431,8 @@
                     for (let i = 0; i < userWaypoints.length - 1; i++) {
                         start = userWaypoints[i].planetData;
                         end = userWaypoints[i+1].planetData;
-                        const startPt = [start.X, start.Y];
-                        const endPt = [end.X, end.Y];
+                        const startKey = start.name;
+                        const endKey = end.start;
     
                         let segment = {
                             from: start.Name,
@@ -461,11 +443,15 @@
                         };
     
                         // Try network route first
-                        const startSnap = turf.nearestPointOnLine(hyperspaceFC, turf.point(startPt));
-                        const endSnap = turf.nearestPointOnLine(hyperspaceFC, turf.point(endPt));
-                        const pathResult = findShortestPath(startSnap.geometry.coordinates, endSnap.geometry.coordinates);
+                        const pathResult = findShortestPath(startKey, endKey);
     
                         if (pathResult && pathResult.path.length > 1) {
+                            // Reconstruct path as list of planet names
+                            const pathPlanets = pathResult.path.map(key => {
+                                const planet = planetsData.find(p => p.Name === key);
+                                return planet ? [planet.Y, planet.X] : null;  // [lat, lng]
+                            }).filter(Boolean);
+
                             // Network route found
                             const baseHours = pathResult.cost;
                             segment.baseHours = baseHours;
@@ -473,15 +459,15 @@
                             segment.color = segment.type === 'major' ? '#00ff00' : '#ffcc00';
     
                             // Draw polyline
-                            L.polyline(pathResult.path.map(c => [c[1], c[0]]), {
+                            L.polyline(pathPlanets, {
                                 color: segment.color,
                                 weight: 6,
                                 opacity: 0.85
-                            }).addTo(routeLayer).bindPopup(`${start.Name} → ${end.Name}<br>${segment.type} route<br>${baseHours.toFixed(1)} base hrs`);
+                            }).addTo(routeLayer).bindTooltip(`${start.Name} → ${end.Name}<br>${segment.type} route<br>${baseHours.toFixed(1)} base hrs`);
     
                         } else {
                             // Fallback: direct off-route
-                            const dist = planarDistance(startPt, endPt);
+                            const dist = planarDistance([start.X, start.Y], [end.X, end.Y]);
                             const baseHours = (dist / GRID_UNITS_PER_SQUARE) * HOURS_PER_SQUARE.offroute;
                             segment.baseHours = baseHours;
                             segment.type = 'direct/off-route';
@@ -491,7 +477,7 @@
                                 color: segment.color,
                                 dashArray: '10, 5',
                                 weight: 4
-                            }).addTo(routeLayer).bindPopup(`${start.Name} → ${end.Name}<br>Direct jump (off-route)<br>${baseHours.toFixed(1)} base hrs`);
+                            }).addTo(routeLayer).bindTooltip(`${start.Name} → ${end.Name}<br>Direct jump (off-route)<br>${baseHours.toFixed(1)} base hrs`);
                         }
     
                         // Apply modifiers per segment

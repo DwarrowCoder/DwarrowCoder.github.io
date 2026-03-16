@@ -1,0 +1,1180 @@
+{
+    "Rimma Trade Route": {
+        "name": "Rimma Trade Route",
+        "nodes": [
+            "Abregado-rae",
+            "Dentaal",
+            "Giju",
+            "Ghorman",
+            "Vanik",
+            "Thyferra",
+            "Tauber",
+            "Yag'Dhul",
+            "Sukkult",
+            "Wroona",
+            "Tregillis",
+            "Vandelhelm",
+            "Woostri",
+            "Daemen",
+            "Alakatha",
+            "Lanthe",
+            "Vondarc",
+            "Medth",
+            "Tshindral",
+            "Sullust",
+            "Eriadu",
+            "Bith",
+            "Triton",
+            "Praesitlyn",
+            "Sluis Van",
+            "Denab",
+            "Tarabba",
+            "Adarlon",
+            "Karideph",
+            "Pergitor",
+            "Kal'Shebbol"
+        ],
+        "type": "major"
+    },
+    "Corellinan Run": {
+        "name": "Corellinan Run",
+        "nodes": [
+            "Coruscant",
+            "Ixtlar",
+            "Wukkar",
+            "Kailor V",
+            "Xorth",
+            "Vuma",
+            "Leria Kerlsil",
+            "Perma",
+            "Lolnar",
+            "Rehemsa",
+            "Sedratis",
+            "Rydonni Prime",
+            "Corellia",
+            "Tinnel",
+            "Loronar",
+            "Byblos",
+            "Pencael",
+            "Havricus",
+            "Iseno",
+            "Denon",
+            "Perithal VI",
+            "Spirana",
+            "Rhommamool",
+            "Tlactehon",
+            "Allanteen",
+            "Gamor",
+            "Milagro",
+            "Thaere",
+            "New Cov",
+            "Druckenwell",
+            "Mon Gazza",
+            "Herdessa",
+            "Radnor",
+            "Christophsis",
+            "Savareen",
+            "Ryloth",
+            "Smuggler's Run"
+        ],
+        "type": "major"
+    },
+    "Corellian Trade Spine": {
+        "name": "Corellian Trade Spine",
+        "nodes": [
+            "Corellia",
+            "Chasin",
+            "Condular",
+            "Hosnian Prime",
+            "Gandeal",
+            "Belazura",
+            "Bryexx",
+            "Enisca",
+            "Kelada",
+            "Foless",
+            "Bestine",
+            "Mechis III",
+            "Renillis",
+            "Yag'Dhul",
+            "Harrin",
+            "Moorja",
+            "Calus",
+            "Epica",
+            "Roona",
+            "Borkyne",
+            "Kinyen",
+            "Pendari",
+            "Tar Mordren",
+            "Calonica",
+            "Bomis Koori",
+            "Kriselist",
+            "Chibias",
+            "Kaal",
+            "Dalisor",
+            "Jiroch",
+            "Quamar",
+            "Cargamalis",
+            "Mugaar",
+            "Aztubek",
+            "Kumru",
+            "High Chunah",
+            "Kirtarkin",
+            "Mexeluine",
+            "Gerrenthum",
+            "Indellian",
+            "Bendeluum",
+            "Zhanox",
+            "Ione",
+            "Mataou",
+            "Anantapar",
+            "Shuxl",
+            "Ertegas",
+            "Darlyn Boda",
+            "Orn Kios",
+            "Ozu",
+            "Isde Naha",
+            "Togominda",
+            "Berrol's Donn",
+            "Sil'Lume",
+            "Manpha",
+            "Terminus"
+        ],
+        "type": "major"
+    },
+    "Hydian Way": {
+        "name": "Hydian Way",
+        "nodes": [
+            "Bonadan",
+            "D'ian",
+            "Lythos",
+            "Mall'ordian",
+            "Reltooine",
+            "Cadomai",
+            "Ruuria",
+            "Listehol",
+            "Tantive",
+            "Doniphon",
+            "Telos",
+            "Praadost",
+            "Pho Ph'eah",
+            "Toprawa",
+            "Simpla",
+            "Hynah",
+            "Sorrus",
+            "Junction",
+            "Celanon",
+            "Hijado",
+            "Botajef",
+            "Harloen",
+            "Bandomeer",
+            "Skorrupon",
+            "Corsin",
+            "Adin",
+            "Draria",
+            "Kidriff",
+            "Nessem",
+            "Bogden",
+            "Paqualis III",
+            "Per Lupelo",
+            "Drearia",
+            "Champala",
+            "Nierport",
+            "Uviuy Exen",
+            "Wakeelmui",
+            "Brentaal",
+            "Skako",
+            "Aldraig",
+            "Demophon",
+            "Glithnos",
+            "Fedalle",
+            "Trantor",
+            "Talravin",
+            "Sarapin",
+            "Trellen",
+            "Mawan",
+            "Loretto",
+            "Baraboo",
+            "Bellassa",
+            "Jaciprus",
+            "Voktunma",
+            "Exodeen",
+            "Boudolayz",
+            "Herzob",
+            "Besnia",
+            "Koensayr",
+            "Aquilae",
+            "Denon",
+            "Sagar",
+            "Ronyards",
+            "Chardaan",
+            "Babbadod",
+            "Shibric",
+            "Baroli",
+            "Gacerian",
+            "Ragith",
+            "Majoor",
+            "Ramordia",
+            "Arrgaw",
+            "Pax",
+            "ZeHeth",
+            "Malastare",
+            "Chryya",
+            "Darkknell",
+            "Cmaoli Di",
+            "Eriadu",
+            "Averam",
+            "Shumavar",
+            "Atravis",
+            "Tosste",
+            "Rutan",
+            "Fwatna",
+            "Terminus",
+            "Imynusoph"
+        ],
+        "type": "major"
+    },
+    "Perlemian Trade Route": {
+        "name": "Perlemian Trade Route",
+        "nodes": [
+            "Coruscant",
+            "Alsakan",
+            "Grizmallt",
+            "Anaxes",
+            "Corulag",
+            "Chandrila",
+            "Brentaal",
+            "Esseles",
+            "Rhinnal",
+            "Ralltiir",
+            "Delle",
+            "Yabol Opa",
+            "Ifmix",
+            "Shulstine",
+            "Castell",
+            "Raithal",
+            "Vurdon Ka",
+            "Joiol",
+            "Chazwa",
+            "Relatta",
+            "Tirahnn",
+            "Dalcretti",
+            "Taanab",
+            "Sermeria",
+            "Carcel",
+            "Pirin",
+            "Gizer",
+            "Lantillies",
+            "Rearqu Cluster",
+            "Jeyell",
+            "Roche",
+            "Orleon",
+            "Talcene",
+            "Salvara",
+            "Euceron",
+            "Abhean",
+            "The Wheel",
+            "Centares",
+            "Antemeridias",
+            "Budpock",
+            "Columex",
+            "Arcan",
+            "Lianna",
+            "Thanium",
+            "Felucia",
+            "Mossak",
+            "Galidraan",
+            "Arcan",
+            "Lianna",
+            "Barseg",
+            "Desevro",
+            "Livien",
+            "Kanaver",
+            "Janodral Mizar",
+            "Makem Te",
+            "Quermia"
+        ],
+        "type": "major"
+    },
+    "Elgit-M'Hanna Corridor": {
+        "name": "Elgit-M'Hanna Corridor",
+        "nodes": [
+            "Elgit",
+            "Sakifwanna",
+            "M'Hanna"
+        ],
+        "type": "major"
+    },
+    "Reena Trade Route": {
+        "name": "Reena Trade Route",
+        "nodes": [
+            "Druckenwell",
+            "Haseria",
+            "Monastery",
+            "Masterra",
+            "Nexus Ortai",
+            "Spirador",
+            "Bothawui"
+        ],
+        "type": "major"
+    },
+    "Bothan Run": {
+        "name": "Bothan Run",
+        "nodes": [
+            "Bothawui",
+            "Moonus",
+            "Mandell",
+            "Lannik",
+            "Daalang"
+        ],
+        "type": "major"
+    },
+    "Guu Run": {
+        "name": "Guu Run",
+        "nodes": [
+            "Kitel Phard",
+            "Dahrtag",
+            "Illodia",
+            "Giju"
+        ],
+        "type": "major"
+    },
+    "Shipwrights' Trace": {
+        "name": "Shipwrights' Trace",
+        "nodes": [
+            "Abregado-rae",
+            "Fondor",
+            "Thyferra",
+            "Teyr Vulvarch",
+            "Atzerri",
+            "Chardaan",
+            "Tynna",
+            "Allanteen"
+        ],
+        "type": "major"
+    },
+    "Harrin Trade Corridor": {
+        "name": "Harrin Trade Corridor",
+        "nodes": [
+            "Harrin",
+            "Wroona",
+            "Droecil",
+            "Lohopa",
+            "Jurzan",
+            "Arrgaw",
+            "Kira",
+            "Cerenia",
+            "Brevost",
+            "Momansi",
+            "Krann",
+            "Coonee",
+            "Sika",
+            "Milagro",
+            "Merren"
+        ],
+        "type": "major"
+    },
+    "Enarc Run": {
+        "name": "Enarc Run",
+        "nodes": [
+            "Kira",
+            "Roldalna",
+            "Nigel",
+            "Kalinda",
+            "Alassa Major",
+            "Naboo",
+            "Enarc"
+        ],
+        "type": "major"
+    },
+    "Shiritoku Way": {
+        "name": "Shiritoku Way",
+        "nodes": [
+            "Bakura",
+            "Timora",
+            "Ast Kikorie",
+            "Sanyassa",
+            "Endor"
+        ],
+        "type": "major"
+    },
+    "Spar Trade Route": {
+        "name": "Spar Trade Route",
+        "nodes": [
+            "Endor",
+            "Trindello",
+            "Qina",
+            "Vex",
+            "Firrerre",
+            "Houche",
+            "Vasha",
+            "Maya Kovel",
+            "Thonner",
+            "Ovise",
+            "Annaj",
+            "Abbaji",
+            "Cerea"
+        ],
+        "type": "major"
+    },
+    "Great Gran Run": {
+        "name": "Great Gran Run",
+        "nodes": [
+            "Cerea",
+            "Chalcedon",
+            "Tashtor Seneca",
+            "Takodana",
+            "Petabys Station",
+            "Halm",
+            "Har Binande",
+            "Natalon",
+            "Noe'ha'on",
+            "Kinyen"
+        ],
+        "type": "major"
+    },
+    "Cerean Reach": {
+        "name": "Cerean Reach",
+        "nodes": [
+            "Cerea",
+            "Cheelit",
+            "Koba",
+            "Riflor",
+            "Hirsi",
+            "Elbara",
+            "Quaensan Prime",
+            "Lorta",
+            "Shuldene",
+            "Lutrillia",
+            "Mijos",
+            "Gerrenthum"
+        ],
+        "type": "major"
+    },
+    "Koda Spur": {
+        "name": "Koda Spur",
+        "nodes": [
+            "Koda Station",
+            "Ryoone",
+            "Lutrillia",
+            "Mijos",
+            "Gerrenthum",
+            "Council",
+            "Nothoiin",
+            "Saila Na",
+            "Bavva",
+            "Dolla"
+        ],
+        "type": "major"
+    },
+    "Lipsec Run": {
+        "name": "Lipsec Run",
+        "nodes": [
+            "Lipsec",
+            "Virgillia",
+            "Sump",
+            "Keskin",
+            "Abridon",
+            "Isde Naha",
+            "Bettel",
+            "Mev",
+            "Kelrodo-Ai",
+            "Dorvalla",
+            "Eriadu"
+        ],
+        "type": "major"
+    },
+    "Namadii Corridor": {
+        "name": "Namadii Corridor",
+        "nodes": [
+            "Coruscant",
+            "Tanjay",
+            "Weerden",
+            "Galvoni",
+            "Twith",
+            "Pantolomin",
+            "Borleias",
+            "Ord Mirit",
+            "Palanhi",
+            "Carratos",
+            "Voltare",
+            "Meastrinnar",
+            "Aphran",
+            "Bengat",
+            "Bilbringi",
+            "Rondai",
+            "Dorin",
+            "Vaced",
+            "Glee Anselm",
+            "Ord Varee",
+            "Kalaan",
+            "Ansion",
+            "Namadii"
+        ],
+        "type": "major"
+    },
+    "Veragi Trade Route": {
+        "name": "Veragi Trade Route",
+        "nodes": [
+            "Vinsoth",
+            "Salin",
+            "Ciutric",
+            "Corvis Minor",
+            "Argazda",
+            "Bimmiel",
+            "Birgis",
+            "Seline",
+            "Sernpidal",
+            "Veragi",
+            "Trassitan",
+            "Dubrillion",
+            "Ahakista",
+            "Dantooine",
+            "Sinsang",
+            "Anx Minor",
+            "Ord Trasi"
+        ],
+        "type": "major"
+    },
+    "Triellus Trade Route": {
+        "name": "Triellus Trade Route",
+        "nodes": [
+            "Centares",
+            "Sy Myrth",
+            "Handooine",
+            "Jabiim",
+            "Taskeed",
+            "Dennogra",
+            "Junkfort Station",
+            "Nimat",
+            "Tammar",
+            "Kegan",
+            "Gestrex",
+            "Norval",
+            "Kubindi",
+            "Drualkiin",
+            "Formos",
+            "Eadu",
+            "Bheriz",
+            "Aduba",
+            "Glottal",
+            "Teth",
+            "Rampa Minor",
+            "Dilbana",
+            "Clantaano",
+            "Barab",
+            "Dubrava",
+            "Syvris",
+            "Arami",
+            "Gamorr",
+            "Lyran",
+            "Molavar",
+            "Koiogra",
+            "Piroket",
+            "A-Foroon",
+            "B-Foroon",
+            "C-Foroon",
+            "Ooo-temiuk",
+            "Tatooine",
+            "Andooweel",
+            "Kemal Station",
+            "New Ator",
+            "Issor",
+            "Arkanis"
+        ],
+        "type": "major"
+    },
+    "D'aelgoth Trade Route": {
+        "name": "D'aelgoth Trade Route",
+        "nodes": [
+            "Kriselist",
+            "Miztoc",
+            "Feenix",
+            "Cyphar",
+            "Ogem",
+            "Selenius",
+            "Kassido",
+            "Ossiathora",
+            "Deminol",
+            "Anstares",
+            "Zaria",
+            "Malador",
+            "Resti Kel",
+            "Pirralor",
+            "Pieldi",
+            "Velga",
+            "Loovria",
+            "Tinallis",
+            "Kimm Cresh",
+            "Kimm Besh",
+            "Kimm Aurek",
+            "Juvex",
+            "Kalgo",
+            "Denebia",
+            "Anturus",
+            "Karfeddion",
+            "Atron",
+            "Port Evokk",
+            "Tekurr'k",
+            "Yetoom",
+            "Dolla"
+        ],
+        "type": "major"
+    },
+    "Byss Run": {
+        "name": "Byss Run",
+        "nodes": [
+            "Coruscant",
+            "Foerost",
+            "Ruan",
+            "Jerrilek",
+            "Empress Teta",
+            "Keeara Major",
+            "Prakith",
+            "Byss"
+        ],
+        "type": "major"
+    },
+    "Salin Corridor": {
+        "name": "Salin Corridor",
+        "nodes": [
+            "Botajef",
+            "Phindar",
+            "Gala",
+            "Vjun",
+            "Lucazec",
+            "Columex"
+        ],
+        "type": "major"
+    },
+    "Pabol Sleheyron": {
+        "name": "Pabol Sleheyron",
+        "nodes": [
+            "Randon",
+            "Yitabo",
+            "Chalacta",
+            "Ilos",
+            "Ilos Minor",
+            "Nar Kreeta",
+            "Nimban",
+            "Sleheyron",
+            "Ulmatra",
+            "Zerm",
+            "Aeneid",
+            "Little Kessel",
+            "Honoghr",
+            "Little Kessel",
+            "Prishella",
+            "Formos"
+        ],
+        "type": "major"
+    },
+    "Kessel Run": {
+        "name": "Kessel Run",
+        "nodes": [
+            "Zerm",
+            "Kessel",
+            "Formos"
+        ],
+        "type": "major"
+    },
+    "Randon Run": {
+        "name": "Randon Run",
+        "nodes": [
+            "Lantillies",
+            "Phaseera",
+            "Uyter",
+            "Kashyyyk",
+            "Rakhuuun",
+            "Chamble",
+            "Messert",
+            "Randon"
+        ],
+        "type": "major"
+    },
+    "Lesser Lantillian Route": {
+        "name": "Lesser Lantillian Route",
+        "nodes": [
+            "Zeltros",
+            "Merson",
+            "Taboon",
+            "Ambria",
+            "Onderon & Dxun",
+            "Porus Vida",
+            "Vena",
+            "Nazzri",
+            "Avenelle",
+            "Uyter",
+            "Togoria",
+            "Charros",
+            "Bimmisaari",
+            "Peg Shar",
+            "Pusat Station",
+            "Boonta",
+            "Junkfort Station",
+            "Dagelin Minor",
+            "Oseon",
+            "Scillal",
+            "Lekua",
+            "Cadma",
+            "Zebitrope"
+        ],
+        "type": "major"
+    },
+    "Great Kashyyyk Branch": {
+        "name": "Great Kashyyyk Branch",
+        "nodes": [
+            "Zeltros",
+            "Virujansi",
+            "Umbara",
+            "Quas Killam",
+            "Torn Station",
+            "Kashyyyk",
+            "Balamak",
+            "Charros"
+        ],
+        "type": "major"
+    },
+    "Ado Spine": {
+        "name": "Ado Spine",
+        "nodes": [
+            "Karfeddion",
+            "Fengrine",
+            "Neelanon",
+            "Senex",
+            "Rindao",
+            "Parada",
+            "Eiattu",
+            "StarForge Nebula",
+            "Indupar",
+            "Medth"
+        ],
+        "type": "major"
+    },
+    "Nothoiin Corridor": {
+        "name": "Nothoiin Corridor",
+        "nodes": [
+            "Dolla",
+            "Eriadu"
+        ],
+        "type": "major"
+    },
+    "Triellus Trade Run": {
+        "name": "Triellus Trade Run",
+        "nodes": [
+            "Darkknell",
+            "Sanrafsix",
+            "Verdanth",
+            "Alui",
+            "Enarc",
+            "Ryndellia",
+            "Farstine",
+            "Zhar",
+            "Llanic",
+            "Tythe",
+            "Arkanis"
+        ],
+        "type": "major"
+    },
+    "Duros Space Run": {
+        "name": "Duros Space Run",
+        "nodes": [
+            "Enarc",
+            "Bannistar Station",
+            "Triffis",
+            "Kalarba",
+            "New Cov"
+        ],
+        "type": "major"
+    },
+    "Sanrafsix Corridor": {
+        "name": "Sanrafsix Corridor",
+        "nodes": [
+            "Sanrafsix",
+            "Syned",
+            "Omwat",
+            "Kabal",
+            "Dravian Station",
+            "Sevarcos",
+            "Kirdo",
+            "Ma'ar Shaddam",
+            "Cotellier"
+        ],
+        "type": "major"
+    },
+    "Llanic Spice Run": {
+        "name": "Llanic Spice Run",
+        "nodes": [
+            "Farstine",
+            "Ninzan",
+            "Trigalis",
+            "Stend",
+            "Vergesso",
+            "Bajic",
+            "Vohai",
+            "Elshandruu Pica",
+            "Suarbi",
+            "Skynara",
+            "Spice Terminus",
+            "Reuss",
+            "Andalasa",
+            "Bahalian",
+            "Socorro",
+            "Llanic",
+            "Mon Gazza"
+        ],
+        "type": "major"
+    },
+    "Celanon Spur": {
+        "name": "Celanon Spur",
+        "nodes": [
+            "Dorin",
+            "Myomar",
+            "Vicondor",
+            "Station 88",
+            "Vortex",
+            "Nentan",
+            "Dohu",
+            "Qiilura",
+            "Ord Mantell",
+            "Korvaii",
+            "Ithor",
+            "Noonar",
+            "Cademimu",
+            "Agamar",
+            "Shaum Hii",
+            "Vinsoth",
+            "Drackmar",
+            "Botajef"
+        ],
+        "type": "major"
+    },
+    "Listehol Run": {
+        "name": "Listehol Run",
+        "nodes": [
+            "Listehol",
+            "Mirial",
+            "Sikurd",
+            "Gigor",
+            "Zygerria"
+        ],
+        "type": "major"
+    },
+    "Shaltin Tunnels": {
+        "name": "Shaltin Tunnels",
+        "nodes": [
+            "Mytus",
+            "Ulicia",
+            "Atchorb",
+            "D'ian",
+            "Etti",
+            "Ession",
+            "Kalla",
+            "Pondut Station",
+            "Cantonica",
+            "Oslumpex",
+            "Zygerria",
+            "Ranroon",
+            "Syngia",
+            "Lianna"
+        ],
+        "type": "major"
+    },
+    "Overic Griplink": {
+        "name": "Overic Griplink",
+        "nodes": [
+            "Mon Calamari",
+            "Ruisto",
+            "Reginard",
+            "Munto Codru",
+            "Turkana",
+            "Shaylin",
+            "Pakuuni",
+            "Florn",
+            "Toola",
+            "Quermia"
+        ],
+        "type": "major"
+    },
+    "Way Of Schesa": {
+        "name": "Way Of Schesa",
+        "nodes": [
+            "The Redoubt",
+            "Pesfavri",
+            "Schesa",
+            "Noris",
+            "Ornfra"
+        ],
+        "type": "major"
+    },
+    "Path Of The Houses": {
+        "name": "Path Of The Houses",
+        "nodes": [
+            "Noris",
+            "Sharb",
+            "Ornfra",
+            "Naporar",
+            "Sposia",
+            "Csilla",
+            "Cioral",
+            "Sarvchi",
+            "Copero",
+            "Csaus",
+            "Rhigar"
+        ],
+        "type": "major"
+    },
+    "Ansion Spur": {
+        "name": "Ansion Spur",
+        "nodes": [
+            "Keitum",
+            "Ansion",
+            "Gilatter",
+            "Sinton",
+            "Rago",
+            "Murgo",
+            "Utegetu Nebula"
+        ],
+        "type": "major"
+    },
+    "Shwuy Exchange": {
+        "name": "Shwuy Exchange",
+        "nodes": [
+            "Vakkar",
+            "Palanhi",
+            "Noquivzor",
+            "Ord Antalaha",
+            "Dankayo",
+            "Uviuy Exen"
+        ],
+        "type": "major"
+    },
+    "Entralla Route": {
+        "name": "Entralla Route",
+        "nodes": [
+            "Endoraan",
+            "Entralla",
+            "Capza",
+            "Yaga Minor",
+            "Ompersan",
+            "Prefsbelt",
+            "Borosk",
+            "JanFathal",
+            "Wistril",
+            "Orinda",
+            "Lonnaw",
+            "Obredaan",
+            "Gonmore",
+            "Ord Tessebok",
+            "Yout",
+            "Qiilura"
+        ],
+        "type": "major"
+    },
+    "Pabol Hutta": {
+        "name": "Pabol Hutta",
+        "nodes": [
+            "Nal Hutta & Nar Shaddaa",
+            "Hosko",
+            "Varl",
+            "Gos Hutta",
+            "Mulatan",
+            "Sleheyron",
+            "Sriluur",
+            "Boonta"
+        ],
+        "type": "major"
+    },
+    "Shag Pabol": {
+        "name": "Shag Pabol",
+        "nodes": [
+            "Teth",
+            "Lirra",
+            "Outland Transit",
+            "Ziugen",
+            "Ylesia",
+            "Diyu",
+            "Rorak",
+            "Nal Hutta & Nar Shaddaa"
+        ],
+        "type": "major"
+    },
+    "Ootmian Pabol": {
+        "name": "Ootmian Pabol",
+        "nodes": [
+            "Du Hutta",
+            "Irith",
+            "Nar Bo Sholla",
+            "Keldooine",
+            "Kwenn",
+            "Ubrikkia",
+            "Blimph",
+            "Randon"
+        ],
+        "type": "major"
+    },
+    "Varl Run": {
+        "name": "Varl Run",
+        "nodes": [
+            "Varl",
+            "M'Hanna",
+            "Tisht",
+            "Saqqar",
+            "Usk",
+            "Elgit",
+            "Zisia",
+            "Ulmatra",
+            "Kafane",
+            "Nimia",
+            "Yoribuunt"
+        ],
+        "type": "major"
+    },
+    "Kegan Run": {
+        "name": "Kegan Run",
+        "nodes": [
+            "Kegan",
+            "Delacrix",
+            "Yoribuunt",
+            "Ques",
+            "Sriluur",
+            "Boonta"
+        ],
+        "type": "major"
+    },
+    "Commenor Run": {
+        "name": "Commenor Run",
+        "nodes": [
+            "Brentaal",
+            "Tepasi",
+            "Korfo",
+            "Caamas",
+            "Alderaan",
+            "Tyed Kant",
+            "Parkis",
+            "Kattada",
+            "Uquine",
+            "Commenor"
+        ],
+        "type": "major"
+    },
+    "Trellent Trade Route": {
+        "name": "Trellent Trade Route",
+        "nodes": [
+            "Trellen",
+            "Humbarine",
+            "Commenor"
+        ],
+        "type": "major"
+    },
+    "Fedalle Run": {
+        "name": "Fedalle Run",
+        "nodes": [
+            "Fedalle",
+            "Raxxa",
+            "Kuat",
+            "Commenor"
+        ],
+        "type": "major"
+    },
+    "Quellor Run": {
+        "name": "Quellor Run",
+        "nodes": [
+            "Commenor",
+            "Damoria",
+            "Chorax",
+            "Vladet",
+            "Cato Neimoidia",
+            "Hensara",
+            "Talasea",
+            "Lankashiir",
+            "Quellor"
+        ],
+        "type": "major"
+    },
+    "Nanth'ri Route": {
+        "name": "Nanth'ri Route",
+        "nodes": [
+            "Exodeen",
+            "Quellor",
+            "Antar",
+            "Gyndine",
+            "Fabrin",
+            "Mimban",
+            "Zaloriis",
+            "Attahox",
+            "Nanth'ri"
+        ],
+        "type": "major"
+    },
+    "Lorell Route": {
+        "name": "Lorell Route",
+        "nodes": [
+            "Zeltros",
+            "Andalia",
+            "Sennex",
+            "Daruvvia",
+            "Ket",
+            "Lovola",
+            "Maires",
+            "Vergill"
+        ],
+        "type": "major"
+    },
+    "Hapan Spine": {
+        "name": "Hapan Spine",
+        "nodes": [
+            "Taanab",
+            "Roqoo Depot",
+            "Terephon",
+            "Zalori"
+        ],
+        "type": "major"
+    },
+    "Rynmar Trail": {
+        "name": "Rynmar Trail",
+        "nodes": [
+            "Modus",
+            "Sargon",
+            "Febrini",
+            "Rynmar",
+            "Zalori"
+        ],
+        "type": "major"
+    },
+    "Trellen Trade Route": {
+        "name": "Trellen Trade Route",
+        "nodes": [
+            "Commenor",
+            "Rasterous",
+            "Zeltros",
+            "Virujansi",
+            "Umbara",
+            "Quas Killam",
+            "Torn Station",
+            "Kashyyyk"
+        ],
+        "type": "major"
+    },
+    "Trax Tube": {
+        "name": "Trax Tube",
+        "nodes": [
+            "Daalang",
+            "Nixor",
+            "Nanth'ri",
+            "Uogo'cor",
+            "Lexrul",
+            "Deysum",
+            "Randon"
+        ],
+        "type": "major"
+    },
+    "Terr'Skiar Pass": {
+        "name": "Terr'Skiar Pass",
+        "nodes": [
+            "Terr'Skiar",
+            "Bissillirus",
+            "Deysum"
+        ],
+        "type": "major"
+    }
+}
