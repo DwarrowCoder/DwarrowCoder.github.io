@@ -337,6 +337,7 @@
                 planetLayer = L.layerGroup().addTo(map);
                 planetsData.forEach(feature => {
                     const props = feature.properties;
+                    if(!props.Name) return;
                     const coords = feature.geometry.coordinates;  // [lng/x, lat/y]
                     const marker = L.circleMarker([coords[1], coords[0]], {  // Leaflet [lat, lng]
                       radius: 6,
@@ -346,7 +347,7 @@
                       interactive: true
                     });
                     marker.planetData = {  // mimic your old structure
-                      Name: props.name || "unknown",
+                      Name: props.name,
                       Region: props.region
                     };
                     marker.on('click', (e) => {
