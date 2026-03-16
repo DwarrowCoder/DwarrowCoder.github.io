@@ -1,5 +1,5 @@
-{
-    "Rimma Trade Route": {
+[
+    {
         "name": "Rimma Trade Route",
         "nodes": [
             "Abregado-rae",
@@ -36,7 +36,7 @@
         ],
         "type": "major"
     },
-    "Corellinan Run": {
+    {
         "name": "Corellinan Run",
         "nodes": [
             "Coruscant",
@@ -79,7 +79,7 @@
         ],
         "type": "major"
     },
-    "Corellian Trade Spine": {
+    {
         "name": "Corellian Trade Spine",
         "nodes": [
             "Corellia",
@@ -141,7 +141,7 @@
         ],
         "type": "major"
     },
-    "Hydian Way": {
+    {
         "name": "Hydian Way",
         "nodes": [
             "Bonadan",
@@ -233,7 +233,7 @@
         ],
         "type": "major"
     },
-    "Perlemian Trade Route": {
+    {
         "name": "Perlemian Trade Route",
         "nodes": [
             "Coruscant",
@@ -295,7 +295,7 @@
         ],
         "type": "major"
     },
-    "Elgit-M'Hanna Corridor": {
+    {
         "name": "Elgit-M'Hanna Corridor",
         "nodes": [
             "Elgit",
@@ -304,7 +304,7 @@
         ],
         "type": "major"
     },
-    "Reena Trade Route": {
+    {
         "name": "Reena Trade Route",
         "nodes": [
             "Druckenwell",
@@ -317,7 +317,7 @@
         ],
         "type": "major"
     },
-    "Bothan Run": {
+    {
         "name": "Bothan Run",
         "nodes": [
             "Bothawui",
@@ -328,7 +328,7 @@
         ],
         "type": "major"
     },
-    "Guu Run": {
+    {
         "name": "Guu Run",
         "nodes": [
             "Kitel Phard",
@@ -338,7 +338,7 @@
         ],
         "type": "major"
     },
-    "Shipwrights' Trace": {
+    {
         "name": "Shipwrights' Trace",
         "nodes": [
             "Abregado-rae",
@@ -352,7 +352,7 @@
         ],
         "type": "major"
     },
-    "Harrin Trade Corridor": {
+    {
         "name": "Harrin Trade Corridor",
         "nodes": [
             "Harrin",
@@ -373,7 +373,7 @@
         ],
         "type": "major"
     },
-    "Enarc Run": {
+    {
         "name": "Enarc Run",
         "nodes": [
             "Kira",
@@ -386,7 +386,7 @@
         ],
         "type": "major"
     },
-    "Shiritoku Way": {
+    {
         "name": "Shiritoku Way",
         "nodes": [
             "Bakura",
@@ -397,7 +397,7 @@
         ],
         "type": "major"
     },
-    "Spar Trade Route": {
+    {
         "name": "Spar Trade Route",
         "nodes": [
             "Endor",
@@ -416,7 +416,7 @@
         ],
         "type": "major"
     },
-    "Great Gran Run": {
+    {
         "name": "Great Gran Run",
         "nodes": [
             "Cerea",
@@ -432,7 +432,7 @@
         ],
         "type": "major"
     },
-    "Cerean Reach": {
+    {
         "name": "Cerean Reach",
         "nodes": [
             "Cerea",
@@ -450,7 +450,7 @@
         ],
         "type": "major"
     },
-    "Koda Spur": {
+    {
         "name": "Koda Spur",
         "nodes": [
             "Koda Station",
@@ -466,7 +466,7 @@
         ],
         "type": "major"
     },
-    "Lipsec Run": {
+    {
         "name": "Lipsec Run",
         "nodes": [
             "Lipsec",
@@ -483,7 +483,7 @@
         ],
         "type": "major"
     },
-    "Namadii Corridor": {
+    {
         "name": "Namadii Corridor",
         "nodes": [
             "Coruscant",
@@ -512,7 +512,7 @@
         ],
         "type": "major"
     },
-    "Veragi Trade Route": {
+    {
         "name": "Veragi Trade Route",
         "nodes": [
             "Vinsoth",
@@ -535,7 +535,7 @@
         ],
         "type": "major"
     },
-    "Triellus Trade Route": {
+    {
         "name": "Triellus Trade Route",
         "nodes": [
             "Centares",
@@ -583,7 +583,7 @@
         ],
         "type": "major"
     },
-    "D'aelgoth Trade Route": {
+    {
         "name": "D'aelgoth Trade Route",
         "nodes": [
             "Kriselist",
@@ -620,7 +620,7 @@
         ],
         "type": "major"
     },
-    "Byss Run": {
+    {
         "name": "Byss Run",
         "nodes": [
             "Coruscant",
@@ -634,7 +634,7 @@
         ],
         "type": "major"
     },
-    "Salin Corridor": {
+    {
         "name": "Salin Corridor",
         "nodes": [
             "Botajef",
@@ -646,7 +646,7 @@
         ],
         "type": "major"
     },
-    "Pabol Sleheyron": {
+    {
         "name": "Pabol Sleheyron",
         "nodes": [
             "Randon",
@@ -668,7 +668,7 @@
         ],
         "type": "major"
     },
-    "Kessel Run": {
+    {
         "name": "Kessel Run",
         "nodes": [
             "Zerm",
@@ -677,7 +677,7 @@
         ],
         "type": "major"
     },
-    "Randon Run": {
+    {
         "name": "Randon Run",
         "nodes": [
             "Lantillies",
@@ -691,7 +691,7 @@
         ],
         "type": "major"
     },
-    "Lesser Lantillian Route": {
+    {
         "name": "Lesser Lantillian Route",
         "nodes": [
             "Zeltros",
@@ -720,7 +720,7 @@
         ],
         "type": "major"
     },
-    "Great Kashyyyk Branch": {
+    {
         "name": "Great Kashyyyk Branch",
         "nodes": [
             "Zeltros",
@@ -734,7 +734,7 @@
         ],
         "type": "major"
     },
-    "Ado Spine": {
+    {
         "name": "Ado Spine",
         "nodes": [
             "Karfeddion",
@@ -750,7 +750,7 @@
         ],
         "type": "major"
     },
-    "Nothoiin Corridor": {
+    {
         "name": "Nothoiin Corridor",
         "nodes": [
             "Dolla",
@@ -758,7 +758,7 @@
         ],
         "type": "major"
     },
-    "Triellus Trade Run": {
+    {
         "name": "Triellus Trade Run",
         "nodes": [
             "Darkknell",
@@ -775,7 +775,7 @@
         ],
         "type": "major"
     },
-    "Duros Space Run": {
+    {
         "name": "Duros Space Run",
         "nodes": [
             "Enarc",
@@ -786,7 +786,7 @@
         ],
         "type": "major"
     },
-    "Sanrafsix Corridor": {
+    {
         "name": "Sanrafsix Corridor",
         "nodes": [
             "Sanrafsix",
@@ -801,7 +801,7 @@
         ],
         "type": "major"
     },
-    "Llanic Spice Run": {
+    {
         "name": "Llanic Spice Run",
         "nodes": [
             "Farstine",
@@ -824,7 +824,7 @@
         ],
         "type": "major"
     },
-    "Celanon Spur": {
+    {
         "name": "Celanon Spur",
         "nodes": [
             "Dorin",
@@ -848,7 +848,7 @@
         ],
         "type": "major"
     },
-    "Listehol Run": {
+    {
         "name": "Listehol Run",
         "nodes": [
             "Listehol",
@@ -859,7 +859,7 @@
         ],
         "type": "major"
     },
-    "Shaltin Tunnels": {
+    {
         "name": "Shaltin Tunnels",
         "nodes": [
             "Mytus",
@@ -879,7 +879,7 @@
         ],
         "type": "major"
     },
-    "Overic Griplink": {
+    {
         "name": "Overic Griplink",
         "nodes": [
             "Mon Calamari",
@@ -895,7 +895,7 @@
         ],
         "type": "major"
     },
-    "Way Of Schesa": {
+    {
         "name": "Way Of Schesa",
         "nodes": [
             "The Redoubt",
@@ -906,7 +906,7 @@
         ],
         "type": "major"
     },
-    "Path Of The Houses": {
+    {
         "name": "Path Of The Houses",
         "nodes": [
             "Noris",
@@ -923,7 +923,7 @@
         ],
         "type": "major"
     },
-    "Ansion Spur": {
+    {
         "name": "Ansion Spur",
         "nodes": [
             "Keitum",
@@ -936,7 +936,7 @@
         ],
         "type": "major"
     },
-    "Shwuy Exchange": {
+    {
         "name": "Shwuy Exchange",
         "nodes": [
             "Vakkar",
@@ -948,7 +948,7 @@
         ],
         "type": "major"
     },
-    "Entralla Route": {
+    {
         "name": "Entralla Route",
         "nodes": [
             "Endoraan",
@@ -970,7 +970,7 @@
         ],
         "type": "major"
     },
-    "Pabol Hutta": {
+    {
         "name": "Pabol Hutta",
         "nodes": [
             "Nal Hutta & Nar Shaddaa",
@@ -984,7 +984,7 @@
         ],
         "type": "major"
     },
-    "Shag Pabol": {
+    {
         "name": "Shag Pabol",
         "nodes": [
             "Teth",
@@ -998,7 +998,7 @@
         ],
         "type": "major"
     },
-    "Ootmian Pabol": {
+    {
         "name": "Ootmian Pabol",
         "nodes": [
             "Du Hutta",
@@ -1012,7 +1012,7 @@
         ],
         "type": "major"
     },
-    "Varl Run": {
+    {
         "name": "Varl Run",
         "nodes": [
             "Varl",
@@ -1029,7 +1029,7 @@
         ],
         "type": "major"
     },
-    "Kegan Run": {
+    {
         "name": "Kegan Run",
         "nodes": [
             "Kegan",
@@ -1041,7 +1041,7 @@
         ],
         "type": "major"
     },
-    "Commenor Run": {
+    {
         "name": "Commenor Run",
         "nodes": [
             "Brentaal",
@@ -1057,7 +1057,7 @@
         ],
         "type": "major"
     },
-    "Trellent Trade Route": {
+    {
         "name": "Trellent Trade Route",
         "nodes": [
             "Trellen",
@@ -1066,7 +1066,7 @@
         ],
         "type": "major"
     },
-    "Fedalle Run": {
+    {
         "name": "Fedalle Run",
         "nodes": [
             "Fedalle",
@@ -1076,7 +1076,7 @@
         ],
         "type": "major"
     },
-    "Quellor Run": {
+    {
         "name": "Quellor Run",
         "nodes": [
             "Commenor",
@@ -1091,7 +1091,7 @@
         ],
         "type": "major"
     },
-    "Nanth'ri Route": {
+    {
         "name": "Nanth'ri Route",
         "nodes": [
             "Exodeen",
@@ -1106,7 +1106,7 @@
         ],
         "type": "major"
     },
-    "Lorell Route": {
+    {
         "name": "Lorell Route",
         "nodes": [
             "Zeltros",
@@ -1120,7 +1120,7 @@
         ],
         "type": "major"
     },
-    "Hapan Spine": {
+    {
         "name": "Hapan Spine",
         "nodes": [
             "Taanab",
@@ -1130,7 +1130,7 @@
         ],
         "type": "major"
     },
-    "Rynmar Trail": {
+    {
         "name": "Rynmar Trail",
         "nodes": [
             "Modus",
@@ -1141,7 +1141,7 @@
         ],
         "type": "major"
     },
-    "Trellen Trade Route": {
+    {
         "name": "Trellen Trade Route",
         "nodes": [
             "Commenor",
@@ -1155,7 +1155,7 @@
         ],
         "type": "major"
     },
-    "Trax Tube": {
+    {
         "name": "Trax Tube",
         "nodes": [
             "Daalang",
@@ -1168,7 +1168,7 @@
         ],
         "type": "major"
     },
-    "Terr'Skiar Pass": {
+    {
         "name": "Terr'Skiar Pass",
         "nodes": [
             "Terr'Skiar",
@@ -1177,4 +1177,4 @@
         ],
         "type": "major"
     }
-}
+]
