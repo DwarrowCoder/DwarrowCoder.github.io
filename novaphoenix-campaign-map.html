@@ -317,7 +317,7 @@
                         e.originalEvent.stopPropagation();
                         addWaypoint(marker);
                     });
-                    marker.bindTooltip(`<b>${marker.planetData.Name}</b><br>${marker.planetData.Region || 'Unknown'}`);
+                    marker.bindTooltip(`<b>${marker.planetData.name}</b><br>${marker.planetData.region || 'Unknown'}`);
                     planetLayer.addLayer(marker);
                 });
 
