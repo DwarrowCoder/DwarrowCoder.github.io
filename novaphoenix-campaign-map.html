@@ -286,7 +286,7 @@
                     hyperspaceFC = await hsRes.json();
 
                     // Load planets (parzivail style)
-                    const pRes = await fetch('./data/planets.geojson');
+                    const pRes = await fetch('./data/planet.geojson');
                     if (!pRes.ok) throw new Error(`Planets fetch failed: ${pRes.status}`);
                     const planetsGeo = await pRes.json();
                     planetsData = planetsGeo.features;
