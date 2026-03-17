@@ -295,28 +295,57 @@
                     alert("Failed to load galaxy data: check console & file paths");
                 }
 
+                // Add planets to map (assume your map var is called "map")
+                planetLayer = L.layerGroup().addTo(map);
+                planetsData.forEach(feature => {
+                    const props = feature.properties;
+                    if(!props.name) return;
+                    const coords = feature.geometry.coordinates;  // [lng/x, lat/y]
+                    const marker = L.circleMarker([coords[1], coords[0]], {  // Leaflet [lat, lng]
+                      radius: 6,
+                      color: '#00ff00',
+                      fillColor: '#0066cc',
+                      fillOpacity: 0.8,
+                      interactive: true
+                    });
+                    marker.planetData = {  // mimic your old structure
+                      name: props.name,
+                      region: props.region,
+                      sector: props.sector
+                    };
+                    marker.on('click', (e) => {
+                        e.originalEvent.stopPropagation();
+                        addWaypoint(marker);
+                    });
+                    marker.bindTooltip(`<b>${marker.planetData.Name}</b><br>${marker.planetData.Region || 'Unknown'}`);
+                    planetLayer.addLayer(marker);
+                });
+
                 // ====================== BUILD GRAPH ONCE ======================
                 hyperspaceFC.forEach(route => {
                   const type = route.type; // 'major' or 'minor' (already tagged)
                   const nodes = route.nodes;
+                  const planets = planetLayer.getLayers()
                 
                   for (let i = 0; i < nodes.length - 1; i++) {
                     const fromName = nodes[i];
                     const toName   = nodes[i + 1];
 
-                    const fromPlanet = planetsData.find(p => p.properties.name.toLowerCase() === fromName.toLowerCase());
-                    const toPlanet   = planetsData.find(p => p.properties.name.toLowerCase() === toName.toLowerCase());
+                    const fromPlanet = planets.find(p => p.planetData.name.toLowerCase() === fromName.toLowerCase());
+                    const toPlanet   = planets.find(p => p.planetData.name.toLowerCase() === toName.toLowerCase());
 
                     if (!fromPlanet || !toPlanet) {
                         console.warn(`Skipping connection ${fromName} → ${toName} (planet not found in data)`);
                         continue;
                     }
 
-                    const fromKey = fromPlanet.name;  // or normalize: fromPlanet.name.replace(/\s+/g, '_')
-                    const toKey   = toPlanet.name;
+                    const fromKey = fromPlanet.planetData.name;  // or normalize: fromPlanet.name.replace(/\s+/g, '_')
+                    const toKey   = toPlanet.planetData.name;
 
                     // Calculate distance between planets (your planarDistance function)
-                    const dist = planarDistance([fromPlanet.X, fromPlanet.Y], [toPlanet.X, toPlanet.Y]);
+                    const fromCoord = fromPlanet.getLatLng();
+                    const toCoord = toPlanet.getLatLng();
+                    const dist = planarDistance([fromCoord.lng, fromCoord.lat], [toCoord.lng, toCoord.lat]);
 
                     // Convert to "travel cost" (same as before)
                     const weight = (dist / GRID_UNITS_PER_SQUARE) *
@@ -333,31 +362,6 @@
                 });
 
                 console.log(`Graph built with ${graph.size} planet nodes and ${hyperspaceFC.length} routes`);
-
-                // Add planets to map (assume your map var is called "map")
-                planetLayer = L.layerGroup().addTo(map);
-                planetsData.forEach(feature => {
-                    const props = feature.properties;
-                    if(!props.Name) return;
-                    const coords = feature.geometry.coordinates;  // [lng/x, lat/y]
-                    const marker = L.circleMarker([coords[1], coords[0]], {  // Leaflet [lat, lng]
-                      radius: 6,
-                      color: '#00ff00',
-                      fillColor: '#0066cc',
-                      fillOpacity: 0.8,
-                      interactive: true
-                    });
-                    marker.planetData = {  // mimic your old structure
-                      Name: props.name,
-                      Region: props.region
-                    };
-                    marker.on('click', (e) => {
-                        e.originalEvent.stopPropagation();
-                        addWaypoint(marker);
-                    });
-                    marker.bindTooltip(`<b>${marker.planetData.Name}</b><br>${marker.planetData.Region || 'Unknown'}`);
-                    planetLayer.addLayer(marker);
-                });
 
                 routeLayer = L.layerGroup().addTo(map);
                 updateWaypointList();
