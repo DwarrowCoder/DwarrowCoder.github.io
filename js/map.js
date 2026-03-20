@@ -8,3 +8,7 @@ const map = L.map('map', {
     zoom: -4,
     crs: L.CRS.Simple
 });
+
+L.tileLayer('', {
+    attribution: 'Star Wars Galaxy – Data: Wladymir Brborich (Wason1797), Brian Kennedy (bpkennedy), Colby Newman (parzivail)',
+}).addTo(map);
