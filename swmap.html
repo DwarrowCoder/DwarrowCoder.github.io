@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Galaxy Map</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+
+        <!-- Leaflet -->
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+     crossorigin=""/>
+        <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+     crossorigin=""></script>
+        <link rel="stylesheet" href="https://ppete2.github.io/Leaflet.PolylineMeasure/Leaflet.PolylineMeasure.css" />
+        <script defer src="https://ppete2.github.io/Leaflet.PolylineMeasure/Leaflet.PolylineMeasure.js"></script>
+
+        <!-- Turf.js -->
+        <script defer src="./js/turf.min.js"></script>
+
+        <!-- map script-->
+        <script defer src="./js/map.js"></script>
+        <link rel="stylesheet" href="./css/map.css" />
+    </head>
+    <body>
+        <header>
+            <h1>
+                Star Wars Galaxy Hyperspace Calculator
+            </h1>
+        </header>
+        <section>
+            <div id="interface"></div>
+        </section>
+        <section class="w3-container">
+            <div id="map"></div>
+        </section>
+    </body>
+</html>
