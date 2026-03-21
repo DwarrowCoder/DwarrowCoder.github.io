@@ -91,25 +91,25 @@ async function initMap() {
 
     // ====================== CONTEXT MENU (Right Click) ======================
     map.on('contextmenu', function(e) {
-      const latlng = e.latlng;           // this is [y, x] in Simple CRS
-      const x = latlng.lng;              // because Leaflet swaps them internally
-      const y = latlng.lat;
+        const latlng = e.latlng;           // this is [y, x] in Simple CRS
+        const x = latlng.lng;              // because Leaflet swaps them internally
+        const y = latlng.lat;
 
-      const menuHtml = `
-        <b>Galaxy Coordinates</b><br>
-        X: ${x.toFixed(2)}<br>
-        Y: ${y.toFixed(2)}<br><br>
-        <small>Right-clicked on the map</small>
-      `;
+        const menuHtml = `
+            <b>Galaxy Coordinates</b><br>
+            X: ${x.toFixed(2)}<br>
+            Y: ${y.toFixed(2)}<br><br>
+            <small>Right-clicked on the map</small>
+        `;
 
-      L.popup({
-        className: 'context-menu-popup',
-        closeButton: true,
-        autoClose: true,
-        offset: [0, -10]
-      })
-      .setLatLng(e.latlng)
-      .setContent(menuHtml)
-      .openOn(map);
+        L.popup({
+            className: 'context-menu-popup',
+            closeButton: true,
+            autoClose: true,
+            offset: [0, -10]
+        })
+        .setLatLng(e.latlng)
+        .setContent(menuHtml)
+        .openOn(map);
     });
 }
