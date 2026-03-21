@@ -41,7 +41,7 @@ async function initMap() {
         const props = feature.properties;
         if(!props.name) return;
         const coords = feature.geometry.coordinates;  
-        const marker = L.circleMarker([coords[0], coords[1]], {  
+        const marker = L.circleMarker([coords[1], coords[0]], {  
           radius: 6,
           color: '#00ff00',
           fillColor: '#0066cc',
