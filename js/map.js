@@ -79,10 +79,6 @@ async function initMap() {
           region: props.region,
           sector: props.sector
         };
-        marker.on('click', (e) => {
-            e.originalEvent.stopPropagation();
-            addWaypoint(marker);
-        });
         marker.bindTooltip(`<b>${marker.planetData.name}</b><br><i>${marker.planetData.sector}</i><br>${marker.planetData.region || 'Unknown'}`);
         planetLayer.addLayer(marker);
     });
