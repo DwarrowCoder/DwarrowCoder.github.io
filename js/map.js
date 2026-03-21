@@ -36,6 +36,8 @@ async function initMap() {
         alert("Failed to load galaxy data: check console & file paths");
     }
 
+
+
     // ====================== LAYERS ======================
     laneLayer = L.layerGroup().addTo(map);
     planetLayer = L.layerGroup().addTo(map);
@@ -85,5 +87,29 @@ async function initMap() {
                             <i>${marker.planetData?.sector || 'Unknown'}</i><br>
                             ${marker.planetData?.region || 'Unknown'}`);
         planetLayer.addLayer(marker);
+    });
+
+    // ====================== CONTEXT MENU (Right Click) ======================
+    map.on('contextmenu', function(e) {
+      const latlng = e.latlng;           // this is [y, x] in Simple CRS
+      const x = latlng.lng;              // because Leaflet swaps them internally
+      const y = latlng.lat;
+
+      const menuHtml = `
+        <b>Galaxy Coordinates</b><br>
+        X: ${x.toFixed(2)}<br>
+        Y: ${y.toFixed(2)}<br><br>
+        <small>Right-clicked on the map</small>
+      `;
+
+      L.popup({
+        className: 'context-menu-popup',
+        closeButton: true,
+        autoClose: true,
+        offset: [0, -10]
+      })
+      .setLatLng(e.latlng)
+      .setContent(menuHtml)
+      .openOn(map);
     });
 }

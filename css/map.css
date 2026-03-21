@@ -8,3 +8,18 @@
 .leaflet-container {
     background: #000 !important;
 }
+
+.context-menu-popup .leaflet-popup-content {
+    min-width: 220px;
+    line-height: 1.6;
+    font-family: system-ui, sans-serif;
+}
+
+.context-menu-popup a {
+    color: #3388ff;
+    text-decoration: none;
+}
+
+.context-menu-popup a:hover {
+    text-decoration: underline;
+}
