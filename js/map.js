@@ -35,7 +35,26 @@ async function initMap() {
         alert("Failed to load galaxy data: check console & file paths");
     }
 
-    // Add planets to map (assume your map var is called "map")
+    // Add hyperlanes to map
+    laneLayer = L.layerGroup().addTo(map);
+    hyperlanesData.forEach(feature => {
+        const props = feature.properties;
+        if(!props.name) return;
+        const coords = feature.geometry.coordinates;  
+        const route = L.polyline(coords, {  
+          weight: props.major? 5 : 3,
+          color: props.major? '#00ff00' : '#00aa00',
+          opacity: 0.8,
+          interactive: true
+        });
+        route.hyperlanesData = {
+          name: props.name
+        };
+        route.bindTooltip(`<b>${route.hyperlanesData.name}</b>`);
+        laneLayer.addLayer(route);
+    });
+
+    // Add planets to map
     planetLayer = L.layerGroup().addTo(map);
     planetsData.forEach(feature => {
         const props = feature.properties;
