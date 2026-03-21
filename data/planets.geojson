@@ -56196,38 +56196,10 @@
     {
       "type": "Feature",
       "properties": {
-        "name": "Merkat",
-        "grid": "O-14",
-        "region": "Expansion Regions",
-        "id": 2179,
-        "url": "https://starwars.fandom.com/wiki/Merkat",
-        "slug": "aridus",
-        "canon": false,
-        "sector": "Chaykin Sector",
-        "sun": "Merren",
-        "suns": 0,
-        "moons": 0,
-        "position": 0,
-        "day": 24.0,
-        "year": 365.0,
-        "diameter": 0.0,
-        "gravity": 1.0
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          300.0,
-          -400.0
-        ]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
         "name": "Boradin",
         "grid": "Q-12",
         "region": "Mid Rim",
-        "id": 2180,
+        "id": 2179,
         "url": "",
         "slug": "boradin",
         "canon": false,
