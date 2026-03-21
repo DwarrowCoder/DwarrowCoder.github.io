@@ -1,5 +1,6 @@
 // Data
-let hyperlanesData, planetsData, map, mapConfig; 
+let hyperlanesData, planetsData, map, mapConfig;
+let laneLayer, planetLayer;
 
 initMap();
 
@@ -35,51 +36,54 @@ async function initMap() {
         alert("Failed to load galaxy data: check console & file paths");
     }
 
-    // Add hyperlanes to map
+    // ====================== LAYERS ======================
     laneLayer = L.layerGroup().addTo(map);
+    planetLayer = L.layerGroup().addTo(map);
+
+    // ====================== HYPERLANES ======================
     hyperlanesData.forEach(feature => {
-        const props = feature.properties;
+        const props = feature.properties || {};
         if(!props.name) return;
-        let len = feature.geometry.coordinates.length;
-        for(let xy = 0; xy < len; xy++) {
-            const x = feature.geometry.coordinates[xy][0];
-            const y = feature.geometry.coordinates[xy][1];
-            feature.geometry.coordinates[xy][1] = x;
-            feature.geometry.coordinates[xy][0] = y;
-        }
         const coords = feature.geometry.coordinates;
+        coords = coords.map(([x, y]) => [y, x]);
         const route = L.polyline(coords, {  
           weight: props.major? 5 : 3,
           color: props.major? '#00ff00' : '#00aa00',
-          opacity: 0.8,
-          interactive: true
+          opacity: 0.8
         });
         route.hyperlanesData = {
           name: props.name
         };
-        route.bindTooltip(`<b>${route.hyperlanesData.name}</b>`);
+        route.bindTooltip(`<b>${route.hyperlanesData.name}</b>`, {
+          sticky: true,
+          offset: [10, 0],
+          direction: auto
+        });
         laneLayer.addLayer(route);
     });
 
-    // Add planets to map
-    planetLayer = L.layerGroup().addTo(map);
+    // ====================== PLANETS ======================
     planetsData.forEach(feature => {
-        const props = feature.properties;
+        const props = feature.properties || {};
         if(!props.name) return;
-        const coords = feature.geometry.coordinates;  
-        const marker = L.circleMarker([coords[1], coords[0]], {  
+        const [x, y] = feature.geometry.coordinates;  
+        const marker = L.circleMarker([y, x], {  
           radius: 6,
           color: '#00ff00',
-          fillColor: '#0066cc',
+          weight: 1.5,
           fillOpacity: 0.8,
+          fillColor: props.canon ? '#3388ff' : '#ff8800',
           interactive: true
         });
         marker.planetData = {
           name: props.name,
           region: props.region,
-          sector: props.sector
+          sector: props.sector,
+          grid: props.grid
         };
-        marker.bindTooltip(`<b>${marker.planetData.name}</b><br><i>${marker.planetData.sector}</i><br>${marker.planetData.region || 'Unknown'}`);
+        marker.bindTooltip(`<b>${marker.planetData.name}</b> (${marker.planetData?.grid})<br>
+                            <i>${marker.planetData?.sector || 'Unknown'}</i><br>
+                            ${marker.planetData?.region || 'Unknown'}`);
         planetLayer.addLayer(marker);
     });
 }
