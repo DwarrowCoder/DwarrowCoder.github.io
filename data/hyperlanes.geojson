@@ -5054,8 +5054,8 @@
     {
       "type": "Feature",
       "properties": {
-        "name": "Rimma Trade Route",
-        "slug": "rimma trade route",
+        "name": "Gamor Run",
+        "slug": "gamor run",
         "id": 61,
         "length": 576.5812054997862,
         "segments": [
@@ -5073,7 +5073,7 @@
           144.30717078509994,
           32.51917860278762
         ],
-        "major": true
+        "major": false
       },
       "geometry": {
         "type": "LineString",
