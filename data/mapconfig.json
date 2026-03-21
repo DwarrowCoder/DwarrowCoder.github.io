@@ -1,0 +1,12 @@
+{
+    "minZoom": -8,
+    "maxZoom": 6,
+    "zoomSnap": 0.5,          
+    "zoomDelta": 0.5,
+    "zoom": -4,
+    "HPS_MAJOR": 8,
+    "HPS_MINOR": 14,
+    "HPS_OFFROUTE": 20,
+    "HPS_DEEPCORE": 24,
+    "PPS": 1500
+}

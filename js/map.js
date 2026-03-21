@@ -1,14 +1,63 @@
-// Map Init
-const map = L.map('map', {
-    minZoom: -8,
-    maxZoom: 6,
-    zoomSnap: 0.5,                  // Smoother zoom steps
-    zoomDelta: 0.5,
-    center: [0, 0],
-    zoom: -4,
-    crs: L.CRS.Simple
-});
+// Data
+let hyperlanesData, planetsData, map, mapConfig; 
 
-L.tileLayer('', {
-    attribution: 'Star Wars Galaxy – Data: Wladymir Brborich (Wason1797), Brian Kennedy (bpkennedy), Colby Newman (parzivail)',
-}).addTo(map);
+initMap();
+
+async function initMap() {
+    try {
+        // Load Map
+        const mRes =  await fetch("./data/mapconfig.json");
+        if (!mRes.ok) throw new Error(`Configuration fetch failed: ${mRes.status}`);
+        mapConfig = await mRes.json();
+        map = L.map('map', {
+            minZoom: mapConfig.minZoom,
+            maxZoom: mapConfig.maxZoom,
+            zoomSnap: mapConfig.zoomSnap,          
+            zoomDelta: mapConfig.zoomSnap,
+            center: [0, 0],
+            zoom: mapConfig.zoom,
+            crs: L.CRS.Simple
+        });
+
+        // Load hyperlanes
+        const hRes = await fetch("./data/hyperlanes.geojson");
+        if (!hRes.ok) throw new Error(`Hyperlanes fetch failed: ${hRes.status}`);
+        const hyperlanes = await hRes.json();
+        hyperlanesData = hyperlanes.features;
+
+        // Load planets
+        const pRes = await fetch('./data/planets.geojson');
+        if (!pRes.ok) throw new Error(`Planets fetch failed: ${pRes.status}`);
+        const planets = await pRes.json();
+        planetsData = planets.features;
+    } catch(err) {
+        console.error(err);
+        alert("Failed to load galaxy data: check console & file paths");
+    }
+
+    // Add planets to map (assume your map var is called "map")
+    planetLayer = L.layerGroup().addTo(map);
+    planetsData.forEach(feature => {
+        const props = feature.properties;
+        if(!props.name) return;
+        const coords = feature.geometry.coordinates;  
+        const marker = L.circleMarker([coords[0], coords[1]], {  
+          radius: 6,
+          color: '#00ff00',
+          fillColor: '#0066cc',
+          fillOpacity: 0.8,
+          interactive: true
+        });
+        marker.planetData = {
+          name: props.name,
+          region: props.region,
+          sector: props.sector
+        };
+        marker.on('click', (e) => {
+            e.originalEvent.stopPropagation();
+            addWaypoint(marker);
+        });
+        marker.bindTooltip(`<b>${marker.planetData.name}</b><br><i>${marker.planetData.sector}</i><br>${marker.planetData.region || 'Unknown'}`);
+        planetLayer.addLayer(marker);
+    });
+}
