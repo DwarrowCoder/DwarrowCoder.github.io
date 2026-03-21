@@ -57,7 +57,7 @@ async function initMap() {
         route.bindTooltip(`<b>${route.hyperlanesData.name}</b>`, {
           sticky: true,
           offset: [10, 0],
-          direction: auto
+          direction: 'auto'
         });
         laneLayer.addLayer(route);
     });
