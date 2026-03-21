@@ -41,7 +41,7 @@ async function initMap() {
         const props = feature.properties;
         if(!props.name) return;
         let len = feature.geometry.coordinates.length;
-        for(xy = 0; xy < len; x++) {
+        for(let xy = 0; xy < len; x++) {
             const x = feature.geometry.coordinates[xy][0];
             const y = feature.geometry.coordinates[xy][1];
             feature.geometry.coordinates[xy][1] = x;
