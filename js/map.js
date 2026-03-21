@@ -40,12 +40,13 @@ async function initMap() {
     hyperlanesData.forEach(feature => {
         const props = feature.properties;
         if(!props.name) return;
-        feature.geometry.coordinates.forEach((a1, a2) => {
-            const x = a2;
-            const y = a1;
-            a1 = x;
-            a2 = y;
-        })
+        let len = feature.geometry.coordinates.length;
+        for(xy = 0; xy < len; x++) {
+            const x = feature.geometry.coordinates[xy][0];
+            const y = feature.geometry.coordinates[xy][1];
+            feature.geometry.coordinates[xy][1] = x;
+            feature.geometry.coordinates[xy][0] = y;
+        }
         const coords = feature.geometry.coordinates;
         const route = L.polyline(coords, {  
           weight: props.major? 5 : 3,
