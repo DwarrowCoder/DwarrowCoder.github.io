@@ -22,10 +22,9 @@ async function initMap() {
         });
 
         // Load hyperlanes
-        const hRes = await fetch("./data/hyperlanes.geojson");
+        const hRes = await fetch("./data/hyperlanes.json");
         if (!hRes.ok) throw new Error(`Hyperlanes fetch failed: ${hRes.status}`);
-        const hyperlanes = await hRes.json();
-        hyperlanesData = hyperlanes.features;
+        hyperlanesData = await hRes.json();
 
         // Load planets
         const pRes = await fetch('./data/planets.geojson');
@@ -97,6 +96,7 @@ async function initMap() {
         const nodes = route.nodes;
         const planets = planetLayer.getLayers();
         let coords = [];
+        let length = 0.0;
         
         if(!route.name) return;
         for(let i = 0; i < nodes.length - 1; i++){
@@ -117,6 +117,7 @@ async function initMap() {
             const fromCoord = fromPlanet.getLatLng();
             const toCoord = toPlanet.getLatLng();
             const dist = planarDistance([fromCoord.lng, fromCoord.lat], [toCoord.lng, toCoord.lat]);
+            length += dist;
             if(coords.length == 0) coords.push(fromCoord);
             coords.push(toCoord);
 
@@ -133,11 +134,12 @@ async function initMap() {
           color: props.major? '#00ff00' : '#00aa00',
           opacity: 0.8
         });
-        lane.hyperlanesData = {
+        lane.hyperlaneData = {
           name: route.name,
-          id: route.id
+          id: route.id,
+          length: length
         };
-        lane.bindTooltip(`<b>${lane.hyperlanesData.name}</b>`, {
+        lane.bindTooltip(`<b>${lane.hyperlaneData.name}</b><br>Length: ${lane.hyperlaneData.length}`, {
           sticky: true,
           offset: [10, 0],
           direction: 'auto'
