@@ -92,7 +92,7 @@ async function initMap() {
 
     // ====================== HYPERLANES ======================
     hyperlanesData.forEach(route => {
-        const major = route.majorl
+        const major = route.major;
         const nodes = route.nodes;
         const planets = planetLayer.getLayers();
         let coords = [];
@@ -126,8 +126,8 @@ async function initMap() {
             if (!graph.has(fromKey)) graph.set(fromKey, { neighbors: [] });
             if (!graph.has(toKey))   graph.set(toKey,   { neighbors: [] });
 
-            graph.get(fromKey).neighbors.push({ key: toKey,   weight, type, route: route.name });
-            graph.get(toKey).neighbors.push(  { key: fromKey, weight, type, route: route.name });
+            graph.get(fromKey).neighbors.push({ key: toKey, weight: weight, route: route.name });
+            graph.get(toKey).neighbors.push(  { key: toKey, weight: weight, route: route.name });
         }
         const lane = L.polyline(coords, {  
           weight: props.major? 5 : 3,
