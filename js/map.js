@@ -146,7 +146,7 @@ async function initMap() {
         });
         laneLayer.addLayer(lane);
     });
-    console.log(`Graph built with ${graph.size} planet nodes and ${laneLayer.getLayers().length} routes`);
+    console.log(`Graph built with ${graph.size} planet nodes and ${laneLayer.getLayers().length.toFixed()} routes`);
 
     // ====================== CONTEXT MENU (Right Click) ======================
     map.on('contextmenu', function(e) {
