@@ -1,6 +1,7 @@
 // Data
 let hyperlanesData, planetsData, map, mapConfig;
-let laneLayer, planetLayer;
+let laneLayer, planetLayer, routeLayer;
+let graph = new Map();
 
 initMap();
 
@@ -81,13 +82,69 @@ async function initMap() {
           name: props.name,
           region: props.region,
           sector: props.sector,
-          grid: props.grid
+          grid: props.grid,
+          id: props.id
         };
         marker.bindTooltip(`<b>${marker.planetData.name}</b> (${marker.planetData?.grid})<br>
                             <i>${marker.planetData?.sector || 'Unknown'}</i><br>
                             ${marker.planetData?.region || 'Unknown'}`);
         planetLayer.addLayer(marker);
     });
+
+    // ====================== HYPERLANES ======================
+    hyperlanesData.forEach(route => {
+        const major = route.majorl
+        const nodes = route.nodes;
+        const planets = planetLayer.getLayers();
+        let coords = [];
+        
+        if(!route.name) return;
+        for(let i = 0; i < nodes.length - 1; i++){
+            const fromName = nodes[i];
+            const toName = nodes[i + 1];
+
+            const fromPlanet = planets.find(p => p.planetData.name.toLowerCase() === fromName.toLowerCase());
+            const toPlanet   = planets.find(p => p.planetData.name.toLowerCase() === toName.toLowerCase());
+
+            if (!fromPlanet || !toPlanet) {
+                console.warn(`Skipping connection ${fromName} → ${toName} (planet not found in data)`);
+                continue;
+            }
+
+            const fromKey = fromPlanet.planetData.id;
+            const toKey   = toPlanet.planetData.id;
+
+            const fromCoord = fromPlanet.getLatLng();
+            const toCoord = toPlanet.getLatLng();
+            const dist = planarDistance([fromCoord.lng, fromCoord.lat], [toCoord.lng, toCoord.lat]);
+            if(coords.length == 0) coords.push(fromCoord);
+            coords.push(toCoord);
+
+            const weight = (dist / mapConfig.UPS) * (major ? mapConfig.HPS_MAJOR : mapConfig.HPS_MINOR);
+
+            if (!graph.has(fromKey)) graph.set(fromKey, { neighbors: [] });
+            if (!graph.has(toKey))   graph.set(toKey,   { neighbors: [] });
+
+            graph.get(fromKey).neighbors.push({ key: toKey,   weight, type, route: route.name });
+            graph.get(toKey).neighbors.push(  { key: fromKey, weight, type, route: route.name });
+        }
+        const lane = L.polyline(coords, {  
+          weight: props.major? 5 : 3,
+          color: props.major? '#00ff00' : '#00aa00',
+          opacity: 0.8
+        });
+        lane.hyperlanesData = {
+          name: route.name,
+          id: route.id
+        };
+        lane.bindTooltip(`<b>${lane.hyperlanesData.name}</b>`, {
+          sticky: true,
+          offset: [10, 0],
+          direction: 'auto'
+        });
+        laneLayer.addLayer(lane);
+    });
+    console.log(`Graph built with ${graph.size} planet nodes and ${laneLayer.getLayers().length} routes`);
 
     // ====================== CONTEXT MENU (Right Click) ======================
     map.on('contextmenu', function(e) {
@@ -126,3 +183,7 @@ window.find = function(name) {
       if (layer) map.flyToBounds(layer.getBounds(), { padding: [50, 50] });
     }
 };
+
+function getDistance(pt1, pt2){
+    return Math.hypot((pt1[0] - pt2[0]) + (pt1[1] - pt2[1]));
+}
