@@ -130,8 +130,8 @@ async function initMap() {
             graph.get(toKey).neighbors.push(  { key: toKey, weight: weight, route: route.name });
         }
         const lane = L.polyline(coords, {  
-          weight: props.major? 5 : 3,
-          color: props.major? '#00ff00' : '#00aa00',
+          weight: major? 5 : 3,
+          color: major? '#00ff00' : '#00aa00',
           opacity: 0.8
         });
         lane.hyperlaneData = {
