@@ -99,7 +99,7 @@ async function initMap() {
             <b>Galaxy Coordinates</b><br>
             X: ${x.toFixed(2)}<br>
             Y: ${y.toFixed(2)}<br><br>
-            <input id="context-entry" name="context-entry"><button onclick="find('${context-entry.value}')">Find</button><br>
+            <input id="context-entry" name="context-entry"><button onclick="find('context-entry.value')">Find</button><br>
             <small>Right-clicked on the map</small>
         `;
 
