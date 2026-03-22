@@ -116,7 +116,7 @@ async function initMap() {
 
             const fromCoord = fromPlanet.getLatLng();
             const toCoord = toPlanet.getLatLng();
-            const dist = planarDistance([fromCoord.lng, fromCoord.lat], [toCoord.lng, toCoord.lat]);
+            const dist = getDistance([fromCoord.lng, fromCoord.lat], [toCoord.lng, toCoord.lat]);
             length += dist;
             if(coords.length == 0) coords.push(fromCoord);
             coords.push(toCoord);
