@@ -139,14 +139,14 @@ async function initMap() {
           id: route.id,
           length: length
         };
-        lane.bindTooltip(`<b>${lane.hyperlaneData.name}</b><br>Length: ${lane.hyperlaneData.length}`, {
+        lane.bindTooltip(`<b>${lane.hyperlaneData.name}</b><br>Length: ${(lane.hyperlaneData.length * 15).toFixed()}`, {
           sticky: true,
           offset: [10, 0],
           direction: 'auto'
         });
         laneLayer.addLayer(lane);
     });
-    console.log(`Graph built with ${graph.size} planet nodes and ${laneLayer.getLayers().length.toFixed()} routes`);
+    console.log(`Graph built with ${graph.size} planet nodes and ${laneLayer.getLayers().length} routes`);
 
     // ====================== CONTEXT MENU (Right Click) ======================
     map.on('contextmenu', function(e) {
