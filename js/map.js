@@ -99,6 +99,7 @@ async function initMap() {
             <b>Galaxy Coordinates</b><br>
             X: ${x.toFixed(2)}<br>
             Y: ${y.toFixed(2)}<br><br>
+            <input id="context-entry" name="context-entry"><button onclick="find('${context-entry.value}')">Find</button><br>
             <small>Right-clicked on the map</small>
         `;
 
@@ -113,3 +114,15 @@ async function initMap() {
         .openOn(map);
     });
 }
+
+// ====================== Helper Functions ======================
+window.find = function(name) {
+    let layer = Array.from(planetLayer.getLayers()).find(l => 
+        l.planetData && l.planetData.name === name);
+    if (layer) map.flyTo(layer.getLatLng(), 5);
+    else {
+      layer = Array.from(laneLayer.getLayers()).find(l =>
+          l.hyperlaneData && l.hyperlaneData.name === name);
+      if (layer) map.flyToBounds(layer.getBounds(), { padding: [50, 50] });
+    }
+};
