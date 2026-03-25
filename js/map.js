@@ -42,28 +42,6 @@ async function initMap() {
     laneLayer = L.layerGroup().addTo(map);
     planetLayer = L.layerGroup();
 
-    // ====================== HYPERLANES ======================
-    hyperlanesData.forEach(feature => {
-        const props = feature.properties || {};
-        if(!props.name) return;
-        let coords = feature.geometry.coordinates;
-        coords = coords.map(([x, y]) => [y, x]);
-        const route = L.polyline(coords, {  
-          weight: props.major? 5 : 3,
-          color: props.major? '#00ff00' : '#00aa00',
-          opacity: 0.8
-        });
-        route.hyperlanesData = {
-          name: props.name
-        };
-        route.bindTooltip(`<b>${route.hyperlanesData.name}</b>`, {
-          sticky: true,
-          offset: [10, 0],
-          direction: 'auto'
-        });
-        laneLayer.addLayer(route);
-    });
-
     // ====================== PLANETS ======================
     planetsData.forEach(feature => {
         const props = feature.properties || {};
@@ -127,7 +105,7 @@ async function initMap() {
             if (!graph.has(toKey))   graph.set(toKey,   { neighbors: [] });
 
             graph.get(fromKey).neighbors.push({ key: toKey, weight: weight, route: route.name });
-            graph.get(toKey).neighbors.push(  { key: toKey, weight: weight, route: route.name });
+            graph.get(toKey).neighbors.push(  { key: fromKey, weight: weight, route: route.name });
         }
         const lane = L.polyline(coords, {  
           weight: major? 5 : 3,
@@ -189,5 +167,5 @@ window.find = function(name) {
 };
 
 function getDistance(pt1, pt2){
-    return Math.hypot((pt1[0] - pt2[0]) + (pt1[1] - pt2[1]));
+    return Math.hypot((pt1[0] - pt2[0]), (pt1[1] - pt2[1]));
 }
