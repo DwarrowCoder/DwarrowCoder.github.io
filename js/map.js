@@ -40,7 +40,7 @@ async function initMap() {
 
     // ====================== LAYERS ======================
     laneLayer = L.layerGroup().addTo(map);
-    planetLayer = L.layerGroup().addTo(map);
+    planetLayer = L.layerGroup();
 
     // ====================== HYPERLANES ======================
     hyperlanesData.forEach(feature => {
@@ -148,7 +148,7 @@ async function initMap() {
     });
     console.log(`Graph built with ${graph.size} planet nodes and ${laneLayer.getLayers().length} routes`);
     routeLayer = L.layerGroup().addTo(map);
-    planetLayer.bringToFront();
+    planetLayer.addTo(map);
 
     // ====================== CONTEXT MENU (Right Click) ======================
     map.on('contextmenu', function(e) {
