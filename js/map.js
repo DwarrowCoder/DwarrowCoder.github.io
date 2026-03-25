@@ -139,7 +139,7 @@ async function initMap() {
           id: route.id,
           length: length
         };
-        lane.bindTooltip(`<b>${lane.hyperlaneData.name}</b><br>Length: ${(lane.hyperlaneData.length * 15).toFixed()}`, {
+        lane.bindTooltip(`<b>${lane.hyperlaneData.name}</b><br>Length: ${(lane.hyperlaneData.length * 15).toFixed(2)}`, {
           sticky: true,
           offset: [10, 0],
           direction: 'auto'
@@ -147,6 +147,8 @@ async function initMap() {
         laneLayer.addLayer(lane);
     });
     console.log(`Graph built with ${graph.size} planet nodes and ${laneLayer.getLayers().length} routes`);
+    routeLayer = L.layerGroup().addTo(map);
+    planetLayer.bringToFront();
 
     // ====================== CONTEXT MENU (Right Click) ======================
     map.on('contextmenu', function(e) {
