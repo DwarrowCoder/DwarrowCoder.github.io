@@ -1,11 +1,15 @@
 // Data
-let hyperlanesData, planetsData, map, mapConfig;
+let map, mapConfig;
 let laneLayer, planetLayer, routeLayer;
 let graph = new Map();
+let grid = new Map();
 
 initMap();
 
+
 async function initMap() {
+    let hyperlanesData, planetsData, gridData;
+
     try {
         // Load Map
         const mRes =  await fetch("./data/mapconfig.json");
@@ -31,6 +35,10 @@ async function initMap() {
         if (!pRes.ok) throw new Error(`Planets fetch failed: ${pRes.status}`);
         const planets = await pRes.json();
         planetsData = planets.features;
+
+        const gRes =  await fetch("./data/grid.json");
+        if (!gRes.ok) throw new Error(`Configuration fetch failed: ${gRes.status}`);
+        gridData = await gRes.json();
     } catch(err) {
         console.error(err);
         alert("Failed to load galaxy data: check console & file paths");
@@ -66,6 +74,8 @@ async function initMap() {
                             <i>${marker.planetData?.sector || 'Unknown'}</i><br>
                             ${marker.planetData?.region || 'Unknown'}`);
         planetLayer.addLayer(marker);
+        if(!grid.has(props.grid)) grid.set(props.grid, []);
+        grid.get(props.grid).push(props.name);
     });
 
     // ====================== HYPERLANES ======================
@@ -128,6 +138,46 @@ async function initMap() {
     routeLayer = L.layerGroup().addTo(map);
     planetLayer.addTo(map);
 
+    // ====================== BUILD GRID =====================================
+    planetLayer.getLayers().forEach(planet => {
+        grid.get(planet.planetData.grid).forEach(target => {
+            if(planet.planetData.name != target) {
+                const toPlanet = planetLayer.find(l => l.planetData && l.planetData.name === target);
+                const fromKey = planet.planetData.id;
+                const toKey = toPlanet.planetData.id;
+
+                const fromCoord = planet.getLatLng();
+                const toCoord = toPlanet.getLatLng();
+                const dist = getDistance([fromCoord.lng, fromCoord.lat], [toCoord.lng, toCoord.lat]);
+
+                const weight = (dist / mapConfig.UPS) * (planet.planetsData.sector != "Deep Core" || toPlanet.planetsData.sector != "Deep Core" ? mapConfig.HPS_OFFROUTE : mapConfig.HPS_DEEPCORE);
+
+                if (!graph.has(fromKey)) graph.set(fromKey, { neighbors: [] });
+
+                graph.get(fromKey).neighbors.push({ key: toKey, weight: weight, route: "none" });
+            }
+        });
+        gridData.get(planet.planetData.grid).forEach(toGrid => {
+            grid.get(toGrid)?.forEach(target => {
+                if(planet.planetData.name != target) {
+                    const toPlanet = planetLayer.find(l => l.planetData && l.planetData.name === target);
+                    const fromKey = planet.planetData.id;
+                    const toKey = toPlanet.planetData.id;
+
+                    const fromCoord = planet.getLatLng();
+                    const toCoord = toPlanet.getLatLng();
+                    const dist = getDistance([fromCoord.lng, fromCoord.lat], [toCoord.lng, toCoord.lat]);
+
+                    const weight = (dist / mapConfig.UPS) * (planet.planetsData.sector != "Deep Core" || toPlanet.planetsData.sector != "Deep Core" ? mapConfig.HPS_OFFROUTE : mapConfig.HPS_DEEPCORE);
+
+                    if (!graph.has(fromKey)) graph.set(fromKey, { neighbors: [] });
+
+                    graph.get(fromKey).neighbors.push({ key: toKey, weight: weight, route: "none" });
+                }
+            });
+        });
+    });
+
     // ====================== CONTEXT MENU (Right Click) ======================
     map.on('contextmenu', function(e) {
         const latlng = e.latlng;           // this is [y, x] in Simple CRS
@@ -157,11 +207,11 @@ async function initMap() {
 // ====================== Helper Functions ======================
 window.find = function(name) {
     let layer = Array.from(planetLayer.getLayers()).find(l => 
-        l.planetData && l.planetData.name === name);
+        l.planetData && l.planetData.name.toLowerCase() === name.toLowerCase());
     if (layer) map.flyTo(layer.getLatLng(), 5);
     else {
       layer = Array.from(laneLayer.getLayers()).find(l =>
-          l.hyperlaneData && l.hyperlaneData.name === name);
+          l.hyperlaneData && l.hyperlaneData.name.toLowerCase() === name.toLowerCase());
       if (layer) map.flyToBounds(layer.getBounds(), { padding: [50, 50] });
     }
 };
