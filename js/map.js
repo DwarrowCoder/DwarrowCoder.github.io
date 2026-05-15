@@ -252,16 +252,19 @@ async function initMap() {
         const startId = originLayer.planetData.id;
         const goalId = destLayer.planetData.id;
 
-        console.time("Dijkstra");
-        const dijkstraPath = dijkstra(startId, goalId);
-        console.timeEnd("Dijkstra");
-
         console.time("A*");
         const aStarPath = aStar(startId, goalId);
         console.timeEnd("A*");
 
         // Draw the route (example with A*)
-        drawRoute(aStarPath || dijkstraPath, originLayer, destLayer);
+        drawRoute(aStarPath, originLayer, destLayer);
+
+        // === Show Travel Time ===
+        const hours = result.travelTime.toFixed(1);
+        const days = (result.travelTime / 24).toFixed(1);
+    
+        alert(`✅ Route found!\n\n` +
+          `Travel Time: ${hours} hours (${days} days)`);
     });
 
 
@@ -284,39 +287,6 @@ function getDistance(pt1, pt2){
 }
 
 // ====================== PATHFINDING ======================
-
-/**
- * Dijkstra's Algorithm - finds shortest path with non-negative weights
- */
-function dijkstra(startId, goalId) {
-    const distances = new Map();
-    const previous = new Map();
-    const pq = new PriorityQueue();
-
-    // Initialize
-    for (let id of graph.keys()) {
-        distances.set(id, Infinity);
-    }
-    distances.set(startId, 0);
-    pq.enqueue(startId, 0);
-
-    while (!pq.isEmpty()) {
-        const current = pq.dequeue();
-        if (current === goalId) break;
-
-        const neighbors = graph.get(current)?.neighbors || new Map();
-        for (let [neighborId, edge] of neighbors) {
-            const newDist = distances.get(current) + edge.weight;
-            if (newDist < distances.get(neighborId)) {
-                distances.set(neighborId, newDist);
-                previous.set(neighborId, current);
-                pq.enqueue(neighborId, newDist);
-            }
-        }
-    }
-
-    return reconstructPath(previous, startId, goalId);
-}
 
 /**
  * A* Algorithm - uses heuristic for faster search
@@ -412,4 +382,22 @@ function drawRoute(pathIds, startLayer, goalLayer) {
     L.circleMarker(goalLayer.getLatLng(), {radius: 10, color: '#ff0000'}).addTo(routeLayer);
 
     map.flyToBounds(polyline.getBounds(), {padding: [50, 50]});
+}
+
+// Calculate total travel time from a path of planet IDs
+function calculatePathTime(pathIds) {
+    if (!pathIds || pathIds.length < 2) return 0;
+
+    let totalTime = 0;
+
+    for (let i = 0; i < pathIds.length - 1; i++) {
+        const fromId = pathIds[i];
+        const toId = pathIds[i + 1];
+
+        const fromNode = graph.get(fromId);
+        if (fromNode && fromNode.neighbors.has(toId)) {
+            totalTime += fromNode.neighbors.get(toId).weight;
+        }
+    }
+    return totalTime;
 }
