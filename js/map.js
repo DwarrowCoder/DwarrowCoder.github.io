@@ -187,7 +187,7 @@ async function initMap() {
         gridData[planet.planetData.grid].forEach(toGrid => {
             grid.get(toGrid)?.forEach(target => {
                 if(planet.planetData.name != target) {
-                    const toPlanet = planetLayer.find(l => l.planetData && l.planetData.name === target);
+                    const toPlanet = planetLayer.getLayers().find(l => l.planetData && l.planetData.name === target);
                     const fromKey = planet.planetData.id;
                     const toKey = toPlanet.planetData.id;
 
