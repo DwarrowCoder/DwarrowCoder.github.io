@@ -147,6 +147,7 @@ async function initMap() {
     attributionData.forEach(attr => {
         attrText += `<a href="${attr.url}">${attr.name}</a> - ${attr.content} |`;
     });
+    map.attributionControl.addAttribution(attrText);
 
     // ====================== BUILD GRID =====================================
     planetLayer.getLayers().forEach(planet => {
