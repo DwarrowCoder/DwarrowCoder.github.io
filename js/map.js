@@ -4,8 +4,24 @@ let laneLayer, planetLayer, routeLayer;
 let graph = new Map();
 let grid = new Map();
 
-initMap();
+// Priority Queue
+class PriorityQueue {
+    constructor() {
+        this.elements = [];
+    }
+    enqueue(value, priority) {
+        this.elements.push({ value, priority });
+        this.elements.sort((a, b) => a.priority - b.priority);
+    }
+    dequeue() {
+        return this.elements.shift()?.value;
+    }
+    isEmpty() {
+        return this.elements.length === 0;
+    }
+}
 
+initMap();
 
 async function initMap() {
     let attributionData, hyperlanesData, planetsData, gridData;
@@ -213,6 +229,42 @@ async function initMap() {
         .setContent(menuHtml)
         .openOn(map);
     });
+
+    document.querySelector('button').addEventListener('click', () => {
+        const originName = document.getElementById('origin').value.trim();
+        const destName = document.getElementById('destination').value.trim();
+
+        if (!originName || !destName) {
+            alert("Enter both origin and destination");
+            return;
+        }
+
+        const originLayer = Array.from(planetLayer.getLayers())
+            .find(l => l.planetData?.name.toLowerCase() === originName.toLowerCase());
+        const destLayer = Array.from(planetLayer.getLayers())
+            .find(l => l.planetData?.name.toLowerCase() === destName.toLowerCase());
+
+        if (!originLayer || !destLayer) {
+            alert("One or both planets not found");
+            return;
+        }
+
+        const startId = originLayer.planetData.id;
+        const goalId = destLayer.planetData.id;
+
+        console.time("Dijkstra");
+        const dijkstraPath = dijkstra(startId, goalId);
+        console.timeEnd("Dijkstra");
+
+        console.time("A*");
+        const aStarPath = aStar(startId, goalId);
+        console.timeEnd("A*");
+
+        // Draw the route (example with A*)
+        drawRoute(aStarPath || dijkstraPath, originLayer, destLayer);
+    });
+
+
 }
 
 // ====================== Helper Functions ======================
@@ -229,4 +281,135 @@ window.find = function(name) {
 
 function getDistance(pt1, pt2){
     return Math.hypot((pt1[0] - pt2[0]), (pt1[1] - pt2[1]));
+}
+
+// ====================== PATHFINDING ======================
+
+/**
+ * Dijkstra's Algorithm - finds shortest path with non-negative weights
+ */
+function dijkstra(startId, goalId) {
+    const distances = new Map();
+    const previous = new Map();
+    const pq = new PriorityQueue();
+
+    // Initialize
+    for (let id of graph.keys()) {
+        distances.set(id, Infinity);
+    }
+    distances.set(startId, 0);
+    pq.enqueue(startId, 0);
+
+    while (!pq.isEmpty()) {
+        const current = pq.dequeue();
+        if (current === goalId) break;
+
+        const neighbors = graph.get(current)?.neighbors || new Map();
+        for (let [neighborId, edge] of neighbors) {
+            const newDist = distances.get(current) + edge.weight;
+            if (newDist < distances.get(neighborId)) {
+                distances.set(neighborId, newDist);
+                previous.set(neighborId, current);
+                pq.enqueue(neighborId, newDist);
+            }
+        }
+    }
+
+    return reconstructPath(previous, startId, goalId);
+}
+
+/**
+ * A* Algorithm - uses heuristic for faster search
+ */
+function aStar(startId, goalId) {
+    const gScore = new Map();   // cost from start
+    const fScore = new Map();   // g + h
+    const previous = new Map();
+    const pq = new PriorityQueue();
+
+    const goalPlanet = getPlanetById(goalId);
+
+    // Initialize
+    for (let id of graph.keys()) {
+        gScore.set(id, Infinity);
+        fScore.set(id, Infinity);
+    }
+    gScore.set(startId, 0);
+    fScore.set(startId, heuristic(startId, goalId, goalPlanet));
+    pq.enqueue(startId, fScore.get(startId));
+
+    while (!pq.isEmpty()) {
+        const current = pq.dequeue();
+        if (current === goalId) break;
+
+        const neighbors = graph.get(current)?.neighbors || new Map();
+        for (let [neighborId, edge] of neighbors) {
+            const tentativeG = gScore.get(current) + edge.weight;
+
+            if (tentativeG < gScore.get(neighborId)) {
+                previous.set(neighborId, current);
+                gScore.set(neighborId, tentativeG);
+                fScore.set(neighborId, tentativeG + heuristic(neighborId, goalId));
+                pq.enqueue(neighborId, fScore.get(neighborId));
+            }
+        }
+    }
+
+    return reconstructPath(previous, startId, goalId);
+}
+
+// Euclidean distance heuristic (very good for this map)
+function heuristic(nodeId, goalId, goalPlanetCache = null) {
+    const node = getPlanetById(nodeId);
+    const goal = goalPlanetCache || getPlanetById(goalId);
+    if (!node || !goal) return 0;
+
+    const dx = node.getLatLng().lng - goal.getLatLng().lng;
+    const dy = node.getLatLng().lat - goal.getLatLng().lat;
+    return Math.hypot(dx, dy) * 0.8; // slight underestimation = admissible
+}
+
+function getPlanetById(id) {
+    return planetLayer.getLayers().find(p => p.planetData?.id === id);
+}
+
+function reconstructPath(previous, startId, goalId) {
+    const path = [];
+    let current = goalId;
+
+    while (current !== undefined) {
+        path.unshift(current);
+        if (current === startId) break;
+        current = previous.get(current);
+    }
+
+    return path.length > 1 && path[0] === startId ? path : null;
+}
+
+// Simple route drawer
+function drawRoute(pathIds, startLayer, goalLayer) {
+    routeLayer.clearLayers();
+    if (!pathIds) {
+        alert("No route found");
+        return;
+    }
+
+    const coords = [];
+    pathIds.forEach((id, i) => {
+        const planet = getPlanetById(id);
+        if (planet) coords.push(planet.getLatLng());
+    });
+
+    const polyline = L.polyline(coords, {
+        color: '#ffff00',
+        weight: 6,
+        opacity: 0.9,
+        dashArray: '10, 10'
+    }).addTo(routeLayer);
+
+    // Optional: highlight start/end
+    L.circleMarker(startLayer.getLatLng(), {radius: 10, color: '#00ff00'}).addTo(routeLayer);
+    L.circleMarker(goalLayer.getLatLng(), {radius: 10, color: '#ff0000'}).addTo(routeLayer);
+
+    map.flyToBounds(polyline.getBounds(), {padding: [50, 50]});
 }
