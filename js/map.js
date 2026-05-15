@@ -252,12 +252,14 @@ async function initMap() {
         const startId = originLayer.planetData.id;
         const goalId = destLayer.planetData.id;
 
+        // Use A* (much faster)
         console.time("A*");
-        const aStarPath = aStar(startId, goalId);
+        const result = aStar(startId, goalId);
         console.timeEnd("A*");
 
-        // Draw the route (example with A*)
-        drawRoute(aStarPath, originLayer, destLayer);
+        if (!result) return alert("No route found");
+
+        drawRoute(result.path, originLayer, destLayer);
 
         // === Show Travel Time ===
         const hours = result.travelTime.toFixed(1);
@@ -324,8 +326,12 @@ function aStar(startId, goalId) {
             }
         }
     }
+    
+    const path = reconstructPath(previous, startId, goalId);
+    if (!path) return null;
 
-    return reconstructPath(previous, startId, goalId);
+    const travelTime = calculatePathTime(path);
+    return { path, travelTime };
 }
 
 // Euclidean distance heuristic (very good for this map)
