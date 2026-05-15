@@ -8,7 +8,7 @@ initMap();
 
 
 async function initMap() {
-    let hyperlanesData, planetsData, gridData;
+    let attributionData, hyperlanesData, planetsData, gridData;
 
     try {
         // Load Map
@@ -24,6 +24,11 @@ async function initMap() {
             zoom: mapConfig.zoom,
             crs: L.CRS.Simple
         });
+
+        // Load Attributions
+        const aRes = await fetch("./data/attribution.json");
+        if (!aRes.ok) throw new Error(`Attributions fetch failed: ${aRes.status}`);
+        attributionData = await aRes.json();
 
         // Load hyperlanes
         const hRes = await fetch("./data/hyperlanes.json");
@@ -111,11 +116,11 @@ async function initMap() {
 
             const weight = (dist / mapConfig.UPS) * (major ? mapConfig.HPS_MAJOR : mapConfig.HPS_MINOR);
 
-            if (!graph.has(fromKey)) graph.set(fromKey, { neighbors: [] });
-            if (!graph.has(toKey))   graph.set(toKey,   { neighbors: [] });
+            if (!graph.has(fromKey)) graph.set(fromKey, { neighbors: new Map() });
+            if (!graph.has(toKey))   graph.set(toKey,   { neighbors: new Map() });
 
-            graph.get(fromKey).neighbors.push({ key: toKey, weight: weight, route: route.name });
-            graph.get(toKey).neighbors.push(  { key: fromKey, weight: weight, route: route.name });
+            graph.get(fromKey).neighbors.set(toKey, { weight: weight, route: route.name });
+            graph.get(toKey).neighbors.set(fromKey, { weight: weight, route: route.name });
         }
         const lane = L.polyline(coords, {  
           weight: major? 5 : 3,
@@ -138,6 +143,11 @@ async function initMap() {
     routeLayer = L.layerGroup().addTo(map);
     planetLayer.addTo(map);
 
+    let attrText = "Thanks to | ";
+    attributionData.forEach(attr => {
+        attrText += `<a href="${attr.url}">${attr.name}</a> - ${attr.content} |`;
+    });
+
     // ====================== BUILD GRID =====================================
     planetLayer.getLayers().forEach(planet => {
         grid.get(planet.planetData.grid).forEach(target => {
@@ -152,12 +162,12 @@ async function initMap() {
 
                 const weight = (dist / mapConfig.UPS) * (planet.planetsData.sector != "Deep Core" || toPlanet.planetsData.sector != "Deep Core" ? mapConfig.HPS_OFFROUTE : mapConfig.HPS_DEEPCORE);
 
-                if (!graph.has(fromKey)) graph.set(fromKey, { neighbors: [] });
+                if (!graph.has(fromKey)) graph.set(fromKey, { neighbors: new Map() });
 
-                graph.get(fromKey).neighbors.push({ key: toKey, weight: weight, route: "none" });
+                if (!graph.get(fromKey).neighbors.has(toKey))  graph.get(fromKey).neighbors.set(toKey, { weight: weight, route: "none" });
             }
         });
-        gridData.get(planet.planetData.grid).forEach(toGrid => {
+        gridData[planet.planetData.grid].forEach(toGrid => {
             grid.get(toGrid)?.forEach(target => {
                 if(planet.planetData.name != target) {
                     const toPlanet = planetLayer.find(l => l.planetData && l.planetData.name === target);
@@ -170,9 +180,9 @@ async function initMap() {
 
                     const weight = (dist / mapConfig.UPS) * (planet.planetsData.sector != "Deep Core" || toPlanet.planetsData.sector != "Deep Core" ? mapConfig.HPS_OFFROUTE : mapConfig.HPS_DEEPCORE);
 
-                    if (!graph.has(fromKey)) graph.set(fromKey, { neighbors: [] });
+                    if (!graph.has(fromKey)) graph.set(fromKey, { neighbors: new Map() });
 
-                    graph.get(fromKey).neighbors.push({ key: toKey, weight: weight, route: "none" });
+                    if (!graph.get(fromKey).neighbors.has(toKey))  graph.get(fromKey).neighbors.set(toKey, { weight: weight, route: "none" });
                 }
             });
         });
