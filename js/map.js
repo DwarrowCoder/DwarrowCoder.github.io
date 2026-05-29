@@ -314,11 +314,14 @@ function aStar(startId, goalId) {
         const current = pq.dequeue();
         if (current === goalId) break;
 
-        const neighbors = graph.get(current)?.neighbors || new Map();
-        for (let [neighborId, edge] of neighbors) {
-            const tentativeG = gScore.get(current) + edge.weight;
+        const currentG = gScore.get(current) ?? Infinity;
+        const node = graph.get(current);
+        if (!node) continue;
 
-            if (tentativeG < gScore.get(neighborId)) {
+        for (const [neighborId, edge] of node.neighbors.entries()) {
+            const tentativeG = currentG + edge.weight;
+
+            if (tentativeG < (gScore.get(neighborId) ?? Infinity)) {
                 previous.set(neighborId, current);
                 gScore.set(neighborId, tentativeG);
                 fScore.set(neighborId, tentativeG + heuristic(neighborId, goalId));
@@ -342,7 +345,7 @@ function heuristic(nodeId, goalId, goalPlanetCache = null) {
 
     const dx = node.getLatLng().lng - goal.getLatLng().lng;
     const dy = node.getLatLng().lat - goal.getLatLng().lat;
-    return Math.hypot(dx, dy) * 0.8; // slight underestimation = admissible
+    return (Math.hypot(dx, dy) / mapConfig.UPS) * mapConfig.HPS_MAJOR; // slight underestimation = admissible
 }
 
 function getPlanetById(id) {
