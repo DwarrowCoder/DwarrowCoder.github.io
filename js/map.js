@@ -1,11 +1,31 @@
 // Data
-let hyperlanesData, planetsData, map, mapConfig;
+let map, mapConfig;
 let laneLayer, planetLayer, routeLayer;
 let graph = new Map();
+let grid = new Map();
+
+// Priority Queue
+class PriorityQueue {
+    constructor() {
+        this.elements = [];
+    }
+    enqueue(value, priority) {
+        this.elements.push({ value, priority });
+        this.elements.sort((a, b) => a.priority - b.priority);
+    }
+    dequeue() {
+        return this.elements.shift()?.value;
+    }
+    isEmpty() {
+        return this.elements.length === 0;
+    }
+}
 
 initMap();
 
 async function initMap() {
+    let attributionData, hyperlanesData, planetsData, gridData;
+
     try {
         // Load Map
         const mRes =  await fetch("./data/mapconfig.json");
@@ -21,6 +41,11 @@ async function initMap() {
             crs: L.CRS.Simple
         });
 
+        // Load Attributions
+        const aRes = await fetch("./data/attribution.json");
+        if (!aRes.ok) throw new Error(`Attributions fetch failed: ${aRes.status}`);
+        attributionData = await aRes.json();
+
         // Load hyperlanes
         const hRes = await fetch("./data/hyperlanes.json");
         if (!hRes.ok) throw new Error(`Hyperlanes fetch failed: ${hRes.status}`);
@@ -31,6 +56,10 @@ async function initMap() {
         if (!pRes.ok) throw new Error(`Planets fetch failed: ${pRes.status}`);
         const planets = await pRes.json();
         planetsData = planets.features;
+
+        const gRes =  await fetch("./data/grid.json");
+        if (!gRes.ok) throw new Error(`Configuration fetch failed: ${gRes.status}`);
+        gridData = await gRes.json();
     } catch(err) {
         console.error(err);
         alert("Failed to load galaxy data: check console & file paths");
@@ -66,6 +95,8 @@ async function initMap() {
                             <i>${marker.planetData?.sector || 'Unknown'}</i><br>
                             ${marker.planetData?.region || 'Unknown'}`);
         planetLayer.addLayer(marker);
+        if(!grid.has(props.grid)) grid.set(props.grid, []);
+        grid.get(props.grid).push(props.name);
     });
 
     // ====================== HYPERLANES ======================
@@ -101,11 +132,11 @@ async function initMap() {
 
             const weight = (dist / mapConfig.UPS) * (major ? mapConfig.HPS_MAJOR : mapConfig.HPS_MINOR);
 
-            if (!graph.has(fromKey)) graph.set(fromKey, { neighbors: [] });
-            if (!graph.has(toKey))   graph.set(toKey,   { neighbors: [] });
+            if (!graph.has(fromKey)) graph.set(fromKey, { neighbors: new Map() });
+            if (!graph.has(toKey))   graph.set(toKey,   { neighbors: new Map() });
 
-            graph.get(fromKey).neighbors.push({ key: toKey, weight: weight, route: route.name });
-            graph.get(toKey).neighbors.push(  { key: fromKey, weight: weight, route: route.name });
+            graph.get(fromKey).neighbors.set(toKey, { weight: weight, route: route.name });
+            graph.get(toKey).neighbors.set(fromKey, { weight: weight, route: route.name });
         }
         const lane = L.polyline(coords, {  
           weight: major? 5 : 3,
@@ -127,6 +158,52 @@ async function initMap() {
     console.log(`Graph built with ${graph.size} planet nodes and ${laneLayer.getLayers().length} routes`);
     routeLayer = L.layerGroup().addTo(map);
     planetLayer.addTo(map);
+
+    let attrText = "Thanks to | ";
+    attributionData.forEach(attr => {
+        attrText += `<a href="${attr.url}">${attr.name}</a> - ${attr.content} |`;
+    });
+    map.attributionControl.addAttribution(attrText);
+
+    // ====================== BUILD GRID =====================================
+    planetLayer.getLayers().forEach(planet => {
+        grid.get(planet.planetData.grid).forEach(target => {
+            if(planet.planetData.name != target) {
+                const toPlanet = planetLayer.getLayers().find(l => l.planetData && l.planetData.name === target);
+                const fromKey = planet.planetData.id;
+                const toKey = toPlanet.planetData.id;
+
+                const fromCoord = planet.getLatLng();
+                const toCoord = toPlanet.getLatLng();
+                const dist = getDistance([fromCoord.lng, fromCoord.lat], [toCoord.lng, toCoord.lat]);
+
+                const weight = (dist / mapConfig.UPS) * (planet.planetData.sector != "Deep Core" || toPlanet.planetData.sector != "Deep Core" ? mapConfig.HPS_OFFROUTE : mapConfig.HPS_DEEPCORE);
+
+                if (!graph.has(fromKey)) graph.set(fromKey, { neighbors: new Map() });
+
+                if (!graph.get(fromKey).neighbors.has(toKey))  graph.get(fromKey).neighbors.set(toKey, { weight: weight, route: "none" });
+            }
+        });
+        gridData[planet.planetData.grid].forEach(toGrid => {
+            grid.get(toGrid)?.forEach(target => {
+                if(planet.planetData.name != target) {
+                    const toPlanet = planetLayer.getLayers().find(l => l.planetData && l.planetData.name === target);
+                    const fromKey = planet.planetData.id;
+                    const toKey = toPlanet.planetData.id;
+
+                    const fromCoord = planet.getLatLng();
+                    const toCoord = toPlanet.getLatLng();
+                    const dist = getDistance([fromCoord.lng, fromCoord.lat], [toCoord.lng, toCoord.lat]);
+
+                    const weight = (dist / mapConfig.UPS) * (planet.planetData.sector != "Deep Core" || toPlanet.planetData.sector != "Deep Core" ? mapConfig.HPS_OFFROUTE : mapConfig.HPS_DEEPCORE);
+
+                    if (!graph.has(fromKey)) graph.set(fromKey, { neighbors: new Map() });
+
+                    if (!graph.get(fromKey).neighbors.has(toKey))  graph.get(fromKey).neighbors.set(toKey, { weight: weight, route: "none" });
+                }
+            });
+        });
+    });
 
     // ====================== CONTEXT MENU (Right Click) ======================
     map.on('contextmenu', function(e) {
@@ -152,20 +229,181 @@ async function initMap() {
         .setContent(menuHtml)
         .openOn(map);
     });
+
+    document.querySelector('button').addEventListener('click', () => {
+        const originName = document.getElementById('origin').value.trim();
+        const destName = document.getElementById('destination').value.trim();
+
+        if (!originName || !destName) {
+            alert("Enter both origin and destination");
+            return;
+        }
+
+        const originLayer = Array.from(planetLayer.getLayers())
+            .find(l => l.planetData?.name.toLowerCase() === originName.toLowerCase());
+        const destLayer = Array.from(planetLayer.getLayers())
+            .find(l => l.planetData?.name.toLowerCase() === destName.toLowerCase());
+
+        if (!originLayer || !destLayer) {
+            alert("One or both planets not found");
+            return;
+        }
+
+        const startId = originLayer.planetData.id;
+        const goalId = destLayer.planetData.id;
+
+        // Use A* (much faster)
+        console.time("A*");
+        const result = aStar(startId, goalId);
+        console.timeEnd("A*");
+
+        if (!result) return alert("No route found");
+
+        drawRoute(result.path, originLayer, destLayer);
+
+        // === Show Travel Time ===
+        const hours = result.travelTime.toFixed(1);
+        const days = (result.travelTime / 24).toFixed(1);
+    
+        alert(`✅ Route found!\n\n` +
+          `Travel Time: ${hours} hours (${days} days)`);
+    });
+
+
 }
 
 // ====================== Helper Functions ======================
 window.find = function(name) {
     let layer = Array.from(planetLayer.getLayers()).find(l => 
-        l.planetData && l.planetData.name === name);
+        l.planetData && l.planetData.name.toLowerCase() === name.toLowerCase());
     if (layer) map.flyTo(layer.getLatLng(), 5);
     else {
       layer = Array.from(laneLayer.getLayers()).find(l =>
-          l.hyperlaneData && l.hyperlaneData.name === name);
+          l.hyperlaneData && l.hyperlaneData.name.toLowerCase() === name.toLowerCase());
       if (layer) map.flyToBounds(layer.getBounds(), { padding: [50, 50] });
     }
 };
 
 function getDistance(pt1, pt2){
     return Math.hypot((pt1[0] - pt2[0]), (pt1[1] - pt2[1]));
+}
+
+// ====================== PATHFINDING ======================
+
+/**
+ * A* Algorithm - uses heuristic for faster search
+ */
+function aStar(startId, goalId) {
+    const gScore = new Map();   // cost from start
+    const fScore = new Map();   // g + h
+    const previous = new Map();
+    const pq = new PriorityQueue();
+
+    const goalPlanet = getPlanetById(goalId);
+
+    // Initialize
+    for (let id of graph.keys()) {
+        gScore.set(id, Infinity);
+        fScore.set(id, Infinity);
+    }
+    gScore.set(startId, 0);
+    fScore.set(startId, heuristic(startId, goalId, goalPlanet));
+    pq.enqueue(startId, fScore.get(startId));
+
+    while (!pq.isEmpty()) {
+        const current = pq.dequeue();
+        if (current === goalId) break;
+
+        const neighbors = graph.get(current)?.neighbors || new Map();
+        for (let [neighborId, edge] of neighbors) {
+            const tentativeG = gScore.get(current) + edge.weight;
+
+            if (tentativeG < gScore.get(neighborId)) {
+                previous.set(neighborId, current);
+                gScore.set(neighborId, tentativeG);
+                fScore.set(neighborId, tentativeG + heuristic(neighborId, goalId));
+                pq.enqueue(neighborId, fScore.get(neighborId));
+            }
+        }
+    }
+    
+    const path = reconstructPath(previous, startId, goalId);
+    if (!path) return null;
+
+    const travelTime = calculatePathTime(path);
+    return { path, travelTime };
+}
+
+// Euclidean distance heuristic (very good for this map)
+function heuristic(nodeId, goalId, goalPlanetCache = null) {
+    const node = getPlanetById(nodeId);
+    const goal = goalPlanetCache || getPlanetById(goalId);
+    if (!node || !goal) return 0;
+
+    const dx = node.getLatLng().lng - goal.getLatLng().lng;
+    const dy = node.getLatLng().lat - goal.getLatLng().lat;
+    return Math.hypot(dx, dy) * 0.8; // slight underestimation = admissible
+}
+
+function getPlanetById(id) {
+    return planetLayer.getLayers().find(p => p.planetData?.id === id);
+}
+
+function reconstructPath(previous, startId, goalId) {
+    const path = [];
+    let current = goalId;
+
+    while (current !== undefined) {
+        path.unshift(current);
+        if (current === startId) break;
+        current = previous.get(current);
+    }
+
+    return path.length > 1 && path[0] === startId ? path : null;
+}
+
+// Simple route drawer
+function drawRoute(pathIds, startLayer, goalLayer) {
+    routeLayer.clearLayers();
+    if (!pathIds) {
+        alert("No route found");
+        return;
+    }
+
+    const coords = [];
+    pathIds.forEach((id, i) => {
+        const planet = getPlanetById(id);
+        if (planet) coords.push(planet.getLatLng());
+    });
+
+    const polyline = L.polyline(coords, {
+        color: '#ffff00',
+        weight: 6,
+        opacity: 0.9,
+        dashArray: '10, 10'
+    }).addTo(routeLayer);
+
+    // Optional: highlight start/end
+    L.circleMarker(startLayer.getLatLng(), {radius: 10, color: '#00ff00'}).addTo(routeLayer);
+    L.circleMarker(goalLayer.getLatLng(), {radius: 10, color: '#ff0000'}).addTo(routeLayer);
+
+    map.flyToBounds(polyline.getBounds(), {padding: [50, 50]});
+}
+
+// Calculate total travel time from a path of planet IDs
+function calculatePathTime(pathIds) {
+    if (!pathIds || pathIds.length < 2) return 0;
+
+    let totalTime = 0;
+
+    for (let i = 0; i < pathIds.length - 1; i++) {
+        const fromId = pathIds[i];
+        const toId = pathIds[i + 1];
+
+        const fromNode = graph.get(fromId);
+        if (fromNode && fromNode.neighbors.has(toId)) {
+            totalTime += fromNode.neighbors.get(toId).weight;
+        }
+    }
+    return totalTime;
 }
