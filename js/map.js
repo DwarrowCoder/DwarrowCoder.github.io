@@ -177,7 +177,10 @@ async function initMap() {
                 const toCoord = toPlanet.getLatLng();
                 const dist = getDistance([fromCoord.lng, fromCoord.lat], [toCoord.lng, toCoord.lat]);
 
-                const weight = (dist / mapConfig.UPS) * (planet.planetData.sector != "Deep Core" || toPlanet.planetData.sector != "Deep Core" ? mapConfig.HPS_OFFROUTE : mapConfig.HPS_DEEPCORE);
+                const fromSector = planet?.planetData?.sector;
+                const toSector = toPlanet?.planetData?.sector;
+
+                const weight = (dist / mapConfig.UPS) * Math.max(mapConfig.HPS_SECTOR[fromSector] ?? mapConfig.HPS_OFFROUTE, mapConfig.HPS_SECTOR[toPlanet.planetData.sector] ?? mapConfig.HPS_OFFROUTE);
 
                 if (!graph.has(fromKey)) graph.set(fromKey, { neighbors: new Map() });
 
@@ -195,7 +198,10 @@ async function initMap() {
                     const toCoord = toPlanet.getLatLng();
                     const dist = getDistance([fromCoord.lng, fromCoord.lat], [toCoord.lng, toCoord.lat]);
 
-                    const weight = (dist / mapConfig.UPS) * (planet.planetData.sector != "Deep Core" || toPlanet.planetData.sector != "Deep Core" ? mapConfig.HPS_OFFROUTE : mapConfig.HPS_DEEPCORE);
+                    const fromSector = planet?.planetData?.sector;
+                    const toSector = toPlanet?.planetData?.sector;
+
+                    const weight = (dist / mapConfig.UPS) * Math.max(mapConfig.HPS_SECTOR[fromSector] ?? mapConfig.HPS_OFFROUTE, mapConfig.HPS_SECTOR[toPlanet.planetData.sector] ?? mapConfig.HPS_OFFROUTE);
 
                     if (!graph.has(fromKey)) graph.set(fromKey, { neighbors: new Map() });
 

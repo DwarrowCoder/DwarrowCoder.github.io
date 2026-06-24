@@ -7,6 +7,8 @@
     "HPS_MAJOR": 8,
     "HPS_MINOR": 14,
     "HPS_OFFROUTE": 30,
-    "HPS_DEEPCORE": 36,
+    "HPS_SECTOR": {
+        "Deep Core": 36
+    },
     "UPS": 100
 }
