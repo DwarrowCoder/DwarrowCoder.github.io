@@ -14,7 +14,9 @@
 
         <!-- Leaflet -->
         <link rel="stylesheet" href="./css/leaflet.css" />
-        <script src="./js/leaflet.js"></script>
+        <script defer src="./js/leaflet.js"></script>
+        
+        <script defer src="./js/waterdeep.js"></script>
         <style>
             #map {
                 height: 80vh;
@@ -38,24 +40,6 @@
         </header>
         <section class="w3-container">
             <div id="map"></div>
-            <script>
-                const map = L.map('map', {
-                    minZoom: -3,
-                    maxZoom: 3,
-                    center: [0, 0],
-                    zoom: -1,
-                    crs: L.CRS.Simple
-                });
-
-                const imgWidth = 2558;
-                const imgHeight = 5457;
-                const imageBounds = [[0, 0], [imgHeight, imgWidth]];
-                L.imageOverlay('./images/waterdeep.jpg', imageBounds).addTo(map);
-                map.fitBounds(imageBounds);
-
-                var yawningPortal = L.marker([2046, 1467]).addTo(map);
-                yawningPortal.bindTooltip('The Yawning Portal')
-            </script>
         </section>
     </body>
 </html>
