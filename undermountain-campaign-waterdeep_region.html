@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>A Light in Undermountain - Waterdeep</title>
+        <link rel="stylesheet" href="https://www.w3schools.com/w3css/5/w3.css">
+        <link rel="stylesheet" href="./css/main.css">
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <link rel="apple-touch-icon" sizes="180x180" href="./images/apple-touch-icon.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="./images/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="./images/favicon-16x16.png">
+        <link rel="manifest" href="./images/site.webmanifest">
+        <script src="./js/nav.js"></script>
+
+        <!-- Leaflet -->
+        <link rel="stylesheet" href="./css/leaflet.css" />
+        <script defer src="./js/leaflet.js"></script>
+        
+        <script defer src="./js/waterdeep_region.js"></script>
+        <style>
+            #map {
+                height: 80vh;
+                border: 2px solid #444;
+                border-radius: 8px;
+            }
+        </style>
+    </head>
+    <body class="w3-gray">
+        <header id="top" class="w3-container w3-center">
+            <h1>A Light in Undermountain</h1>
+            <div class="w3-padding" style="width:100%">
+                <img src="./images/undermountain.jpg" class="w3-image">
+            </div>
+            <nav id="navbar" class="w3-bar w3-border w3-card">
+            </nav>
+            <script>
+                loadNavbar("./nav-gaming-rpgs-campaigns-undermountain.html");
+            </script>
+            <h2>Waterdeep</h2>
+        </header>
+        <section class="w3-container">
+            <div id="map"></div>
+        </section>
+    </body>
+</html>
